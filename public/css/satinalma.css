@@ -1,0 +1,278 @@
+/* satinalma.css - Satın Alma Paneli (Apple-Like Liquid Glass UI & Görsel-3 Devre Ağacı) */
+
+.satinalma-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* KPI Kartları (Liquid Glass Card) */
+.kpi-card {
+  background: var(--glass-card);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1.2px solid var(--glass-border);
+  border-radius: var(--radius-card-sm);
+  box-shadow: var(--glass-shadow), var(--glass-inset);
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: var(--transition-smooth);
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.kpi-val {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+  color: #0F172A;
+  letter-spacing: -0.02em;
+}
+
+.kpi-label {
+  font-size: 13px;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+/* Görsel-3 Devre & Ağaç Bağlantılı Liste (Liquid Glass Tree View) */
+.gorsel3-tree-view {
+  background: var(--glass-card);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1.2px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--glass-shadow), var(--glass-inset);
+  overflow: hidden;
+}
+
+.tree-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+  border-left: 3.5px solid transparent; /* Sabit sol sınır; hover durumunda kaymayı önler */
+  min-height: 54px;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  background: transparent;
+}
+
+.tree-row:last-child {
+  border-bottom: none;
+}
+
+.tree-row:hover {
+  background-color: rgba(241, 245, 249, 0.75);
+}
+
+/* Unread veya normal satırlar seçili değilken sol sınır kesinlikle saydamdır */
+.tree-row.unread {
+  border-left-color: transparent;
+}
+
+.tree-row-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Sol Taraf Bağlantı Hattı (Apple Teması Uyumlu Slate & Blue - Görev 2 & 5) */
+.tree-node-col {
+  position: relative;
+  width: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Kök Düğüm (Root Node): Avatardan aşağı inen ana omurga hattı */
+.tree-row.root-node::before {
+  content: "";
+  position: absolute;
+  top: 32px;
+  bottom: 0;
+  left: 43px;
+  width: 2px;
+  background-color: #94A3B8;
+  z-index: 1;
+}
+
+/* 1. Dal Seviyesi (Level-1): Üst kök avatardan (left: 43px) inen hat ve doğrudan avatara bağlanan dirsek */
+.tree-row.level-1 {
+  padding-left: 68px;
+  background-color: rgba(255, 255, 255, 0.35);
+  position: relative;
+}
+
+.tree-row.level-1::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 43px;
+  width: 2px;
+  background-color: #94A3B8;
+  z-index: 1;
+}
+
+.tree-row.level-1.last-node::before {
+  bottom: 50%;
+}
+
+.tree-row.level-1::after {
+  content: "";
+  position: absolute;
+  left: 43px;
+  top: 50%;
+  width: 32px; /* 43px + 32px = 75px; doğrudan alt avatara boşluksuz bağlanır */
+  height: 2px;
+  background-color: #94A3B8;
+  z-index: 1;
+}
+
+/* Avatar - Temiz Apple Dairesi, Harfler Görünür (Hover sırasında boyut değişmez; kayma önlendi) */
+.tree-avatar {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid #CBD5E1;
+  box-shadow: 0 2px 6px rgba(100, 115, 130, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #0F172A;
+  z-index: 2;
+  flex-shrink: 0;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tree-row.root-node .tree-avatar {
+  border-color: #3B82F6;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.25);
+}
+
+.tree-row.root-node {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  font-weight: 700;
+}
+
+/* Seçili Satır & Hover (Yerinden oynamaz, sadece renk ve gölge vurgusu) */
+.tree-row.selected,
+.tree-row.active {
+  background: rgba(239, 246, 255, 0.85) !important;
+  border-left-color: #2563EB !important;
+}
+
+.tree-row:hover .tree-avatar,
+.tree-row.selected .tree-avatar,
+.tree-row.active .tree-avatar {
+  border-color: #2563EB !important;
+  box-shadow: 0 0 10px rgba(37, 99, 235, 0.3) !important;
+}
+
+.tree-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
+  margin-left: 10px;
+}
+
+.tree-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0F172A;
+  white-space: nowrap;
+  min-width: 170px;
+}
+
+.tree-desc {
+  font-size: 13px;
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.tree-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.tree-time {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.tree-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Talep Detay İnceleme Modalı */
+.talep-detay-kalem-row {
+  display: grid;
+  grid-template-columns: 2fr 100px 100px 120px 140px;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  font-size: 13.5px;
+}
+
+.talep-detay-kalem-header {
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+.revize-input {
+  width: 80px;
+  padding: 6px 12px;
+  text-align: center;
+  border-radius: var(--radius-pill);
+}
+
+/* Dar Ekranlarda Ağaç Satırlarının Esnek Hizalanması */
+@media (max-width: 950px) {
+  .tree-row {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .tree-row.level-1 {
+    padding-left: 48px;
+  }
+  .tree-meta {
+    margin-left: auto;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+}

@@ -1,0 +1,70 @@
+/* tokens.css - Apple-Like Liquid Glass UI Design System */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* Apple Liquid Glass Renk ve Efekt Paleti (Açık Tema) */
+  --bg-color: #e4e9ef;
+  --bg-gradient: radial-gradient(circle at 50% 30%, #ecf0f6 0%, #dde2e9 100%);
+  --text-main: #1e293b;
+  --text-muted: #475569;
+  --text-dim: #64748b;
+
+  --glass-base: rgba(255, 255, 255, 0.42);
+  --glass-card: linear-gradient(135deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.32) 100%);
+  --glass-card-hover: linear-gradient(135deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.45) 100%);
+  --glass-border: rgba(255, 255, 255, 0.85);
+  --glass-border-subtle: rgba(255, 255, 255, 0.6);
+  --glass-shadow: 0 16px 36px rgba(100, 115, 130, 0.18), 0 4px 10px rgba(100, 115, 130, 0.08);
+  --glass-inset: inset 0 1.5px 1.5px rgba(255, 255, 255, 0.95), inset 0 -1.5px 1.5px rgba(0, 0, 0, 0.04);
+
+  /* Kurumsal Tema Paleti */
+  --brand-navy: #0A2540;
+  --brand-crimson: #8B0000;
+  --brand-gold: #C5A059;
+
+  /* Liquid Blue Birincil Aksiyon Butonu */
+  --liquid-blue-bg: linear-gradient(180deg, rgba(96, 165, 250, 0.88) 0%, rgba(37, 99, 235, 0.92) 100%);
+  --liquid-blue-hover: linear-gradient(180deg, rgba(120, 180, 255, 0.95) 0%, rgba(29, 78, 216, 0.95) 100%);
+  --liquid-blue-glow: 0 12px 28px rgba(37, 99, 235, 0.35), 0 3px 8px rgba(37, 99, 235, 0.2);
+  --liquid-blue-inset: inset 0 1.5px 1.5px rgba(255, 255, 255, 0.9), inset 0 -1.5px 2px rgba(30, 64, 175, 0.35);
+
+  /* Liquid Destructive (Çıkış / Silme) */
+  --liquid-red-bg: linear-gradient(180deg, rgba(248, 113, 113, 0.88) 0%, rgba(220, 38, 38, 0.92) 100%);
+  --liquid-red-glow: 0 12px 28px rgba(220, 38, 38, 0.32), 0 3px 8px rgba(220, 38, 38, 0.18);
+  --liquid-red-inset: inset 0 1.5px 1.5px rgba(255, 255, 255, 0.85), inset 0 -1.5px 2px rgba(153, 27, 27, 0.35);
+
+  /* Cyan Devre Hattı */
+  --cyan-thread: #3B82F6;
+  --cyan-thread-glow: 0 0 10px rgba(6, 182, 212, 0.5);
+
+  /* Tipografi */
+  --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", 'Plus Jakarta Sans', sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", 'Plus Jakarta Sans', sans-serif;
+
+  /* Yuvarlaklık Standartları */
+  --radius-pill: 9999px;
+  --radius-card: 28px;
+  --radius-card-sm: 20px;
+  --radius-modal: 32px;
+  --radius-input: 9999px;
+
+  /* Uyumluluk Değişkenleri */
+  --color-primary: #2563EB;
+  --color-primary-hover: #1D4ED8;
+  --color-accent: #2563EB;
+  --color-accent-hover: #1D4ED8;
+  --color-foreground: #1E293B;
+  --color-background: #E4E9EF;
+  --color-card: rgba(255, 255, 255, 0.65);
+  --color-muted: rgba(255, 255, 255, 0.5);
+  --color-muted-foreground: #64748B;
+  --color-border: rgba(255, 255, 255, 0.85);
+  --color-border-hover: #FFFFFF;
+  --color-destructive: #DC2626;
+  --color-success: #10B981;
+  --color-warning: #D97706;
+
+  --transition-smooth: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: all 0.15s ease;
+}

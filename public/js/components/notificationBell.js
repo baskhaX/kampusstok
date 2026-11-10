@@ -1,0 +1,617 @@
+// notificationBell.js - Header Apple Liquid Glass Bildirim Çanı & Kritik Stok Modalı
+import api from '../api.js';
+import state from '../state.js';
+import toast from './toast.js';
+import createModal from './modal.js';
+
+let sseSource = null;
+let activeBellContainer = null;
+let currentNotifications = [];
+
+/**
+ * Web Audio API ile harici mp3 dosyası gerektirmeden zarif Apple tarzı kristal bildirim sesi üretir
+ */
+export function playChimeSound() {
+  try {
+    const isMuted = localStorage.getItem('satinalma_ses_durumu') === '0';
+    if (isMuted) return;
+
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+
+    // Çift frekanslı yumuşak kristal akor (E6 & B6: 1318.5Hz ve 1975.5Hz)
+    const now = ctx.currentTime;
+    [1318.51, 1975.53].forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+
+      gain.gain.setValueAtTime(0, now + idx * 0.08);
+      gain.gain.linearRampToValueAtTime(0.12, now + idx * 0.08 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 0.55);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now + idx * 0.08);
+      osc.stop(now + idx * 0.08 + 0.6);
+    });
+  } catch (e) {
+    // Ses desteği yoksa veya engellendiyse sessizce geç
+  }
+}
+
+/**
+ * Bildirim çanını hedef DOM elemanına monte eder
+ */
+export async function mountNotificationBell(targetEl) {
+  if (!targetEl) return;
+  activeBellContainer = targetEl;
+
+  targetEl.innerHTML = `
+    <div class="bell-wrapper" id="bellWrapper" style="position: relative; display: inline-flex; align-items: center;">
+      <button type="button" class="bell-header-btn" id="btnNotificationBell" title="Bildirimler" aria-label="Bildirimler">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="bell-badge-count" id="bellBadgeCount" style="display: none;">0</span>
+      </button>
+
+      <!-- Cam Efektli Bildirim Açılır Çekmecesi -->
+      <div class="bell-dropdown-flyout" id="bellDropdownFlyout" style="display: none;">
+        <div class="bell-flyout-header">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-weight: 700; font-size: 14.5px; color: #0F172A;">Bildirimler</span>
+            <span class="badge badge-primary" id="bellFlyoutUnreadBadge" style="font-size: 11px; padding: 2px 7px;">0 yeni</span>
+          </div>
+          <button type="button" class="btn-text-action" id="btnMarkAllRead" style="font-size: 12px; color: #2563EB; font-weight: 600; cursor: pointer; background: none; border: none; padding: 4px;">
+            Tümünü Okundu Say
+          </button>
+        </div>
+
+        <div class="bell-flyout-body" id="bellFlyoutBody">
+          <div class="bell-loading-placeholder">Yükleniyor...</div>
+        </div>
+
+        ${state.user?.rol === 'satin_alma' ? `
+          <div class="bell-flyout-footer">
+            <button type="button" class="btn-kritik-stok-link" id="btnOpenKritikStokModal">
+              Kritik Stok Listesi ve Tedarik İhtiyaçları &rsaquo;
+            </button>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+
+  const btnBell = targetEl.querySelector('#btnNotificationBell');
+  const flyout = targetEl.querySelector('#bellDropdownFlyout');
+  const btnMarkAll = targetEl.querySelector('#btnMarkAllRead');
+  const btnKritikStok = targetEl.querySelector('#btnOpenKritikStokModal');
+
+  btnBell.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = flyout.style.display !== 'none';
+    if (isOpen) {
+      flyout.style.display = 'none';
+    } else {
+      flyout.style.display = 'flex';
+      renderBellList();
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!targetEl.contains(e.target)) {
+      flyout.style.display = 'none';
+    }
+  });
+
+  if (btnMarkAll) {
+    btnMarkAll.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      try {
+        await api.bildirimTumunuOku();
+        currentNotifications.forEach(n => n.okundu = 1);
+        updateBellBadge();
+        renderBellList();
+        toast.success('Tüm bildirimler okundu olarak işaretlendi.');
+      } catch (err) {
+        toast.error('İşlem başarısız: ' + err.message);
+      }
+    });
+  }
+
+  if (btnKritikStok) {
+    btnKritikStok.addEventListener('click', (e) => {
+      e.stopPropagation();
+      flyout.style.display = 'none';
+      openKritikStokModal();
+    });
+  }
+
+  // İlk veriyi yükle ve SSE'yi başlat
+  await loadNotifications();
+  initSSE();
+}
+
+/**
+ * Bildirimleri API'den yükler
+ */
+export async function loadNotifications() {
+  try {
+    const res = await api.getBildirimler();
+    currentNotifications = res.bildirimler || [];
+    updateBellBadge();
+  } catch (err) {
+    console.warn('Bildirimler yüklenirken hata:', err.message);
+  }
+}
+
+/**
+ * Rozet sayacını günceller
+ */
+function updateBellBadge() {
+  const badgeEl = activeBellContainer?.querySelector('#bellBadgeCount');
+  const flyoutBadge = activeBellContainer?.querySelector('#bellFlyoutUnreadBadge');
+  if (!badgeEl) return;
+
+  const unreadCount = currentNotifications.filter(n => !n.okundu).length;
+  if (unreadCount > 0) {
+    badgeEl.textContent = unreadCount > 99 ? '99+' : unreadCount;
+    badgeEl.style.display = 'flex';
+    if (flyoutBadge) flyoutBadge.textContent = `${unreadCount} yeni`;
+  } else {
+    badgeEl.style.display = 'none';
+    if (flyoutBadge) flyoutBadge.textContent = '0 yeni';
+  }
+}
+
+/**
+ * Açılır panelin bildirim listesini çizer
+ */
+function renderBellList() {
+  const bodyEl = activeBellContainer?.querySelector('#bellFlyoutBody');
+  if (!bodyEl) return;
+
+  if (currentNotifications.length === 0) {
+    bodyEl.innerHTML = `
+      <div class="bell-empty-state">
+        <div style="font-weight: 600; color: #475569; font-size: 13.5px;">Henüz yeni bildirim yok</div>
+        <div style="font-size: 12px; color: #94A3B8; margin-top: 2px;">Tüm süreçler güncel görünüyor.</div>
+      </div>
+    `;
+    return;
+  }
+
+  bodyEl.innerHTML = currentNotifications.map(n => {
+    let iconSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>';
+    let iconBg = 'rgba(37, 99, 235, 0.1)';
+    let iconColor = '#2563EB';
+
+    if (n.tur === 'yeni_talep') {
+      iconSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>';
+      iconBg = 'rgba(37, 99, 235, 0.12)';
+      iconColor = '#1D4ED8';
+    } else if (n.tur === 'talep_sonuc' || (n.baslik && n.baslik.includes('Onaylandı'))) {
+      iconSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+      iconBg = 'rgba(16, 185, 129, 0.12)';
+      iconColor = '#059669';
+    } else if (n.tur === 'talep_ret' || (n.baslik && n.baslik.includes('Onaylanmadı'))) {
+      iconSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+      iconBg = 'rgba(239, 68, 68, 0.12)';
+      iconColor = '#DC2626';
+    } else if (n.tur === 'kritik_stok') {
+      iconSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+      iconBg = 'rgba(245, 158, 11, 0.15)';
+      iconColor = '#B45309';
+    } else if (n.tur === 'malzeme_teslim_edildi' || n.tur === 'talep_teslim_teyit') {
+      iconSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>';
+      iconBg = 'rgba(139, 92, 246, 0.15)';
+      iconColor = '#7C3AED';
+    } else if (n.tur === 'atil_malzeme') {
+      iconSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>';
+      iconBg = 'rgba(16, 185, 129, 0.18)';
+      iconColor = '#047857';
+    } else if (n.tur === 'ekipman_odunc') {
+      iconSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>';
+      iconBg = 'rgba(6, 182, 212, 0.15)';
+      iconColor = '#0891B2';
+    }
+
+    const zamanText = formatTimeAgo(n.olusturma_tarihi || n.tarih);
+
+    return `
+      <div class="bell-item-row ${!n.okundu ? 'is-unread' : ''}" data-id="${n.id}" data-type="${n.tur}" data-talep-id="${n.talep_id || ''}">
+        <div class="bell-item-icon" style="background: ${iconBg}; color: ${iconColor}; display: inline-flex; align-items: center; justify-content: center;">
+          ${iconSvg}
+        </div>
+        <div class="bell-item-content">
+          <div class="bell-item-title">${escapeHtml(n.baslik || 'Sistem Bildirimi')}</div>
+          <div class="bell-item-msg">${escapeHtml(n.mesaj || '')}</div>
+          <div class="bell-item-time">${zamanText}</div>
+        </div>
+        ${!n.okundu ? '<span class="bell-unread-dot"></span>' : ''}
+      </div>
+    `;
+  }).join('');
+
+  // Tıklama olayları
+  bodyEl.querySelectorAll('.bell-item-row').forEach(row => {
+    row.addEventListener('click', async () => {
+      const id = parseInt(row.dataset.id, 10);
+      const tur = row.dataset.type;
+      const talepId = row.dataset.talepId;
+
+      try {
+        await api.bildirimOkundu(id);
+        const item = currentNotifications.find(n => n.id === id);
+        if (item) item.okundu = 1;
+        updateBellBadge();
+        row.classList.remove('is-unread');
+        row.querySelector('.bell-unread-dot')?.remove();
+      } catch (e) {}
+
+      const item = currentNotifications.find(n => n.id === id);
+
+      // Yönlendirme ve Modal Açma Aksiyonları
+      if (tur === 'kritik_stok') {
+        openKritikStokModal();
+      } else if (tur === 'atil_malzeme') {
+        if (state.user?.rol === 'satin_alma') {
+          window.location.hash = '#/satinalma?durum=atil_malzeme';
+          openAtilMalzemeDetayModal(item);
+        } else {
+          window.location.hash = '#/yesil-kampus';
+        }
+      } else if (tur === 'ekipman_odunc') {
+        if (state.user?.rol === 'satin_alma') {
+          window.location.hash = '#/satinalma?durum=odunc_ekipman';
+          openEkipmanRezervasyonDetayModal(item);
+        } else {
+          window.location.hash = '#/yesil-kampus';
+        }
+      } else if (talepId) {
+        if (state.user?.rol === 'satin_alma') {
+          window.location.hash = `#/satinalma?talep=${talepId}`;
+        } else {
+          window.location.hash = `#/taleplerim`;
+        }
+      }
+    });
+  });
+}
+
+/**
+ * SSE Canlı Akış Dinleyicisi
+ */
+function initSSE() {
+  if (sseSource) {
+    sseSource.close();
+  }
+
+  try {
+    sseSource = new EventSource('/api/bildirimler/stream');
+
+    sseSource.addEventListener('bildirim', (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        currentNotifications.unshift({
+          ...data,
+          okundu: 0
+        });
+        updateBellBadge();
+        playChimeSound();
+
+        // Hafif zarif toast bildirimi
+        toast.info(`${data.baslik}: ${data.mesaj.substring(0, 50)}...`);
+
+        // Eğer flyout açıksa listeyi yeniden çiz
+        const flyout = activeBellContainer?.querySelector('#bellDropdownFlyout');
+        if (flyout && flyout.style.display !== 'none') {
+          renderBellList();
+        }
+      } catch (err) {}
+    });
+
+    sseSource.onerror = () => {
+      // Bağlantı koparsa EventSource otomatik tekrar bağlanmayı dener
+    };
+  } catch (err) {
+    console.warn('SSE başlatılamadı:', err);
+  }
+}
+
+/**
+ * Sayfadan ayrılırken SSE bağlantısını kapatır (Memory leak ve fazladan kaynak kullanımını önler)
+ */
+export function closeSSEConnection() {
+  if (sseSource) {
+    sseSource.close();
+    sseSource = null;
+  }
+}
+
+/**
+ * SADE KRİTİK STOK LİSTESİ MODALI (Resmi Antetsiz, Pratik)
+ * Tek tıkla tedarikçiye gönderilecek temiz Excel çıktısı üretir.
+ */
+export async function openKritikStokModal() {
+  let urunler = [];
+  try {
+    const res = await api.getKritikStok();
+    urunler = res.urunler || [];
+  } catch (err) {
+    toast.error('Kritik stok listesi alınamadı: ' + err.message);
+    return;
+  }
+
+  const modal = createModal({
+    title: 'Depo Kritik Stok ve Tedarik İhtiyaç Listesi',
+    maxWidth: '860px',
+    content: `
+      <div style="font-size: 13.5px; color: #475569; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <span>Stok seviyesi kritik eşiğin altına inen veya bekleyen taleplerle stoğu tükenen ürünler aşağıda listelenmiştir.</span>
+        <button type="button" class="btn btn-primary btn-sm" id="btnExcelKritikStok" style="gap: 6px;">
+          Temiz Excel Sipariş Listesi İndir
+        </button>
+      </div>
+
+      <div style="max-height: 440px; overflow-y: auto; border: 1.2px solid #E2E8F0; border-radius: 14px;">
+        <table class="table-clean" style="width: 100%; border-collapse: collapse; font-size: 13px;">
+          <thead>
+            <tr style="background: #F8FAFC; border-bottom: 1.5px solid #E2E8F0; text-align: left;">
+              <th style="padding: 10px 14px;">Ürün Adı</th>
+              <th style="padding: 10px 14px;">Marka / Kategori</th>
+              <th style="padding: 10px 14px; text-align: center;">Mevcut Stok</th>
+              <th style="padding: 10px 14px; text-align: center;">Kritik Eşik</th>
+              <th style="padding: 10px 14px; text-align: center;">Bekleyen Talep</th>
+              <th style="padding: 10px 14px; text-align: center; color: #0284C7;">Önerilen Sipariş</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${urunler.length === 0 ? `
+              <tr>
+                <td colspan="6" style="text-align: center; padding: 30px; color: #059669; font-weight: 600;">
+                  Depoda kritik eşiğin altına düşen hiçbir ürün bulunmamaktadır.
+                </td>
+              </tr>
+            ` : urunler.map(u => `
+              <tr style="border-bottom: 1px solid #F1F5F9;">
+                <td style="padding: 10px 14px; font-weight: 600; color: #0F172A;">${escapeHtml(u.ad)}</td>
+                <td style="padding: 10px 14px; color: #64748B;">${escapeHtml(u.marka || '-')} • ${escapeHtml(u.kategori_adi || '')}</td>
+                <td style="padding: 10px 14px; text-align: center; font-weight: 700; color: ${u.stok <= 0 ? '#DC2626' : '#D97706'};">
+                  ${u.stok} ${u.olcu_birimi || 'adet'}
+                </td>
+                <td style="padding: 10px 14px; text-align: center; color: #64748B;">${u.kritik_stok}</td>
+                <td style="padding: 10px 14px; text-align: center; font-weight: 600; color: #B45309;">
+                  ${u.bekleyen_talep_adedi || 0}
+                </td>
+                <td style="padding: 10px 14px; text-align: center; font-weight: 800; color: #2563EB;">
+                  ${u.oneriSiparisMiktari} ${u.olcu_birimi || 'adet'}
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 18px;">
+        <button type="button" class="btn btn-secondary" id="btnModalKritikKapat">Kapat</button>
+      </div>
+    `
+  });
+
+  modal.element.querySelector('#btnModalKritikKapat').addEventListener('click', () => modal.close());
+
+  const btnExcel = modal.element.querySelector('#btnExcelKritikStok');
+  if (btnExcel && urunler.length > 0) {
+    btnExcel.addEventListener('click', () => {
+      exportKritikStokToExcel(urunler);
+    });
+  }
+}
+
+/**
+ * Excel / CSV dışa aktarımı (Resmi antetsiz, tedarikçiye atılabilecek sade ve temiz format)
+ */
+function exportKritikStokToExcel(urunler) {
+  try {
+    const headers = ['Ürün Adı', 'Marka', 'Kategori', 'Mevcut Stok', 'Ölçü Birimi', 'Kritik Eşik', 'Bekleyen Talep', 'Önerilen Sipariş Miktarı'];
+    const rows = urunler.map(u => [
+      `"${(u.ad || '').replace(/"/g, '""')}"`,
+      `"${(u.marka || '').replace(/"/g, '""')}"`,
+      `"${(u.kategori_adi || '').replace(/"/g, '""')}"`,
+      u.stok,
+      `"${u.olcu_birimi || 'adet'}"`,
+      u.kritik_stok,
+      u.bekleyen_talep_adedi || 0,
+      u.oneriSiparisMiktari
+    ]);
+
+    const csvContent = '\uFEFF' + [headers.join(';'), ...rows.map(r => r.join(';'))].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `KampusStok_Malzeme_Tedarik_Ihtiyac_Listesi_${new Date().toISOString().substring(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success('Malzeme tedarik ihtiyaç listesi indirildi.');
+  } catch (err) {
+    toast.error('Dışa aktarma hatası: ' + err.message);
+  }
+}
+
+function formatTimeAgo(isoString) {
+  if (!isoString) return '';
+  const date = new Date(isoString);
+  const diffSec = Math.floor((Date.now() - date.getTime()) / 1000);
+
+  if (diffSec < 60) return 'Az önce';
+  if (diffSec < 3600) return `${Math.floor(diffSec / 60)} dk önce`;
+  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)} saat önce`;
+  return date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+/**
+ * Atıl Malzeme Bildirim Detayı ve Eylem Modalı
+ */
+export function openAtilMalzemeDetayModal(item) {
+  if (!item) return;
+  const atilId = item.atil_id || item.extraData?.atil_id;
+
+  const modal = createModal({
+    title: 'İhtiyaç Fazlası Atıl Malzeme Bildirimi',
+    maxWidth: '540px',
+    content: `
+      <div style="font-size: 14px; line-height: 1.5; color: #1E293B;">
+        <div style="background: #F0FDF4; border: 1.2px solid #86EFAC; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;">
+          <div style="font-weight: 700; color: #065F46; font-size: 15px; margin-bottom: 4px;">
+            ${escapeHtml(item.baslik || 'Atıl Malzeme Bildirimi')}
+          </div>
+          <div style="color: #047857; font-size: 13.5px;">
+            ${escapeHtml(item.mesaj || '')}
+          </div>
+        </div>
+
+        <div style="font-size: 13px; color: #64748B; margin-bottom: 20px;">
+          <p style="margin: 0 0 6px;">
+            Bu malzeme Çarşamba dağıtımında birimden teslim alınarak depoya kazandırılacaktır.
+          </p>
+          <p style="margin: 0;">
+            Depoya teslim alındığında birime otomatik <strong>+20 Yeşil Kampüs Puanı</strong> tanımlanır.
+          </p>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-secondary" id="btnKapatAtilDetay">Kapat</button>
+          ${(state.user?.rol === 'satin_alma' && atilId) ? `
+            <button type="button" class="btn btn-primary" id="btnModalTeslimAlAtil" style="background: #10B981; border: none; font-weight: 700; border-radius: 9999px;">
+              Depoya Teslim Al (+20 P)
+            </button>
+          ` : ''}
+        </div>
+      </div>
+    `
+  });
+
+  const btnKapat = modal.element.querySelector('#btnKapatAtilDetay');
+  const btnTeslim = modal.element.querySelector('#btnModalTeslimAlAtil');
+
+  btnKapat?.addEventListener('click', () => modal.close());
+
+  btnTeslim?.addEventListener('click', async () => {
+    btnTeslim.disabled = true;
+    btnTeslim.textContent = 'İşleniyor...';
+    try {
+      await api.teslimAlAtilMalzeme(atilId);
+      toast.success('Malzeme teslim alındı ve birime +20 Yeşil Puan kazandırıldı!');
+      modal.close();
+      if (window.location.hash.includes('#/satinalma')) {
+        window.location.reload();
+      }
+    } catch (err) {
+      toast.error(err.message || 'Teslim alma işlemi başarısız');
+      btnTeslim.disabled = false;
+      btnTeslim.textContent = 'Depoya Teslim Al (+20 P)';
+    }
+  });
+}
+
+/**
+ * Ortak Ekipman Ödünç Rezervasyon Detayı ve Eylem Modalı
+ */
+export function openEkipmanRezervasyonDetayModal(item) {
+  if (!item) return;
+  const rezId = item.rezervasyon_id || item.extraData?.rezervasyon_id;
+
+  const modal = createModal({
+    title: 'Ortak Ekipman Ödünç Rezervasyonu',
+    maxWidth: '540px',
+    content: `
+      <div style="font-size: 14px; line-height: 1.5; color: #1E293B;">
+        <div style="background: #EFF6FF; border: 1.2px solid #93C5FD; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;">
+          <div style="font-weight: 700; color: #1E40AF; font-size: 15px; margin-bottom: 4px;">
+            ${escapeHtml(item.baslik || 'Ekipman Rezervasyonu')}
+          </div>
+          <div style="color: #1D4ED8; font-size: 13.5px;">
+            ${escapeHtml(item.mesaj || '')}
+          </div>
+        </div>
+
+        <div style="font-size: 13px; color: #64748B; margin-bottom: 20px;">
+          <p style="margin: 0 0 6px;">
+            Ekipman teslim edildiğinde <em>Birimde Kullanımda</em> durumuna geçer.
+          </p>
+          <p style="margin: 0;">
+            Süre bitiminde depoya iade alındığında birime <strong>+5 Yeşil Kampüs Puanı</strong> eklenir.
+          </p>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-secondary" id="btnKapatEkipmanDetay">Kapat</button>
+          ${(state.user?.rol === 'satin_alma' && rezId) ? `
+            <button type="button" class="btn btn-primary" id="btnModalEkipmanTeslim" style="background: #2563EB; border: none; font-weight: 700; border-radius: 9999px;">
+              Birime Teslim Edildi
+            </button>
+            <button type="button" class="btn btn-primary" id="btnModalEkipmanIade" style="background: #10B981; border: none; font-weight: 700; border-radius: 9999px;">
+              Depoya İade Alındı (+5 P)
+            </button>
+          ` : ''}
+        </div>
+      </div>
+    `
+  });
+
+  const btnKapat = modal.element.querySelector('#btnKapatEkipmanDetay');
+  const btnTeslim = modal.element.querySelector('#btnModalEkipmanTeslim');
+  const btnIade = modal.element.querySelector('#btnModalEkipmanIade');
+
+  btnKapat?.addEventListener('click', () => modal.close());
+
+  btnTeslim?.addEventListener('click', async () => {
+    btnTeslim.disabled = true;
+    try {
+      await api.teslimEtEkipman(rezId);
+      toast.success('Ekipman birime teslim edildi olarak işaretlendi.');
+      modal.close();
+      if (window.location.hash.includes('#/satinalma')) {
+        window.location.reload();
+      }
+    } catch (err) {
+      toast.error(err.message || 'İşlem başarısız');
+      btnTeslim.disabled = false;
+    }
+  });
+
+  btnIade?.addEventListener('click', async () => {
+    btnIade.disabled = true;
+    try {
+      await api.iadeAlEkipman(rezId);
+      toast.success('Ekipman depoya iade alındı ve birime +5 Yeşil Puan kazandırıldı!');
+      modal.close();
+      if (window.location.hash.includes('#/satinalma')) {
+        window.location.reload();
+      }
+    } catch (err) {
+      toast.error(err.message || 'İşlem başarısız');
+      btnIade.disabled = false;
+    }
+  });
+}

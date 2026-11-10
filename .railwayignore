@@ -1,0 +1,14 @@
+node_modules/
+/screenshots/
+!public/screenshots/
+!public/screenshots/*
+yukleme_geici/
+logs/
+.git/
+.agents/
+.chrome-tmp/
+tests/
+preview_*.png
+data/backups/
+data/*.db-wal
+data/*.db-shm

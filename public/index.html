@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KampüsStok - Kırtasiye ve Ofis Malzemesi Talep Portalı</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+
+  <!-- Apple Tipografi: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- CSS Katmanları -->
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/katalog.css">
+  <link rel="stylesheet" href="/css/sepet.css">
+  <link rel="stylesheet" href="/css/satinalma.css">
+  <link rel="stylesheet" href="/css/yonetim.css">
+  <link rel="stylesheet" href="/css/print.css" media="print">
+  <script>
+    try {
+      localStorage.removeItem('etu_theme');
+      document.documentElement.removeAttribute('data-theme');
+    } catch (e) {}
+  </script>
+</head>
+<body class="auth-gate-loading is-login">
+  <!-- Mobil Menü Butonu & Arka Plan Karartması (Dar/Mobil Ekranlar İçin) -->
+  <button id="btnMobileNavToggle" class="mobile-nav-toggle" aria-label="Menüyü Aç / Kapat">
+    <span class="mobile-nav-icon" style="font-size: 11px; font-weight: 700; letter-spacing: 0.05em;">MENÜ</span>
+  </button>
+  <div id="mobileNavBackdrop" class="mobile-nav-backdrop"></div>
+
+  <div class="app-layout-wrapper" id="appLayoutWrapper">
+    <!-- Sol Taraf Menü Paneli (Görev 1) -->
+    <aside id="navbarContainer" class="left-nav-dock"></aside>
+
+    <!-- Ana İçerik Bölmesi -->
+    <div class="main-content-pane" id="mainContentPane">
+      <!-- Sabit Global Üst Bar (Apple Liquid Glass) -->
+      <header id="globalAppHeader" class="global-app-header">
+        <div class="global-header-breadcrumb" id="globalHeaderBreadcrumb"></div>
+        <div class="global-header-actions" id="globalHeaderActionsSlot"></div>
+      </header>
+
+      <main id="appContent"></main>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initRouter } from '/js/router.js?v=20261110_header_fix';
+
+    initRouter();
+  </script>
+</body>
+</html>

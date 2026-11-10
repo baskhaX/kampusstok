@@ -1,0 +1,109 @@
+/* print.css - A4 Yazdırma Düzeni */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 15mm 15mm 15mm 15mm;
+  }
+
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    font-size: 11pt;
+    font-family: Arial, sans-serif !important;
+  }
+
+  .topbar,
+  .btn,
+  .cart-trigger,
+  .drawer-backdrop,
+  .modal-backdrop,
+  .toast-container,
+  .no-print {
+    display: none !important;
+  }
+
+  .main-content {
+    padding: 0 !important;
+  }
+
+  .container {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  /* Belge Başlığı */
+  .print-header {
+    border-bottom: 2px solid #000000;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .print-header h1 {
+    font-size: 16pt;
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  .print-header p {
+    margin: 4px 0 0;
+    font-size: 9pt;
+  }
+
+  /* Bilgi Kutusu */
+  .print-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #CCCCCC;
+    padding: 10px;
+    font-size: 10pt;
+  }
+
+  /* Yazdırma Tablosu */
+  .print-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-bottom: 30px;
+  }
+
+  .print-table th,
+  .print-table td {
+    border: 1px solid #000000 !important;
+    padding: 6px 10px !important;
+    font-size: 10pt;
+  }
+
+  .print-table th {
+    background-color: #F0F0F0 !important;
+    font-weight: bold;
+    text-align: left;
+  }
+
+  /* İmza Alanları */
+  .imza-alani {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 50px;
+    page-break-inside: avoid;
+  }
+
+  .imza-kutu {
+    width: 45%;
+    border-top: 1px solid #000000;
+    padding-top: 8px;
+    text-align: center;
+    font-size: 10pt;
+  }
+
+  .page-break {
+    page-break-after: always;
+  }
+}
