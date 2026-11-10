@@ -58,36 +58,40 @@ export function mountHeaderActions(targetEl, options = {}) {
   let uRole = '';
   let customInitials = null;
 
+  const roleProcurement = t('common.procurementOffice', 'Satın Alma Müdürlüğü');
+  const roleDeptUser = t('common.departmentUser', 'Birim Kullanıcısı');
+  const roleSysArchitect = t('common.systemArchitect', 'Sistem Tasarımcısı');
+
   if (isAdmin) {
     uName = 'Yapıcı';
-    uRole = 'Sistem Tasarımcısı';
+    uRole = roleSysArchitect;
     customInitials = 'YP';
   } else if (user.seciliPersonel && user.seciliPersonel.adSoyad) {
     uName = user.seciliPersonel.adSoyad;
-    uRole = birimAd || (isSatinAlma ? 'Satın Alma Müdürlüğü' : 'Birim Kullanıcısı');
+    uRole = birimAd || (isSatinAlma ? roleProcurement : roleDeptUser);
   } else if (user.personelAdi || user.adSoyad) {
     uName = user.personelAdi || user.adSoyad;
-    uRole = birimAd || (isSatinAlma ? 'Satın Alma Müdürlüğü' : 'Birim Kullanıcısı');
+    uRole = birimAd || (isSatinAlma ? roleProcurement : roleDeptUser);
   } else if (isSatinAlma) {
     if (user.kullaniciAdi === 'Atest') {
-      uName = 'Satın Alma Yetkilisi';
-      uRole = 'Satın Alma Müdürlüğü';
-      customInitials = 'SY';
+      uName = isSatinAlma ? 'Atest' : 'Satın Alma Yetkilisi';
+      uRole = roleProcurement;
+      customInitials = 'AT';
     } else {
       uName = user.kullaniciAdi || 'Satın Alma Yetkilisi';
-      uRole = birimAd || 'Satın Alma Müdürlüğü';
+      uRole = birimAd || roleProcurement;
     }
   } else {
     uName = birimAd || user.kullaniciAdi || 'Kullanıcı';
-    uRole = birimAd || 'Birim Kullanıcısı';
+    uRole = birimAd || roleDeptUser;
   }
 
   let isVekil = false;
-  let vekilBadgeText = 'Vekil';
+  let vekilBadgeText = t('common.actingOfficer', 'Vekil');
   if (isSatinAlma && !isAdmin && vekilInfo && vekilInfo.adSoyad) {
     uName = vekilInfo.adSoyad;
-    vekilBadgeText = vekilInfo.rolModelEtiket || 'Kırtasiye Sorumlusu';
-    uRole = `Satın Alma Müdürlüğü (${vekilBadgeText})`;
+    vekilBadgeText = vekilInfo.rolModelEtiket || t('common.actingOfficer', 'Vekil');
+    uRole = `${roleProcurement} (${vekilBadgeText})`;
     isVekil = true;
     customInitials = getInitials(vekilInfo.adSoyad);
   }

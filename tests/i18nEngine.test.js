@@ -44,6 +44,12 @@ test('KampüsStok Çoklu Dil (i18n) Motoru Testleri', async (tSuite) => {
     assert.equal(t('auth.title'), 'KampüsStok Portalı');
     assert.equal(t('satinalma.title'), 'Gelen Kutusu & Talep Yönetimi');
     assert.equal(t('satinalma.kpiPending'), 'Bekleyen Talep');
+    assert.equal(t('yonetim.title'), 'Depo & Malzeme Yönetimi');
+    assert.equal(t('loglar.title'), 'Denetim Logları & Sistem İzleri');
+    assert.equal(t('raporlar.title'), 'Raporlar & Canlı Tüketim Analizi');
+    assert.equal(t('rehber.title'), 'Kurumsal Rehber & Yetkilendirme');
+    assert.equal(t('yesilKampus.title'), 'Kurumsal Yeşil Ofis & Sürdürülebilirlik Portalı');
+    assert.equal(t('istekSahibi.title'), 'İstek Sahibi Belirleme');
   });
 
   await tSuite.test('İngilizceye geçiş yapılabilmeli ve EN terimler doğru dönmelidir', () => {
@@ -57,6 +63,12 @@ test('KampüsStok Çoklu Dil (i18n) Motoru Testleri', async (tSuite) => {
     assert.equal(t('auth.title'), 'CampusStock Portal');
     assert.equal(t('satinalma.title'), 'Approval Inbox & Order Flow');
     assert.equal(t('satinalma.kpiPending'), 'Pending Orders');
+    assert.equal(t('yonetim.title'), 'Warehouse & Inventory Management');
+    assert.equal(t('loglar.title'), 'Audit Trail Logs & System Records');
+    assert.equal(t('raporlar.title'), 'Reports & Live Consumption Analytics');
+    assert.equal(t('rehber.title'), 'Corporate Directory & Access Control');
+    assert.equal(t('yesilKampus.title'), 'Corporate Green Office & Sustainability Portal');
+    assert.equal(t('istekSahibi.title'), 'Select Requisitioner');
   });
 
   await tSuite.test('Bilinmeyen veya eksik anahtarlar için fallback metni veya Türkçe karşılığı dönmelidir', () => {

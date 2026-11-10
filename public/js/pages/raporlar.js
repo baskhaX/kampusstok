@@ -1,6 +1,7 @@
 // raporlar.js - Raporlama, Canlı Tüketim & Talep Analiz Tablosu ve Resmi Çıktılar (Apple Liquid Glass)
 import api from '../api.js';
 import toast from '../components/toast.js';
+import { t, getLanguage } from '../utils/i18n.js';
 
 let detayliSatirlar = [];
 
@@ -21,36 +22,36 @@ export async function renderRaporlar(appContainer) {
   appContainer.innerHTML = `
     <div class="yonetim-page-wrap">
       <div style="margin-bottom: 24px;">
-        <h2 style="font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: #0F172A;">Raporlar & Canlı Tüketim Analizi</h2>
+        <h2 style="font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: #0F172A;">${t('raporlar.title', 'Raporlar & Canlı Tüketim Analizi')}</h2>
         <p style="color: var(--text-dim); font-size: 13.5px; margin-top: 4px;">
-          Üniversite geneli, fakülte, birim ve personel bazında canlı kırtasiye tüketim tablosu, KPI özetleri ve resmi çıktılar.
+          ${t('raporlar.subtitle', 'Kurum geneli, departman, birim ve personel bazında canlı kırtasiye tüketim tablosu, KPI özetleri ve resmi çıktılar.')}
         </p>
       </div>
 
       <!-- 1) KPI ÖZET KARTLARI (Apple Liquid Glass) -->
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
         <div class="card" style="padding: 18px 20px;">
-          <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-muted-foreground);">Toplam Kalem</div>
+          <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-muted-foreground);">${t('raporlar.kpiTotalItems', 'Toplam Kalem')}</div>
           <div id="kpiToplamKalem" style="font-size: 28px; font-weight: 800; color: #0F172A; margin-top: 6px;">-</div>
-          <div style="font-size: 11.5px; color: var(--color-muted-foreground); margin-top: 2px;">Tüm taleplerdeki ürün satırı</div>
+          <div style="font-size: 11.5px; color: var(--color-muted-foreground); margin-top: 2px;">${t('raporlar.kpiTotalItemsSub', 'Tüm taleplerdeki ürün satırı')}</div>
         </div>
 
         <div class="card" style="padding: 18px 20px;">
-          <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #1E3A8A;">Teslim Edilen Adet</div>
+          <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #1E3A8A;">${t('raporlar.kpiDeliveredQty', 'Teslim Edilen Adet')}</div>
           <div id="kpiToplamVerilen" style="font-size: 28px; font-weight: 800; color: #1E3A8A; margin-top: 6px;">-</div>
-          <div style="font-size: 11.5px; color: var(--color-muted-foreground); margin-top: 2px;">Dağıtılan toplam malzeme</div>
+          <div style="font-size: 11.5px; color: var(--color-muted-foreground); margin-top: 2px;">${t('raporlar.kpiDeliveredQtySub', 'Dağıtılan toplam malzeme')}</div>
         </div>
 
         <div class="card" style="padding: 18px 20px;">
-          <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-muted-foreground);">En Çok Talep Eden Birim</div>
+          <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-muted-foreground);">${t('raporlar.kpiTopDept', 'En Çok Talep Eden Birim')}</div>
           <div id="kpiEnCokBirim" style="font-size: 16px; font-weight: 700; color: #0F172A; margin-top: 10px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">-</div>
-          <div style="font-size: 11.5px; color: var(--color-muted-foreground); margin-top: 2px;">En yüksek tüketim hacmi</div>
+          <div style="font-size: 11.5px; color: var(--color-muted-foreground); margin-top: 2px;">${t('raporlar.kpiTopDeptSub', 'En yüksek tüketim hacmi')}</div>
         </div>
 
         <div class="card" style="padding: 18px 20px;">
-          <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-muted-foreground);">En Çok İstenen Malzeme</div>
+          <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-muted-foreground);">${t('raporlar.kpiTopItem', 'En Çok İstenen Malzeme')}</div>
           <div id="kpiEnCokUrun" style="font-size: 15px; font-weight: 700; color: #0F172A; margin-top: 10px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">-</div>
-          <div style="font-size: 11.5px; color: var(--color-muted-foreground); margin-top: 2px;">En popüler kırtasiye ürünü</div>
+          <div style="font-size: 11.5px; color: var(--color-muted-foreground); margin-top: 2px;">${t('raporlar.kpiTopItemSub', 'En popüler kırtasiye ürünü')}</div>
         </div>
       </div>
 
@@ -58,17 +59,17 @@ export async function renderRaporlar(appContainer) {
       <div class="card" style="padding: 24px; margin-bottom: 32px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px;">
           <div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #0F172A;">Canlı Tüketim & Talep Tablosu</h3>
+            <h3 style="font-size: 18px; font-weight: 700; color: #0F172A;">${t('raporlar.tableTitle', 'Canlı Tüketim & Talep Tablosu')}</h3>
             <p style="font-size: 13px; color: var(--color-muted-foreground); margin-top: 2px;">
-              İndirmeden doğrudan tarayıcıda inceleyin, arayın ve tek tıkla filtrelenmiş veriyi Excel'e dökün.
+              ${t('raporlar.tableSub', 'İndirmeden doğrudan tarayıcıda inceleyin, arayın ve tek tıkla filtrelenmiş veriyi Excel\'e dökün.')}
             </p>
           </div>
           <div style="display: flex; gap: 10px;">
             <button id="btnTabloExcelIndir" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 6px;">
-              Excel (.xlsx) İndir
+              ${t('raporlar.downloadExcel', 'Excel (.xlsx) İndir')}
             </button>
             <button id="btnTabloYazdir" class="btn btn-outline btn-sm">
-              Tabloyu Yazdır
+              ${t('raporlar.printTable', 'Tabloyu Yazdır')}
             </button>
           </div>
         </div>
@@ -76,32 +77,32 @@ export async function renderRaporlar(appContainer) {
         <!-- Canlı Filtre Çubuğu -->
         <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; background: #F8FAFC; border: 1px solid var(--color-border); padding: 14px 16px; border-radius: 12px; margin-bottom: 16px;">
           <div style="flex: 1; min-width: 180px;">
-            <label style="font-size: 11.5px; font-weight: 600; display: block; margin-bottom: 4px; color: var(--color-foreground);">Birim / Fakülte</label>
+            <label style="font-size: 11.5px; font-weight: 600; display: block; margin-bottom: 4px; color: var(--color-foreground);">${t('raporlar.lblDept', 'Birim / Departman')}</label>
             <select id="analizBirimSelect" style="width: 100%;">
-              <option value="">Tüm Birimler (Üniversite Geneli)</option>
+              <option value="">${t('raporlar.allDepts', 'Tüm Birimler (Kurum Geneli)')}</option>
               ${birimler.map(b => `<option value="${b.id}">${b.ad}</option>`).join('')}
             </select>
           </div>
 
           <div style="flex: 1; min-width: 140px;">
-            <label style="font-size: 11.5px; font-weight: 600; display: block; margin-bottom: 4px; color: var(--color-foreground);">Talep Durumu</label>
+            <label style="font-size: 11.5px; font-weight: 600; display: block; margin-bottom: 4px; color: var(--color-foreground);">${t('raporlar.lblStatus', 'Talep Durumu')}</label>
             <select id="analizDurumSelect" style="width: 100%;">
-              <option value="">Tüm Durumlar</option>
-              <option value="beklemede">Beklemede</option>
-              <option value="onaylandi">Onaylandı</option>
-              <option value="revize_onaylandi">Revize Onaylandı</option>
-              <option value="teslim_edildi">Teslim Edildi</option>
-              <option value="reddedildi">Reddedildi</option>
+              <option value="">${t('raporlar.allStatuses', 'Tüm Durumlar')}</option>
+              <option value="beklemede">${t('status.beklemede', 'Beklemede')}</option>
+              <option value="onaylandi">${t('status.onaylandi', 'Onaylandı')}</option>
+              <option value="revize_onaylandi">${t('status.revize_onaylandi', 'Revize Onaylandı')}</option>
+              <option value="teslim_edildi">${t('status.teslim_edildi', 'Teslim Edildi')}</option>
+              <option value="reddedildi">${t('status.reddedildi', 'Reddedildi')}</option>
             </select>
           </div>
 
           <div style="flex: 1.5; min-width: 200px;">
-            <label style="font-size: 11.5px; font-weight: 600; display: block; margin-bottom: 4px; color: var(--color-foreground);">Hızlı Arama</label>
-            <input type="text" id="analizAramaInput" placeholder="Personel adı, ürün adı, talep no..." style="width: 100%;">
+            <label style="font-size: 11.5px; font-weight: 600; display: block; margin-bottom: 4px; color: var(--color-foreground);">${t('raporlar.quickSearch', 'Hızlı Arama')}</label>
+            <input type="text" id="analizAramaInput" placeholder="${t('raporlar.searchPlaceholder', 'Personel adı, ürün adı, talep no...')}" style="width: 100%;">
           </div>
 
           <div style="display: flex; align-items: flex-end; gap: 8px;">
-            <button id="btnFiltreleriSifirla" class="btn btn-outline btn-sm" style="height: 38px;">Sıfırla</button>
+            <button id="btnFiltreleriSifirla" class="btn btn-outline btn-sm" style="height: 38px;">${t('raporlar.reset', 'Sıfırla')}</button>
           </div>
         </div>
 
@@ -110,19 +111,19 @@ export async function renderRaporlar(appContainer) {
           <table class="data-table" id="canliAnalizTablosu">
             <thead>
               <tr>
-                <th style="width: 110px;">Talep No</th>
-                <th style="width: 140px;">Tarih</th>
-                <th>Birim / Fakülte</th>
-                <th>Talep Eden Personel</th>
-                <th>Teslimat Yeri (Bina/Oda)</th>
-                <th>Malzeme / Ürün Adı</th>
-                <th style="text-align: center; width: 90px;">İstenen</th>
-                <th style="text-align: center; width: 90px;">Verilen</th>
-                <th style="width: 120px;">Durum</th>
+                <th style="width: 110px;">${t('raporlar.colReqNo', 'TALEP NO')}</th>
+                <th style="width: 140px;">${t('raporlar.colDate', 'TARİH')}</th>
+                <th>${t('raporlar.colDept', 'BİRİM / DEPARTMAN')}</th>
+                <th>${t('raporlar.colStaff', 'TALEP EDEN PERSONEL')}</th>
+                <th>${t('raporlar.colLocation', 'TESLİMAT YERİ (BİNA/ODA)')}</th>
+                <th>${t('raporlar.colItem', 'MALZEME / ÜRÜN ADI')}</th>
+                <th style="text-align: center; width: 90px;">${t('raporlar.colRequested', 'İSTENEN')}</th>
+                <th style="text-align: center; width: 90px;">${t('raporlar.colDelivered', 'VERİLEN')}</th>
+                <th style="width: 120px;">${t('raporlar.colStatus', 'DURUM')}</th>
               </tr>
             </thead>
             <tbody id="analizTbody">
-              <tr><td colspan="9" style="text-align: center; padding: 30px;">Veriler yükleniyor...</td></tr>
+              <tr><td colspan="9" style="text-align: center; padding: 30px;">${t('common.loading', 'Veriler yükleniyor...')}</td></tr>
             </tbody>
           </table>
         </div>
@@ -132,34 +133,34 @@ export async function renderRaporlar(appContainer) {
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 20px; margin-bottom: 32px;">
         <!-- Excel Dışa Aktarma -->
         <div class="card" style="padding: 22px;">
-          <h3 style="font-size: 16.5px; font-weight: 700; margin-bottom: 6px;">Talepleri Excel'e Aktar (.xlsx)</h3>
+          <h3 style="font-size: 16.5px; font-weight: 700; margin-bottom: 6px;">${t('raporlar.cardExcelTitle', 'Talepleri Excel\'e Aktar (.xlsx)')}</h3>
           <p style="font-size: 12.5px; color: var(--color-muted-foreground); margin-bottom: 16px;">
-            Filtrelenen tüm talepleri ve durumlarını Excel çalışma kitabı olarak bilgisayarınıza indirin.
+            ${t('raporlar.cardExcelSub', 'Filtrelenen tüm talepleri ve durumlarını Excel çalışma kitabı olarak bilgisayarınıza indirin.')}
           </p>
 
           <form id="excelExportForm" style="display: flex; flex-direction: column; gap: 12px;">
             <div>
-              <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Birim (Alt birimler dahil)</label>
+              <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">${t('raporlar.lblDept', 'Birim (Alt birimler dahil)')}</label>
               <select id="excelBirimId">
-                <option value="">Tüm Birimler</option>
+                <option value="">${t('raporlar.allDepts', 'Tüm Birimler')}</option>
                 ${birimler.map(b => `<option value="${b.id}">${b.ad}</option>`).join('')}
               </select>
             </div>
 
             <div>
-              <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Talep Durumu</label>
+              <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">${t('raporlar.lblStatus', 'Talep Durumu')}</label>
               <select id="excelDurum">
-                <option value="">Tümü</option>
-                <option value="beklemede">Beklemede</option>
-                <option value="onaylandi">Onaylandı</option>
-                <option value="revize_onaylandi">Revize Onaylandı</option>
-                <option value="teslim_edildi">Teslim Edildi</option>
-                <option value="reddedildi">Reddedildi</option>
+                <option value="">${t('raporlar.allStatuses', 'Tümü')}</option>
+                <option value="beklemede">${t('status.beklemede', 'Beklemede')}</option>
+                <option value="onaylandi">${t('status.onaylandi', 'Onaylandı')}</option>
+                <option value="revize_onaylandi">${t('status.revize_onaylandi', 'Revize Onaylandı')}</option>
+                <option value="teslim_edildi">${t('status.teslim_edildi', 'Teslim Edildi')}</option>
+                <option value="reddedildi">${t('status.reddedildi', 'Reddedildi')}</option>
               </select>
             </div>
 
             <button type="submit" class="btn btn-primary" style="margin-top: 8px;">
-              Excel Raporunu İndir
+              ${t('raporlar.btnExportExcel', 'Excel Raporunu İndir')}
             </button>
           </form>
         </div>
@@ -167,7 +168,7 @@ export async function renderRaporlar(appContainer) {
         <!-- Haftalık Toplama Listesi & Toplu Teslim Fişleri -->
         <div class="card" style="padding: 22px;">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-            <h3 style="font-size: 16.5px; font-weight: 700;">Haftalık Dağıtım & Fişler (A4)</h3>
+            <h3 style="font-size: 16.5px; font-weight: 700;">${t('raporlar.cardSlipsTitle', 'Haftalık Dağıtım & Fişler (A4)')}</h3>
             <span class="badge badge-primary" style="font-size: 11px;">Çarşamba</span>
           </div>
           <p style="font-size: 12.5px; color: var(--color-muted-foreground); margin-bottom: 16px;">
@@ -356,16 +357,16 @@ async function loadCanliAnaliz(appContainer) {
       kpiEnCokUrun.textContent = ozet.enCokUrun || '-';
 
       if (detayliSatirlar.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 30px; color: var(--color-muted-foreground);">Filtre kriterlerine uygun talep kaydı bulunamadı.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 30px; color: var(--color-muted-foreground);">${t('raporlar.noData', 'Filtre kriterlerine uygun talep kaydı bulunamadı.')}</td></tr>`;
         return;
       }
 
       tbody.innerHTML = detayliSatirlar.map(s => {
-        let durumBadge = '<span class="badge badge-neutral">Beklemede</span>';
-        if (s.talep_durumu === 'onaylandi') durumBadge = '<span class="badge badge-primary">Onaylandı</span>';
-        else if (s.talep_durumu === 'revize_onaylandi') durumBadge = '<span class="badge badge-accent">Revize Onay</span>';
-        else if (s.talep_durumu === 'teslim_edildi') durumBadge = '<span class="badge badge-success">Teslim Edildi</span>';
-        else if (s.talep_durumu === 'reddedildi') durumBadge = '<span class="badge badge-danger">Reddedildi</span>';
+        let durumBadge = `<span class="badge badge-neutral">${t('status.beklemede', 'Beklemede')}</span>`;
+        if (s.talep_durumu === 'onaylandi') durumBadge = `<span class="badge badge-primary">${t('status.onaylandi', 'Onaylandı')}</span>`;
+        else if (s.talep_durumu === 'revize_onaylandi') durumBadge = `<span class="badge badge-accent">${t('status.revize_onaylandi', 'Revize Onay')}</span>`;
+        else if (s.talep_durumu === 'teslim_edildi') durumBadge = `<span class="badge badge-success">${t('status.teslim_edildi', 'Teslim Edildi')}</span>`;
+        else if (s.talep_durumu === 'reddedildi') durumBadge = `<span class="badge badge-danger">${t('status.reddedildi', 'Reddedildi')}</span>`;
 
         const adres = [s.bina_adi, s.oda_no ? `Oda: ${s.oda_no}` : ''].filter(Boolean).join(' - ') || '<span style="color: var(--color-muted-foreground); font-size: 11px;">Belirtilmemiş</span>';
 

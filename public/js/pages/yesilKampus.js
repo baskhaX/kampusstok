@@ -6,6 +6,7 @@ import { openAtilMalzemeModal } from '../components/atilMalzemeModal.js';
 import { openOduncEkipmanModal } from '../components/oduncEkipmanModal.js';
 import { openYesilLigModal } from '../components/yesilLigModal.js';
 import { escapeHtml } from '../utils/text.js';
+import { t, getLanguage } from '../utils/i18n.js';
 
 let aktifLigSekme = 'idari'; // 'idari' veya 'akademik'
 
@@ -43,19 +44,19 @@ export async function renderYesilKampus(appContainer) {
       <!-- Üst Başlık & Hızlı İşlem Butonları -->
       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; flex-wrap: wrap; gap: 16px;">
         <div>
-          <h2 style="font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: #0F172A; margin: 0;">Kampüs Yeşil Kampüs Portalı</h2>
-          <p style="color: var(--text-dim); font-size: 13.5px; margin-top: 4px; margin-bottom: 0;">Nobel Ödüllü Davranışsal İktisat (Nudge) ve Sıfır Atık ilkeleriyle kampüs kaynaklarını birlikte koruyoruz.</p>
+          <h2 style="font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: #0F172A; margin: 0;">${t('yesilKampus.title', 'Kurumsal Yeşil Ofis & Sürdürülebilirlik Portalı')}</h2>
+          <p style="color: var(--text-dim); font-size: 13.5px; margin-top: 4px; margin-bottom: 0;">${t('yesilKampus.subtitle', 'Nobel Ödüllü Davranışsal İktisat (Nudge) ve Sıfır Atık ilkeleriyle kurum kaynaklarını birlikte koruyoruz.')}</p>
         </div>
 
         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
           <button id="btnSayfaAtilMalzeme" class="btn btn-sm" style="background: #10b981; color: #fff; font-size: 13px; font-weight: 700; border-radius: 9999px; padding: 9px 18px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.28); border: none; cursor: pointer;">
-            İhtiyaç Fazlası Bildir (+20 P)
+            ${t('yesilKampus.btnSurplus', 'İhtiyaç Fazlası Bildir (+20 P)')}
           </button>
           <button id="btnSayfaOduncEkipman" class="btn btn-sm" style="background: #2563eb; color: #fff; font-size: 13px; font-weight: 700; border-radius: 9999px; padding: 9px 18px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28); border: none; cursor: pointer;">
-            Ortak Ekipman Ödünç Al (+10 P)
+            ${t('yesilKampus.btnLoan', 'Ortak Ekipman Ödünç Al (+10 P)')}
           </button>
           <button id="btnSayfaLigTablosu" class="btn btn-outline btn-sm" style="font-size: 13px; font-weight: 700; border-radius: 9999px; padding: 9px 16px; color: #065f46; border: 1.5px solid #10b981; background: #fff; cursor: pointer;">
-            Tam Sıralama
+            ${t('yesilKampus.btnLeaderboard', 'Tam Sıralama')}
           </button>
         </div>
       </div>

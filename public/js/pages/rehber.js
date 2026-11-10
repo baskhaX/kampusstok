@@ -2,6 +2,7 @@
 import api from '../api.js';
 import toast from '../components/toast.js';
 import createModal, { confirmModal } from '../components/modal.js';
+import { t, getLanguage } from '../utils/i18n.js';
 
 function escapeHtml(str) {
   if (str === null || str === undefined) return '';
@@ -119,26 +120,26 @@ export default async function renderRehber(appContainer) {
       <!-- Üst Başlık ve Aksiyon Kontrolleri -->
       <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px;">
         <div>
-          <h2 style="font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: #0F172A;">Kurumsal Rehber & Yetkilendirme</h2>
+          <h2 style="font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: #0F172A;">${t('rehber.title', 'Kurumsal Rehber & Yetkilendirme')}</h2>
           <p style="color: var(--text-dim); font-size: 13.5px; margin-top: 4px;" id="treeStats">
-            Kurumsal ağaç yapısı ve telefon rehberi yükleniyor...
+            ${t('rehber.subtitle', 'Kurumsal ağaç yapısı ve telefon rehberi.')}
           </p>
         </div>
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
           <button id="btnTreeToggleAll" class="btn btn-secondary btn-sm">
-            <span id="btnTreeToggleText">Tümünü Genişlet</span>
+            <span id="btnTreeToggleText">${t('rehber.expandAll', 'Tümünü Genişlet')}</span>
           </button>
           <button id="btnTopluHesapModal" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px; border-color: #3b82f6; color: #1d4ed8; background: rgba(59, 130, 246, 0.08); font-weight: 600;">
-            Toplu Hesap Tanımla
+            ${t('rehber.batchAccount', 'Toplu Hesap Tanımla')}
           </button>
           <button id="btnExcelAktarModal" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px; border-color: #10B981; color: #047857; background: rgba(16, 185, 129, 0.08); font-weight: 600;">
-            Excel İçe Aktar
+            ${t('rehber.importExcel', 'Excel İçe Aktar')}
           </button>
           <button id="btnYeniBirimModalTree" class="btn btn-secondary btn-sm">
-            + Yeni Birim
+            ${t('rehber.newUnit', '+ Yeni Birim')}
           </button>
           <button id="btnYeniPersonelModal" class="btn btn-primary btn-sm">
-            + Yeni Kişi Ekle
+            ${t('rehber.newPerson', '+ Yeni Kişi Ekle')}
           </button>
         </div>
       </div>
@@ -149,22 +150,22 @@ export default async function renderRehber(appContainer) {
           <!-- Kategori Sekmeleri (Apple Pill Nav) -->
           <div style="display: flex; gap: 6px; background: rgba(226, 232, 240, 0.6); padding: 4px; border-radius: 9999px; flex-wrap: wrap;">
             <button class="btn btn-sm btn-kategori-filtre active" data-tur="tumu" style="padding: 6px 16px; border-radius: 9999px; font-size: 12.5px;">
-              Tümü
+              ${t('rehber.tabAll', 'Tümü')}
             </button>
             <button class="btn btn-sm btn-kategori-filtre" data-tur="akademik" style="padding: 6px 16px; border-radius: 9999px; font-size: 12.5px;">
-              Akademik Birimler
+              ${t('rehber.tabAcademic', 'Akademik Birimler')}
             </button>
             <button class="btn btn-sm btn-kategori-filtre" data-tur="idari" style="padding: 6px 16px; border-radius: 9999px; font-size: 12.5px;">
-              İdari Birimler
+              ${t('rehber.tabAdministrative', 'İdari Birimler')}
             </button>
             <button class="btn btn-sm btn-kategori-filtre" data-tur="merkezler" style="padding: 6px 16px; border-radius: 9999px; font-size: 12.5px;">
-              Araştırma Merkezleri
+              ${t('rehber.tabCenters', 'Araştırma Merkezleri')}
             </button>
           </div>
 
           <!-- Canlı Arama -->
           <div style="flex: 1; min-width: 260px; max-width: 480px; position: relative;">
-            <input type="text" id="treeSearchInput" placeholder="Kişi, unvan, görev, dahili no veya birim ara..." style="width: 100%; padding: 8px 16px; font-size: 13px; border-radius: 9999px;">
+            <input type="text" id="treeSearchInput" placeholder="${t('rehber.searchPlaceholder', 'Kişi, unvan, görev, dahili no veya birim ara...')}" style="width: 100%; padding: 8px 16px; font-size: 13px; border-radius: 9999px;">
           </div>
         </div>
       </div>
@@ -245,26 +246,26 @@ export default async function renderRehber(appContainer) {
    */
   const sifreSifirlaVeOutlookGonder = async (personelId, adSoyad, eposta) => {
     try {
-      const res = await api.sifirlaPersonelSifre(personelId, 'Etu1234!.');
+      const res = await api.sifirlaPersonelSifre(personelId, 'Kurum1234!.');
       toast.success(`${adSoyad} şifresi sıfırlandı. Outlook bildirim taslağı açılıyor...`);
 
       const portalUrl = window.location.origin;
       const targetEmail = eposta || res.eposta;
-      const subject = encodeURIComponent('Üniversite Kırtasiye Portalı - Giriş Şifreniz Sıfırlandı');
+      const subject = encodeURIComponent('Kurumsal Kırtasiye Portalı - Giriş Şifreniz Sıfırlandı');
       const body = encodeURIComponent(
 `Sayın ${adSoyad},
 
-Üniversite Kırtasiye ve Ofis Malzemesi Talep Portalı giriş şifreniz güncellenmiştir.
+Kurumsal Kırtasiye ve Ofis Malzemesi Talep Portalı giriş şifreniz güncellenmiştir.
 
 Portal Giriş Adresi : ${portalUrl}
 Kullanıcı Adı       : ${targetEmail || res.kullanici_adi}
-Geçici Şifre        : Etu1234!.
+Geçici Şifre        : Kurum1234!.
 
 Kurumsal güvenliğiniz için sisteme ilk girişinizde şifrenizi yenilemeniz istenecektir.
 
 Bilgilerinize sunar, iyi çalışmalar dileriz.
-Üniversite Satın Alma Müdürlüğü
-İdari İşler Müdürlüğü`
+Satın Alma Müdürlüğü
+İdari İşler Departmanı`
       );
 
       const mailtoUrl = `mailto:${targetEmail}?subject=${subject}&body=${body}`;
@@ -276,12 +277,12 @@ Bilgilerinize sunar, iyi çalışmalar dileriz.
           <div style="padding: 6px 0;">
             <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 14px; margin-bottom: 16px;">
               <div style="font-weight: 700; color: #065f46; font-size: 14px; margin-bottom: 4px;">Şifre Başarıyla Sıfırlandı</div>
-              <div style="font-size: 13px; color: #047857;"><strong>${adSoyad}</strong> için yeni şifre: <code style="font-size: 13px; font-weight: 800; background: #fff; padding: 2px 8px; border-radius: 4px; border: 1px solid #6ee7b7;">Etu1234!.</code></div>
+              <div style="font-size: 13px; color: #047857;"><strong>${adSoyad}</strong> için yeni şifre: <code style="font-size: 13px; font-weight: 800; background: #fff; padding: 2px 8px; border-radius: 4px; border: 1px solid #6ee7b7;">Kurum1234!.</code></div>
             </div>
             <p style="font-size: 13px; color: #334155; margin-bottom: 12px; line-height: 1.5;">
               Varsayılan e-posta istemcinizde (Microsoft Outlook) alıcı adresi, konu ve şifre bilgileriyle birlikte hazır taslak açılmıştır. Doğrudan <strong>Gönder</strong> butonuna basmanız yeterlidir.
             </p>
-            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; font-size: 12px; font-family: monospace; white-space: pre-wrap; color: #1e293b; margin-bottom: 16px;">Kullanıcı Adı: ${targetEmail || res.kullanici_adi}\nGeçici Şifre : Etu1234!.\nGiriş Adresi : ${portalUrl}</div>
+            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; font-size: 12px; font-family: monospace; white-space: pre-wrap; color: #1e293b; margin-bottom: 16px;">Kullanıcı Adı: ${targetEmail || res.kullanici_adi}\nGeçici Şifre : Kurum1234!.\nGiriş Adresi : ${portalUrl}</div>
           </div>
         `,
         buttons: [

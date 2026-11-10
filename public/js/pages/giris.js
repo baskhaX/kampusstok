@@ -3,6 +3,7 @@ import api from '../api.js';
 import state from '../state.js';
 import toast from '../components/toast.js';
 import createModal from '../components/modal.js';
+import { t } from '../utils/i18n.js';
 
 export function renderGiris(appContainer) {
   // Eski tema kalıntısı varsa temizle
@@ -39,20 +40,20 @@ export function renderGiris(appContainer) {
       <div class="card" style="max-width: 440px; width: 100%; padding: 36px 32px; margin: auto; position: relative; z-index: 10; border-radius: 20px; background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid rgba(255, 255, 255, 0.95); box-shadow: 0 20px 48px rgba(15, 23, 42, 0.12);">
         <div style="text-align: center; margin-bottom: 24px;">
           <img src="/assets/logo.svg" alt="KampüsStok" style="height: 64px; width: auto; object-fit: contain; margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.08));">
-          <h2 style="font-size: 22px; margin-bottom: 6px; font-weight: 800; letter-spacing: -0.02em; color: #0f172a;">KampüsStok Portalı</h2>
-          <p style="font-size: 13.5px; margin: 0; color: #64748b;">Birim veya Satın Alma hesabınızla giriş yapınız.</p>
+          <h2 style="font-size: 22px; margin-bottom: 6px; font-weight: 800; letter-spacing: -0.02em; color: #0f172a;">${t('auth.title', 'KampüsStok Portalı')}</h2>
+          <p style="font-size: 13.5px; margin: 0; color: #64748b;">${t('auth.subtitle', 'Birim veya Satın Alma hesabınızla giriş yapınız.')}</p>
         </div>
 
         <form id="loginForm" style="display: flex; flex-direction: column; gap: 16px;">
           <div>
-            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 6px; color: #0f172a;">Kullanıcı Adı veya Kurumsal E-Posta</label>
+            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 6px; color: #0f172a;">${t('auth.identifier', 'Kullanıcı Adı veya Kurumsal E-Posta')}</label>
             <input type="text" id="kullaniciAdi" value="${savedUser}" placeholder="" required autofocus autocomplete="username" style="width: 100%; padding: 11px 14px; border-radius: 10px; font-size: 14px; outline: none; box-sizing: border-box; border: 1.2px solid #cbd5e1; background: #ffffff; color: #0f172a; transition: all 0.2s ease;">
           </div>
 
           <div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <label style="font-size: 13px; font-weight: 600; margin: 0; color: #0f172a;">Şifre</label>
-              <a href="javascript:void(0)" id="btnSifremiUnuttum" style="font-size: 12px; color: var(--color-primary); text-decoration: none; font-weight: 600;">Şifremi Unuttum?</a>
+              <label style="font-size: 13px; font-weight: 600; margin: 0; color: #0f172a;">${t('auth.password', 'Şifre')}</label>
+              <a href="javascript:void(0)" id="btnSifremiUnuttum" style="font-size: 12px; color: var(--color-primary); text-decoration: none; font-weight: 600;">${t('auth.forgotPassword', 'Şifremi Unuttum?')}</a>
             </div>
             <div style="position: relative; display: flex; align-items: center;">
               <input type="password" id="sifre" placeholder="••••••••" required autocomplete="current-password" style="width: 100%; padding: 11px 42px 11px 14px; border-radius: 10px; font-size: 14px; outline: none; box-sizing: border-box; border: 1.2px solid #cbd5e1; background: #ffffff; color: #0f172a; transition: all 0.2s ease;">
@@ -65,17 +66,17 @@ export function renderGiris(appContainer) {
           <div style="display: flex; align-items: center; gap: 8px; margin-top: -2px;">
             <input type="checkbox" id="beniHatirla" ${savedUser ? 'checked' : ''} style="width: 16px; height: 16px; cursor: pointer;">
             <label for="beniHatirla" style="font-size: 13px; color: var(--color-foreground); cursor: pointer; user-select: none;">
-              Beni Hatırla (30 gün oturumu açık tut)
+              ${t('auth.rememberMe', 'Beni Hatırla (30 gün oturumu açık tut)')}
             </label>
           </div>
 
           <button type="submit" id="btnLoginSubmit" class="btn btn-primary" style="width: 100%; padding: 12.5px; margin-top: 8px; font-size: 14.5px; font-weight: 700; border-radius: 10px;">
-            Giriş Yap
+            ${t('auth.signIn', 'Giriş Yap')}
           </button>
         </form>
 
         <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #64748b; text-align: center; display: flex; flex-direction: column; gap: 4px;">
-          <p style="margin: 0;">Kurumsal E-posta veya Kullanıcı Adınız ile giriş yapabilirsiniz.</p>
+          <p style="margin: 0;">${t('auth.loginNotice', 'Kurumsal E-posta veya Kullanıcı Adınız ile giriş yapabilirsiniz.')}</p>
         </div>
       </div>
     </div>

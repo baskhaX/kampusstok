@@ -2,6 +2,7 @@
 import api from '../api.js';
 import toast from '../components/toast.js';
 import createModal, { confirmModal, alertModal } from '../components/modal.js';
+import { t, getLanguage } from '../utils/i18n.js';
 
 let aktifTab = 'urunler';
 let seciliUrunler = new Set();
@@ -45,16 +46,16 @@ export async function renderYonetim(appContainer) {
   appContainer.innerHTML = `
     <div class="yonetim-page-wrap">
       <div style="margin-bottom: 24px;">
-        <h2 style="font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: #0F172A;">Depo & Malzeme Yönetimi</h2>
-        <p style="color: var(--text-dim); font-size: 13.5px; margin-top: 4px;">Ürün kataloğu, anlık depo stokları, giriş/çıkış hareketleri, kategori hiyerarşisi ve sistem yedeklerini yönetin.</p>
+        <h2 style="font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: #0F172A;">${t('yonetim.title', 'Depo & Malzeme Yönetimi')}</h2>
+        <p style="color: var(--text-dim); font-size: 13.5px; margin-top: 4px;">${t('yonetim.subtitle', 'Ürün kataloğu, anlık depo stokları, giriş/çıkış hareketleri, kategori hiyerarşisi ve sistem yedeklerini yönetin.')}</p>
       </div>
 
       <!-- Sekmeler (İkonsuz, Apple Liquid Glass Pill Nav) -->
       <div class="tab-nav">
-        <button class="tab-btn ${aktifTab === 'urunler' ? 'active' : ''}" data-tab="urunler">Ürünler & Stok</button>
-        <button class="tab-btn ${aktifTab === 'stok' ? 'active' : ''}" data-tab="stok">Stok Hareketleri</button>
-        <button class="tab-btn ${aktifTab === 'kategoriler' ? 'active' : ''}" data-tab="kategoriler">Kategori Ağacı</button>
-        <button class="tab-btn ${aktifTab === 'yedekler' ? 'active' : ''}" data-tab="yedekler">Sistem ve Yedekleme</button>
+        <button class="tab-btn ${aktifTab === 'urunler' ? 'active' : ''}" data-tab="urunler">${t('yonetim.tabProducts', 'Ürünler & Stok')}</button>
+        <button class="tab-btn ${aktifTab === 'stok' ? 'active' : ''}" data-tab="stok">${t('yonetim.tabMovements', 'Stok Hareketleri')}</button>
+        <button class="tab-btn ${aktifTab === 'kategoriler' ? 'active' : ''}" data-tab="kategoriler">${t('yonetim.tabCategories', 'Kategori Ağacı')}</button>
+        <button class="tab-btn ${aktifTab === 'yedekler' ? 'active' : ''}" data-tab="yedekler">${t('yonetim.tabBackups', 'Sistem ve Yedekleme')}</button>
       </div>
 
       <!-- Sekme İçerik Alanı -->
@@ -79,8 +80,8 @@ export async function renderYetkilendirme(appContainer) {
   appContainer.innerHTML = `
     <div class="yonetim-page-wrap">
       <div style="margin-bottom: 24px;">
-        <h2 style="font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: #0F172A;">Yetkilendirme & Hesap Yönetimi</h2>
-        <p style="color: var(--text-dim); font-size: 13.5px; margin-top: 4px;">Üniversite birimleri, kurumsal personel hesapları, rol atamaları, ilk giriş şifreleri ve teslimat adreslerini yönetin.</p>
+        <h2 style="font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: #0F172A;">${t('yonetim.authTitle', 'Yetkilendirme & Hesap Yönetimi')}</h2>
+        <p style="color: var(--text-dim); font-size: 13.5px; margin-top: 4px;">${t('yonetim.authSubtitle', 'Kurumsal birimler, personel hesapları, rol atamaları, ilk giriş şifreleri ve teslimat adreslerini yönetin.')}</p>
       </div>
 
       <div id="tabContent"></div>
@@ -95,8 +96,8 @@ export async function renderLoglar(appContainer) {
   appContainer.innerHTML = `
     <div class="yonetim-page-wrap">
       <div style="margin-bottom: 24px;">
-        <h2 style="font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: #0F172A; margin: 0;">Denetim Logları & Sistem İzleri</h2>
-        <p style="color: var(--text-dim); font-size: 13.5px; margin-top: 6px;">Tüm talep onayları, teslimat teyitleri, stok hareketleri, kullanıcı oturumları ve şifre güncellemelerinin resmi denetim kayıtları.</p>
+        <h2 style="font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: #0F172A; margin: 0;">${t('loglar.title', 'Denetim Logları & Sistem İzleri')}</h2>
+        <p style="color: var(--text-dim); font-size: 13.5px; margin-top: 6px;">${t('loglar.subtitle', 'Tüm talep onayları, teslimat teyitleri, stok hareketleri, kullanıcı oturumları ve şifre güncellemelerinin resmi denetim kayıtları.')}</p>
       </div>
 
       <div id="tabContent"></div>
@@ -480,13 +481,13 @@ async function renderUrunlerTab(container, targetUrunId = null) {
         <!-- SOL: Kategori Ağacı (Ağaçlanma Biçimi) -->
         <aside class="depo-kategori-sidebar" id="depoKategoriSidebar">
           <div class="depo-kategori-header">
-            <span class="depo-kategori-title">Kategori Ağacı</span>
-            <span class="depo-badge-count" id="depoToplamUrunBadge">Yükleniyor...</span>
+            <span class="depo-kategori-title">${t('yonetim.categoryTree', 'Kategori Ağacı')}</span>
+            <span class="depo-badge-count" id="depoToplamUrunBadge">${t('common.loading', 'Yükleniyor...')}</span>
           </div>
           <ul class="depo-kategori-tree" id="depoKategoriTreeUl">
             <li>
               <button class="depo-tree-root-btn active" data-cat-type="all">
-                <span>Tüm Ürünler</span>
+                <span>${t('yonetim.allProducts', 'Tüm Ürünler')}</span>
                 <span class="tree-badge" id="treeBadgeAll">...</span>
               </button>
             </li>
@@ -501,39 +502,39 @@ async function renderUrunlerTab(container, targetUrunId = null) {
               <!-- Canlı Arama Kutusu -->
               <div class="depo-search-box">
                 <span class="depo-search-icon"></span>
-                <input type="text" id="yonetimSearchInput" placeholder="Ürün adı, barkod (869...), marka ara..." value="${aktifAramaQuery}">
+                <input type="text" id="yonetimSearchInput" placeholder="${t('yonetim.searchPlaceholder', 'Ürün adı, barkod (869...), marka ara...')}" value="${aktifAramaQuery}">
                 <button type="button" class="btn-clear-search" id="btnClearSearch" style="display: ${aktifAramaQuery ? 'flex' : 'none'};">✕</button>
               </div>
 
               <!-- Barkod Tara / Okut Butonu -->
               <button type="button" class="btn-barkod-trigger" id="btnBarkodModalOpen" title="Barkod okuma tabancası veya manuel barkod ile anında ürün bul">
-                <span>Barkod Okut</span>
+                <span>${t('yonetim.scanBarcode', 'Barkod Okut')}</span>
               </button>
 
               <!-- Hızlı Kategori Seçim Filtresi -->
               <select id="yonetimKategoriSelectFilter" class="depo-filter-select">
-                <option value="all">Tüm Kategoriler</option>
+                <option value="all">${t('yonetim.allCategories', 'Tüm Kategoriler')}</option>
               </select>
 
               <!-- Stok Durum Filtresi -->
               <select id="yonetimStokFiltre" class="depo-filter-select">
-                <option value="all">Tüm Stok Seviyeleri</option>
-                <option value="kritik">Kritik Stoktakiler</option>
-                <option value="tukendi">Tükenenler (0 Stok)</option>
-                <option value="mevcut">Yeterli Stok</option>
+                <option value="all">${t('yonetim.allStockLevels', 'Tüm Stok Seviyeleri')}</option>
+                <option value="kritik">${t('yonetim.criticalStock', 'Kritik Stoktakiler')}</option>
+                <option value="tukendi">${t('yonetim.outOfStock', 'Tükenenler (0 Stok)')}</option>
+                <option value="mevcut">${t('yonetim.adequateStock', 'Yeterli Stok')}</option>
               </select>
 
               <!-- Yeni Ürün Ekle -->
-              <button id="btnYeniUrunModal" class="btn btn-primary btn-yeni-urun">+ Yeni Ürün Ekle</button>
+              <button id="btnYeniUrunModal" class="btn btn-primary btn-yeni-urun">+ ${t('yonetim.addNewProduct', 'Yeni Ürün Ekle')}</button>
             </div>
 
             <!-- Alt Bilgi ve Barkod Tabancası Durumu -->
             <div class="depo-toolbar-info-row">
               <div id="depoFilterSummary" style="font-weight: 500;">
-                Depo ürünleri yükleniyor...
+                ${t('yonetim.loadingItems', 'Depo ürünleri yükleniyor...')}
               </div>
               <div class="depo-scanner-ready-badge" title="USB veya Bluetooth barkod okuma makinesini doğrudan ekranda okutabilirsiniz">
-                <span class="scanner-dot"></span> Barkod Okuyucu Tabanca Aktif (Hazır)
+                <span class="scanner-dot"></span> ${t('yonetim.scannerReady', 'Barkod Okuyucu Tabanca Aktif (Hazır)')}
               </div>
             </div>
           </div>
@@ -541,14 +542,14 @@ async function renderUrunlerTab(container, targetUrunId = null) {
           <!-- Toplu Stok Güncelleme Çubuğu (Apple Liquid Glass) -->
           <div id="topluStokBar" style="display: none; align-items: center; justify-content: space-between; background: rgba(30, 58, 138, 0.07); border: 1px solid rgba(30, 58, 138, 0.2); padding: 12px 18px; border-radius: 12px; margin-bottom: 16px; backdrop-filter: blur(10px);">
             <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-              <span id="topluSeciliMetin" style="font-weight: 700; color: #1E3A8A; font-size: 13.5px;">0 ürün seçildi</span>
-              <span style="color: var(--color-muted-foreground); font-size: 13px;">| Seçilenlerin Stoğunu:</span>
+              <span id="topluSeciliMetin" style="font-weight: 700; color: #1E3A8A; font-size: 13.5px;">0 ${t('yonetim.selectedItems', 'ürün seçildi')}</span>
+              <span style="color: var(--color-muted-foreground); font-size: 13px;">${t('yonetim.selectedStockTo', '| Seçilenlerin Stoğunu:')}</span>
               <input type="number" id="topluStokDeger" value="100" min="0" style="width: 90px; height: 34px; padding: 4px 8px; font-weight: 700; text-align: center; border-radius: 8px; border: 1px solid var(--color-border);">
-              <span>Yap</span>
-              <button id="btnTopluStokUygula" class="btn btn-primary btn-sm">Tek Tıkla Stoğu Güncelle</button>
+              <span>${t('yonetim.makeTo', 'Yap')}</span>
+              <button id="btnTopluStokUygula" class="btn btn-primary btn-sm">${t('yonetim.applyBatchStock', 'Tek Tıkla Stoğu Güncelle')}</button>
             </div>
             <div>
-              <button id="btnTopluSecimTemizle" class="btn btn-outline btn-sm">Seçimi Kaldır</button>
+              <button id="btnTopluSecimTemizle" class="btn btn-outline btn-sm">${t('yonetim.clearSelection', 'Seçimi Kaldır')}</button>
             </div>
           </div>
 
@@ -560,18 +561,18 @@ async function renderUrunlerTab(container, targetUrunId = null) {
                   <th style="width: 40px; text-align: center;">
                     <input type="checkbox" id="chkAllUrunler" title="Tümünü Seç / Kaldır" style="cursor: pointer; width: 16px; height: 16px;">
                   </th>
-                  <th style="width: 54px;">Görsel</th>
-                  <th>Ürün Adı & Barkod</th>
-                  <th>Kategori</th>
-                  <th>Ölçü Birimi</th>
-                  <th>Mevcut Stok</th>
-                  <th>Kritik Eşik</th>
-                  <th>Talebe Açık</th>
-                  <th style="text-align: right;">İşlemler</th>
+                  <th style="width: 54px;">${t('yonetim.colImage', 'Görsel')}</th>
+                  <th>${t('yonetim.colProductName', 'Ürün Adı & Barkod')}</th>
+                  <th>${t('yonetim.colCategory', 'Kategori')}</th>
+                  <th>${t('yonetim.colUnit', 'Ölçü Birimi')}</th>
+                  <th>${t('yonetim.colCurrentStock', 'Mevcut Stok')}</th>
+                  <th>${t('yonetim.colCriticalThreshold', 'Kritik Eşik')}</th>
+                  <th>${t('yonetim.colOpenForRequisition', 'Talebe Açık')}</th>
+                  <th style="text-align: right;">${t('common.actions', 'İşlemler')}</th>
                 </tr>
               </thead>
               <tbody id="yonetimUrunlerTbody">
-                <tr><td colspan="9" style="text-align: center; padding: 30px;">Yükleniyor...</td></tr>
+                <tr><td colspan="9" style="text-align: center; padding: 30px;">${t('common.loading', 'Yükleniyor...')}</td></tr>
               </tbody>
             </table>
           </div>
@@ -856,9 +857,9 @@ async function renderUrunlerTab(container, targetUrunId = null) {
       // Alt Bilgi Güncelleme
       if (filterSummary) {
         if (filtered.length === tumUrunlerCache.length) {
-          filterSummary.innerHTML = `Toplam <strong>${tumUrunlerCache.length}</strong> ürün listeleniyor`;
+          filterSummary.innerHTML = t('yonetim.totalItemsListed', 'Toplam {count} ürün listeleniyor').replace('{count}', `<strong>${tumUrunlerCache.length}</strong>`);
         } else {
-          filterSummary.innerHTML = `Filtrelenen: <strong>${filtered.length}</strong> ürün (Toplam: ${tumUrunlerCache.length})`;
+          filterSummary.innerHTML = `${t('common.search', 'Filtrelenen')}: <strong>${filtered.length}</strong> / <strong>${tumUrunlerCache.length}</strong>`;
         }
       }
 
@@ -866,10 +867,10 @@ async function renderUrunlerTab(container, targetUrunId = null) {
         tbody.innerHTML = `
           <tr>
             <td colspan="9" style="text-align: center; padding: 48px 20px; color: var(--color-muted-foreground);">
-              <div style="font-size: 14px; font-weight: 700; color: #64748B; margin-bottom: 8px;">Sonuç Bulunamadı</div>
-              <div style="font-weight: 600; font-size: 15px; color: #1E293B;">Kriterlere Uygun Ürün Bulunamadı</div>
-              <p style="font-size: 13px; margin: 4px 0 14px 0;">Arama terimini veya seçili kategori/stok filtresini değiştirmeyi deneyebilirsiniz.</p>
-              <button class="btn btn-outline btn-sm" id="btnFiltreleriSifirla">Filtreleri Temizle</button>
+              <div style="font-size: 14px; font-weight: 700; color: #64748B; margin-bottom: 8px;">${t('common.error', 'Sonuç Bulunamadı')}</div>
+              <div style="font-weight: 600; font-size: 15px; color: #1E293B;">${t('yonetim.noProductsFound', 'Kriterlere Uygun Ürün Bulunamadı')}</div>
+              <p style="font-size: 13px; margin: 4px 0 14px 0;">${t('yonetim.tryAdjustFilters', 'Arama terimini veya seçili kategori/stok filtresini değiştirmeyi deneyebilirsiniz.')}</p>
+              <button class="btn btn-outline btn-sm" id="btnFiltreleriSifirla">${t('raporlar.reset', 'Filtreleri Temizle')}</button>
             </td>
           </tr>
         `;
@@ -920,17 +921,17 @@ async function renderUrunlerTab(container, targetUrunId = null) {
                    data-aktif="${u.aktif ? '1' : '0'}"
                    role="switch" 
                    aria-checked="${u.aktif ? 'true' : 'false'}"
-                   title="${u.aktif ? 'Talebe Açık - Kapatmak için tıklayın' : 'Talebe Kapalı - Açmak için tıklayın'}">
+                   title="${u.aktif ? (t('yonetim.active', 'Talebe Açık')) : (t('yonetim.passive', 'Talebe Kapalı'))}">
                 <span class="mini-switch-handle"></span>
               </div>
               <span class="badge badge-${u.aktif ? 'success' : 'neutral'} badge-urun-durum" id="badgeDurum_${u.id}" style="font-size: 11px;">
-                ${u.aktif ? 'Aktif' : 'Pasif'}
+                ${u.aktif ? t('yonetim.active', 'Aktif') : t('yonetim.passive', 'Pasif')}
               </span>
             </div>
           </td>
           <td style="text-align: right; white-space: nowrap;">
-            <button class="btn btn-outline btn-sm btn-urun-duzenle" data-id="${u.id}" style="margin-right: 4px;">Düzenle</button>
-            <button class="btn btn-outline btn-sm btn-urun-hizli-stok" data-id="${u.id}" title="Hızlı Stok Ayarla / Barkod">Stok</button>
+            <button class="btn btn-outline btn-sm btn-urun-duzenle" data-id="${u.id}" style="margin-right: 4px;">${t('yonetim.edit', 'Düzenle')}</button>
+            <button class="btn btn-outline btn-sm btn-urun-hizli-stok" data-id="${u.id}" title="${t('yonetim.updateStock', 'Stok Güncelle')}">${t('yonetim.updateStock', 'Stok')}</button>
           </td>
         </tr>
       `).join('');
@@ -1503,23 +1504,23 @@ async function renderStokTab(container) {
       <!-- SOL: Yeni Stok Hareketi Formu (Barkod Entegrasyonlu) -->
       <div class="card" style="padding: 20px; align-self: start;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid var(--color-border); padding-bottom: 8px;">
-          <h3 style="font-size: 16px; font-weight: 700; margin: 0;">Yeni Stok Hareketi</h3>
+          <h3 style="font-size: 16px; font-weight: 700; margin: 0;">${t('yonetim.newStockMovement', 'Yeni Stok Hareketi')}</h3>
           <span class="depo-scanner-ready-badge" style="font-size: 11px; padding: 2px 8px;">
-            <span class="scanner-dot"></span> Tabanca Hazır
+            <span class="scanner-dot"></span> ${t('yonetim.scannerReadyShort', 'Tabanca Hazır')}
           </span>
         </div>
 
         <!-- 1. Barkod Okutma Kutusu -->
         <div style="background: rgba(37, 99, 235, 0.05); border: 1.5px dashed rgba(37, 99, 235, 0.35); border-radius: 12px; padding: 12px; margin-bottom: 14px;">
           <label style="font-size: 12px; font-weight: 700; color: #1D4ED8; margin-bottom: 6px; display: block;">
-            Barkod Okut / Ara:
+            ${t('yonetim.scanOrSearchBarcode', 'Barkod Okut / Ara:')}
           </label>
           <div style="display: flex; gap: 6px;">
-            <input type="text" id="txtStokBarkod" placeholder="Barkodu okutun (869...)" style="height: 38px; font-family: monospace; font-size: 13px; font-weight: 600; border-radius: 8px; border: 1px solid var(--color-border); background: #ffffff; padding: 0 10px; flex: 1;">
-            <button type="button" class="btn btn-primary btn-sm" id="btnStokBarkodAra" style="padding: 0 14px; font-size: 12px; border-radius: 8px;">Bul</button>
+            <input type="text" id="txtStokBarkod" placeholder="${t('yonetim.scanBarcodePlaceholder', 'Barkodu okutun (869...)')}" style="height: 38px; font-family: monospace; font-size: 13px; font-weight: 600; border-radius: 8px; border: 1px solid var(--color-border); background: #ffffff; padding: 0 10px; flex: 1;">
+            <button type="button" class="btn btn-primary btn-sm" id="btnStokBarkodAra" style="padding: 0 14px; font-size: 12px; border-radius: 8px;">${t('yonetim.find', 'Bul')}</button>
           </div>
           <div style="font-size: 11px; color: var(--color-muted-foreground); margin-top: 4px;">
-            Barkod tabancasını okutabilir veya 13 haneli barkodu yazabilirsiniz.
+            ${t('yonetim.scannerHint', 'Barkod tabancasını okutabilir veya 13 haneli barkodu yazabilirsiniz.')}
           </div>
         </div>
 
@@ -1530,7 +1531,7 @@ async function renderStokTab(container) {
             <div id="stokSeciliAd" style="font-size: 13px; font-weight: 700; color: #0F172A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
             <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
               <span class="badge-barcode" id="stokSeciliBarkod" style="font-size: 11px; padding: 1px 5px;"></span>
-              <span style="font-size: 11.5px; color: var(--color-muted-foreground);">Stok: <strong id="stokSeciliMiktar" style="color: #1D4ED8; font-weight: 700;"></strong></span>
+              <span style="font-size: 11.5px; color: var(--color-muted-foreground);">${t('yonetim.colCurrentStock', 'Stok')}: <strong id="stokSeciliMiktar" style="color: #1D4ED8; font-weight: 700;"></strong></span>
             </div>
           </div>
         </div>
@@ -1538,34 +1539,34 @@ async function renderStokTab(container) {
         <!-- 3. Stok Hareketi Formu -->
         <form id="stokHareketiForm" style="display: flex; flex-direction: column; gap: 14px;">
           <div>
-            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Ürün Seçiniz <span style="color: red;">*</span></label>
+            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">${t('yonetim.selectProduct', 'Ürün Seçiniz')} <span style="color: red;">*</span></label>
             <select id="stokUrunSelect" required style="width: 100%;">
-              <option value="">Listeden Seçiniz...</option>
+              <option value="">${t('yonetim.selectFromList', 'Listeden Seçiniz...')}</option>
               ${urunler.map(u => `
-                <option value="${u.id}">${u.ad} ${u.barkod ? `[${u.barkod}]` : ''} - (Mevcut: ${u.stok} ${u.olcu_birimi})</option>
+                <option value="${u.id}">${u.ad} ${u.barkod ? `[${u.barkod}]` : ''} - (${t('yonetim.colCurrentStock', 'Mevcut')}: ${u.stok} ${u.olcu_birimi})</option>
               `).join('')}
             </select>
           </div>
 
           <div>
-            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">İşlem Türü <span style="color: red;">*</span></label>
+            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">${t('yonetim.actionType', 'İşlem Türü')} <span style="color: red;">*</span></label>
             <select id="stokIslemTuru" required>
-              <option value="giris">Stok Ekle (Depo Girişi)</option>
-              <option value="duzeltme">Stok Düzelt / Eşitle (Sayım)</option>
+              <option value="giris">${t('yonetim.stockIn', 'Stok Ekle (Depo Girişi)')}</option>
+              <option value="duzeltme">${t('yonetim.stockAdjust', 'Stok Düzelt / Eşitle (Sayım)')}</option>
             </select>
           </div>
 
           <div>
-            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Miktar <span style="color: red;">*</span></label>
-            <input type="number" id="stokMiktar" min="0" required placeholder="Giriş / Sayım Miktarı">
+            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">${t('yonetim.quantity', 'Miktar')} <span style="color: red;">*</span></label>
+            <input type="number" id="stokMiktar" min="0" required placeholder="${t('yonetim.qtyPlaceholder', 'Giriş / Sayım Miktarı')}">
           </div>
 
           <div>
-            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Açıklama (Opsiyonel)</label>
-            <input type="text" id="stokAciklama" placeholder="Örn: Fatura No: 2026/41">
+            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">${t('yonetim.descriptionOptional', 'Açıklama (Opsiyonel)')}</label>
+            <input type="text" id="stokAciklama" placeholder="${t('yonetim.descPlaceholder', 'Örn: Fatura No: 2026/41')}">
           </div>
 
-          <button type="submit" class="btn btn-primary" style="margin-top: 6px;">Stok Hareketini Kaydet</button>
+          <button type="submit" class="btn btn-primary" style="margin-top: 6px;">${t('yonetim.saveStockMovement', 'Stok Hareketini Kaydet')}</button>
         </form>
       </div>
 
@@ -1573,14 +1574,14 @@ async function renderStokTab(container) {
       <div class="card" style="padding: 20px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid var(--color-border); padding-bottom: 10px; gap: 14px; flex-wrap: wrap;">
           <div>
-            <h3 style="font-size: 16px; margin: 0 0 2px 0; font-weight: 700;">Son Stok Hareketleri</h3>
-            <p style="margin: 0; font-size: 12px; color: var(--color-muted-foreground);">Giriş, çıkış ve sayım düzeltmelerini inceleyin.</p>
+            <h3 style="font-size: 16px; margin: 0 0 2px 0; font-weight: 700;">${t('yonetim.recentMovements', 'Son Stok Hareketleri')}</h3>
+            <p style="margin: 0; font-size: 12px; color: var(--color-muted-foreground);">${t('yonetim.recentMovementsSub', 'Giriş, çıkış ve sayım düzeltmelerini inceleyin.')}</p>
           </div>
 
           <!-- Canlı Arama Kutusu -->
           <div class="depo-search-box" style="max-width: 360px; min-width: 220px; flex: 1;">
             <span class="depo-search-icon"></span>
-            <input type="text" id="txtHareketAra" placeholder="Ürün adı, barkod (869...), açıklama ara..." style="height: 38px; font-size: 13px;">
+            <input type="text" id="txtHareketAra" placeholder="${t('yonetim.searchMovementsPlaceholder', 'Ürün adı, barkod (869...), açıklama ara...')}" style="height: 38px; font-size: 13px;">
           </div>
         </div>
 
@@ -1588,16 +1589,16 @@ async function renderStokTab(container) {
           <table class="data-table">
             <thead>
               <tr>
-                <th style="width: 130px;">Tarih</th>
-                <th>Ürün & Barkod</th>
-                <th style="width: 80px;">Tür</th>
-                <th style="width: 100px;">Miktar</th>
-                <th>Açıklama</th>
-                <th style="width: 110px;">İşlemi Yapan</th>
+                <th style="width: 130px;">${t('yonetim.colDate', 'Tarih')}</th>
+                <th>${t('yonetim.colProductBarcode', 'Ürün & Barkod')}</th>
+                <th style="width: 80px;">${t('yonetim.colType', 'Tür')}</th>
+                <th style="width: 100px;">${t('yonetim.colQty', 'Miktar')}</th>
+                <th>${t('yonetim.colDescription', 'Açıklama')}</th>
+                <th style="width: 110px;">${t('yonetim.colOperator', 'İşlemi Yapan')}</th>
               </tr>
             </thead>
             <tbody id="stokHareketlerTbody">
-              <tr><td colspan="6" style="text-align: center; padding: 20px;">Yükleniyor...</td></tr>
+              <tr><td colspan="6" style="text-align: center; padding: 20px;">${t('common.loading', 'Yükleniyor...')}</td></tr>
             </tbody>
           </table>
         </div>
@@ -2690,44 +2691,44 @@ async function renderDenetimLoglariTab(container) {
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
         <div style="display: flex; align-items: center; gap: 10px;">
           <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #10B981; box-shadow: 0 0 10px #10B981; animation: pulse 2s infinite;"></span>
-          <strong style="font-size: 14px; letter-spacing: 0.02em;">CANLI İZLEME VE TEST RADARI (Genel Sekreterlik & Komisyon Takibi)</strong>
+          <strong style="font-size: 14px; letter-spacing: 0.02em;">${t('loglar.radarTitle', 'CANLI İZLEME VE TEST RADARI (Yönetim & Komisyon Takibi)')}</strong>
         </div>
         <span style="font-size: 11.5px; background: rgba(255,255,255,0.1); padding: 3px 10px; border-radius: 9999px; color: #94A3B8;">
-          Aktif Dinleme Modu
+          ${t('loglar.listeningMode', 'Aktif Dinleme Modu')}
         </span>
       </div>
 
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; font-size: 12.5px;">
         <!-- 1. Sunum Ziyareti -->
         <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 14px;">
-          <div style="color: #94A3B8; font-size: 11px; margin-bottom: 4px; text-transform: uppercase; font-weight: 700;">Sunum İnceleme Durumu</div>
+          <div style="color: #94A3B8; font-size: 11px; margin-bottom: 4px; text-transform: uppercase; font-weight: 700;">${t('loglar.presentationStatus', 'Sunum İnceleme Durumu')}</div>
           <div id="radarSonSunum" style="font-weight: 700; color: #38BDF8; font-size: 13.5px;">
-            Yükleniyor...
+            ${t('common.loading', 'Yükleniyor...')}
           </div>
           <div id="radarSonSunumDetay" style="color: #CBD5E1; font-size: 11.5px; margin-top: 4px;">
-            Sessiz telemetri sinyali bekleniyor...
+            ...
           </div>
         </div>
 
         <!-- 2. Canlı Test Girişleri -->
         <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 14px;">
-          <div style="color: #94A3B8; font-size: 11px; margin-bottom: 4px; text-transform: uppercase; font-weight: 700;">Canlı Sistem Test Girişleri</div>
+          <div style="color: #94A3B8; font-size: 11px; margin-bottom: 4px; text-transform: uppercase; font-weight: 700;">${t('loglar.liveTestLogins', 'CANLI SİSTEM TEST GİRİŞLERİ')}</div>
           <div id="radarSonTest" style="font-weight: 700; color: #FBBF24; font-size: 13.5px;">
-            Yükleniyor...
+            ${t('common.loading', 'Yükleniyor...')}
           </div>
           <div id="radarSonTestDetay" style="color: #CBD5E1; font-size: 11.5px; margin-top: 4px;">
-            Atest / Ktest test hesapları dinleniyor...
+            ...
           </div>
         </div>
 
         <!-- 3. Günlük İstatistik -->
         <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 14px;">
-          <div style="color: #94A3B8; font-size: 11px; margin-bottom: 4px; text-transform: uppercase; font-weight: 700;">Bugün Sunum Açılış Sayısı</div>
+          <div style="color: #94A3B8; font-size: 11px; margin-bottom: 4px; text-transform: uppercase; font-weight: 700;">${t('loglar.todayViewsCount', 'BUGÜN SUNUM AÇILIŞ SAYISI')}</div>
           <div id="radarBugunSayi" style="font-weight: 800; color: #34D399; font-size: 18px;">
             0
           </div>
           <div style="color: #94A3B8; font-size: 11.5px; margin-top: 2px;">
-            Genel Sekreterlik / Komisyon oturumları
+            ...
           </div>
         </div>
       </div>
@@ -2735,28 +2736,27 @@ async function renderDenetimLoglariTab(container) {
 
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
       <div>
-        <h3 style="font-size: 17px; font-weight: 700;">Sistem Denetim İzleri (Audit Logs)</h3>
+        <h3 style="font-size: 17px; font-weight: 700;">${t('loglar.auditLogsTitle', 'Sistem Denetim İzleri (Audit Logs)')}</h3>
         <p style="font-size: 13px; color: var(--color-muted-foreground); margin-top: 2px;">
-          Kullanıcı girişleri, şifre/adres güncellemeleri, toplu stok değişiklikleri ve yönetimsel işlemlerin kayıtları.
+          ${t('loglar.auditLogsSub', 'Kullanıcı girişleri, şifre/adres güncellemeleri, toplu stok değişiklikleri ve yönetimsel işlemlerin kayıtları.')}
         </p>
       </div>
       <div style="display: flex; gap: 10px;">
         <select id="logKullaniciGrupFiltre" style="height: 36px; padding: 4px 10px; border-radius: 8px; font-weight: 600;">
-          <option value="haric_admin">Birim Hareketleri (Admin Gizle)</option>
-          <option value="hepsi">Tüm Loglar (Admin Dahil)</option>
-          <option value="sadece_admin">Yalnızca Admin Hareketleri</option>
+          <option value="haric_admin">${t('loglar.optDeptActions', 'Birim Hareketleri')}</option>
+          <option value="hepsi">${t('common.all', 'Tüm Loglar')}</option>
         </select>
         <select id="logIslemFiltre" style="height: 36px; padding: 4px 10px; border-radius: 8px;">
-          <option value="">Tüm İşlem Türleri</option>
-          <option value="GIRIS">Kullanıcı Girişi</option>
-          <option value="SIFREMI_UNUTTUM">Şifre Sıfırlama Talepleri</option>
-          <option value="SIFRE_VE_ADRES_GUNCELLEME">Şifre & Adres Güncelleme</option>
-          <option value="TOPLU_STOK_GUNCELLEME">Toplu Stok Güncelleme</option>
-          <option value="TOPLU_HESAP_ACMA">Toplu Hesap Tanımlama</option>
-          <option value="BIRIM_DURUM_DEGISTIRILDI">Birim Durum Değişikliği</option>
-          <option value="BIRIM_SILINDI">Birim Silme</option>
+          <option value="">${t('loglar.optAllActions', 'Tüm İşlem Türleri')}</option>
+          <option value="GIRIS">GIRIS</option>
+          <option value="SIFREMI_UNUTTUM">SIFREMI_UNUTTUM</option>
+          <option value="SIFRE_VE_ADRES_GUNCELLEME">SIFRE_VE_ADRES_GUNCELLEME</option>
+          <option value="TOPLU_STOK_GUNCELLEME">TOPLU_STOK_GUNCELLEME</option>
+          <option value="TOPLU_HESAP_ACMA">TOPLU_HESAP_ACMA</option>
+          <option value="BIRIM_DURUM_DEGISTIRILDI">BIRIM_DURUM_DEGISTIRILDI</option>
+          <option value="BIRIM_SILINDI">BIRIM_SILINDI</option>
         </select>
-        <button id="btnYenileLoglar" class="btn btn-outline btn-sm">Yenile</button>
+        <button id="btnYenileLoglar" class="btn btn-outline btn-sm">${t('loglar.refresh', 'Yenile')}</button>
       </div>
     </div>
 
@@ -2764,16 +2764,16 @@ async function renderDenetimLoglariTab(container) {
       <table class="data-table">
         <thead>
           <tr>
-            <th style="width: 160px;">Tarih / Saat</th>
-            <th style="width: 170px;">İşlem Türü</th>
-            <th>Kullanıcı / Hesap</th>
-            <th>Rol</th>
-            <th>IP Adresi</th>
-            <th>Detay / Açıklama</th>
+            <th style="width: 160px;">${t('loglar.colDate', 'TARİH / SAAT')}</th>
+            <th style="width: 170px;">${t('loglar.colActionType', 'İŞLEM TÜRÜ')}</th>
+            <th>${t('loglar.colUser', 'KULLANICI / HESAP')}</th>
+            <th>${t('loglar.colRole', 'ROL')}</th>
+            <th>${t('loglar.colIp', 'IP ADRESİ')}</th>
+            <th>${t('loglar.colDetail', 'DETAY')}</th>
           </tr>
         </thead>
         <tbody id="denetimLoglariTbody">
-          <tr><td colspan="6" style="text-align: center; padding: 30px;">Loglar yükleniyor...</td></tr>
+          <tr><td colspan="6" style="text-align: center; padding: 30px;">${t('common.loading', 'Loglar yükleniyor...')}</td></tr>
         </tbody>
       </table>
     </div>

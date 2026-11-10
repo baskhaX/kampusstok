@@ -2,6 +2,7 @@
 import api from '../api.js';
 import state from '../state.js';
 import toast from '../components/toast.js';
+import { t } from '../utils/i18n.js';
 
 export async function renderIstekSahibi(appContainer) {
   const user = state.user;
@@ -10,54 +11,54 @@ export async function renderIstekSahibi(appContainer) {
     <div style="min-height: calc(100vh - 120px); display: flex; align-items: center; justify-content: center; padding: 20px;">
       <div class="card" style="max-width: 520px; width: 100%; padding: 32px; box-shadow: var(--shadow-lg);">
         <div style="text-align: center; margin-bottom: 24px;">
-          <h2 style="font-size: 20px; margin-bottom: 6px;">İstek Sahibi Belirleme</h2>
+          <h2 style="font-size: 20px; margin-bottom: 6px;">${t('istekSahibi.title', 'İstek Sahibi Belirleme')}</h2>
           <p style="color: var(--color-muted-foreground); font-size: 14px;">
-            <strong>${user?.birimAdi || 'Biriminiz'}</strong> adına bu talebi kimin oluşturduğunu seçiniz veya yeni kişi ekleyiniz.
+            <strong>${user?.birimAdi || 'Biriminiz'}</strong> ${t('istekSahibi.subtitle', 'adına bu talebi kimin oluşturduğunu seçiniz veya yeni kişi ekleyiniz.')}
           </p>
         </div>
 
         <!-- Personel Seçim / Yeni Ekleme Sekmeleri -->
         <div style="display: flex; gap: 8px; margin-bottom: 20px; background-color: var(--color-muted); padding: 4px; border-radius: var(--radius-md);">
-          <button id="tabSecim" class="btn btn-sm" style="flex: 1; background-color: #FFFFFF; box-shadow: var(--shadow-sm);">Listeden Seç</button>
-          <button id="tabYeni" class="btn btn-sm" style="flex: 1; color: var(--color-muted-foreground);">Yeni Personel Ekle</button>
+          <button id="tabSecim" class="btn btn-sm" style="flex: 1; background-color: #FFFFFF; box-shadow: var(--shadow-sm);">${t('istekSahibi.tabSelect', 'Listeden Seç')}</button>
+          <button id="tabYeni" class="btn btn-sm" style="flex: 1; color: var(--color-muted-foreground);">${t('istekSahibi.tabNew', 'Yeni Personel Ekle')}</button>
         </div>
 
         <!-- Form 1: Listeden Seç -->
         <form id="secimForm" style="display: flex; flex-direction: column; gap: 16px;">
           <div>
-            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 6px;">Personel Listesi</label>
+            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 6px;">${t('istekSahibi.staffList', 'Personel Listesi')}</label>
             <select id="personelSelect" required>
-              <option value="">Yükleniyor...</option>
+              <option value="">${t('common.loading', 'Yükleniyor...')}</option>
             </select>
           </div>
 
           <div>
-            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 6px;">Kurumsal E-Posta Adresi</label>
+            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 6px;">${t('istekSahibi.corpEmail', 'Kurumsal E-Posta Adresi')}</label>
             <input type="email" id="personelEposta" placeholder="ad.soyad@kurum.edu.tr" required>
             <span style="font-size: 12px; color: var(--color-muted-foreground); margin-top: 4px; display: block;">
-              Talep onay ve teslimat bilgilendirme mesajları bu adrese gönderilecektir.
+              ${t('istekSahibi.emailNotice', 'Talep onay ve teslimat bilgilendirme mesajları bu adrese gönderilecektir.')}
             </span>
           </div>
 
           <button type="submit" class="btn btn-accent" style="width: 100%; padding: 12px; margin-top: 8px;">
-            Seçimi Onayla ve Kataloğa Geç
+            ${t('istekSahibi.btnConfirm', 'Seçimi Onayla ve Kataloğa Geç')}
           </button>
         </form>
 
         <!-- Form 2: Yeni Personel Ekle -->
         <form id="yeniForm" style="display: none; flex-direction: column; gap: 16px;">
           <div>
-            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 6px;">Ad Soyad (Unvan Dahil)</label>
+            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 6px;">${t('istekSahibi.nameWithTitle', 'Ad Soyad (Unvan Dahil)')}</label>
             <input type="text" id="yeniAdSoyad" placeholder="Örn: Dr. Ahmet Yılmaz" required>
           </div>
 
           <div>
-            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 6px;">Kurumsal E-Posta Adresi</label>
+            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">${t('istekSahibi.corpEmail', 'Kurumsal E-Posta Adresi')}</label>
             <input type="email" id="yeniEposta" placeholder="ad.soyad@kurum.edu.tr" required>
           </div>
 
           <button type="submit" class="btn btn-accent" style="width: 100%; padding: 12px; margin-top: 8px;">
-            Kaydet ve Kataloğa Geç
+            ${t('istekSahibi.btnSave', 'Kaydet ve Kataloğa Geç')}
           </button>
         </form>
       </div>
@@ -96,7 +97,7 @@ export async function renderIstekSahibi(appContainer) {
     personeller = res.personeller || [];
 
     if (personeller.length === 0) {
-      select.innerHTML = '<option value="">Bu birimde henüz kayıtlı personel yok</option>';
+      select.innerHTML = `<option value="">${t('istekSahibi.noStaff', 'Bu birimde henüz kayıtlı personel yok')}</option>`;
       tabYeni.click();
     } else {
       select.innerHTML = personeller.map(p => `
