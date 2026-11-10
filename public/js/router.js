@@ -6,6 +6,7 @@ import { renderSepetDrawer } from './components/sepetDrawer.js';
 import showOnboardingModal from './components/onboardingModal.js';
 import { renderGlobalFooter } from './components/globalFooter.js';
 import { mountHeaderActions } from './components/headerActions.js';
+import { initI18n, t } from './utils/i18n.js';
 
 import renderGiris from './pages/giris.js';
 import renderIstekSahibi from './pages/istekSahibi.js';
@@ -37,18 +38,18 @@ const routes = {
 function getBreadcrumbHtml(hash, user) {
   const base = hash.split('?')[0] || '';
   const map = {
-    '#/katalog': { title: 'Malzeme Kataloğu', sub: 'Tüm Kırtasiye ve Ofis Gereçleri' },
-    '#/sepet': { title: 'Malzeme Talep Sepeti', sub: 'Onay ve Sipariş Masası' },
-    '#/taleplerim': { title: 'Taleplerim', sub: 'Talep ve Teslimat Takibi' },
-    '#/yesil-kampus': { title: 'Yeşil Kampüs Portalı', sub: 'Sürdürülebilirlik ve Sıfır Atık' },
-    '#/satinalma': { title: 'Satın Alma Masası', sub: 'Gelen Talepler ve Onay Akışı' },
-    '#/yonetim': { title: 'Sistem Yönetimi', sub: 'Birimler ve Envanter Kontrolü' },
-    '#/rehber': { title: 'Kurumsal Rehber', sub: 'Organizasyon ve Birim Personeli' },
-    '#/raporlar': { title: 'Raporlar ve Analiz', sub: 'Stok ve Talep İstatistikleri' },
-    '#/loglar': { title: 'Denetim Logları', sub: 'Sistem Hareket Kayıtları' },
-    '#/istek-sahibi': { title: 'İstek Sahibi Seçimi', sub: 'Birim Personel Eşleştirme' }
+    '#/katalog': { title: t('breadcrumb.catalog', 'Malzeme Kataloğu'), sub: t('breadcrumb.catalogSub', 'Tüm Kırtasiye ve Ofis Gereçleri') },
+    '#/sepet': { title: t('breadcrumb.cart', 'Malzeme Talep Sepeti'), sub: t('breadcrumb.cartSub', 'Onay ve Sipariş Masası') },
+    '#/taleplerim': { title: t('breadcrumb.requests', 'Taleplerim'), sub: t('breadcrumb.requestsSub', 'Talep ve Teslimat Takibi') },
+    '#/yesil-kampus': { title: t('breadcrumb.greenCampus', 'Yeşil Kampüs Portalı'), sub: t('breadcrumb.greenCampusSub', 'Sürdürülebilirlik ve Sıfır Atık') },
+    '#/satinalma': { title: t('breadcrumb.procurement', 'Satın Alma Masası'), sub: t('breadcrumb.procurementSub', 'Gelen Talepler ve Onay Akışı') },
+    '#/yonetim': { title: t('breadcrumb.admin', 'Sistem Yönetimi'), sub: t('breadcrumb.adminSub', 'Birimler ve Envanter Kontrolü') },
+    '#/rehber': { title: t('breadcrumb.directory', 'Kurumsal Rehber'), sub: t('breadcrumb.directorySub', 'Organizasyon ve Birim Personeli') },
+    '#/raporlar': { title: t('breadcrumb.reports', 'Raporlar ve Analiz'), sub: t('breadcrumb.reportsSub', 'Stok ve Talep İstatistikleri') },
+    '#/loglar': { title: t('breadcrumb.logs', 'Denetim Logları'), sub: t('breadcrumb.logsSub', 'Sistem Hareket Kayıtları') },
+    '#/istek-sahibi': { title: t('breadcrumb.requesterSelect', 'İstek Sahibi Seçimi'), sub: t('breadcrumb.requesterSelectSub', 'Birim Personel Eşleştirme') }
   };
-  const item = map[base] || { title: 'KampüsStok', sub: 'Kurumsal Talep Portalı' };
+  const item = map[base] || { title: t('breadcrumb.defaultTitle', 'KampüsStok'), sub: t('breadcrumb.defaultSub', 'Kurumsal Talep Portalı') };
   return `
     <div class="breadcrumb-chip">
       <span class="breadcrumb-title">${item.title}</span>
@@ -198,7 +199,11 @@ export async function navigate() {
 }
 
 export function initRouter() {
+  initI18n();
   window.addEventListener('hashchange', navigate);
+  window.addEventListener('app:languageChanged', () => {
+    navigate();
+  });
   state.subscribe(() => {
     const navContainer = document.getElementById('navbarContainer');
     if (navContainer) renderNavbar(navContainer);

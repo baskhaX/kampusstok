@@ -5,6 +5,7 @@ import createModal, { confirmModal } from './modal.js';
 import toast from './toast.js';
 import showOnboardingModal from './onboardingModal.js';
 import { initCommandPalette, toggleCommandPalette } from './commandPalette.js';
+import { t } from '../utils/i18n.js';
 
 let commandPaletteInitialized = false;
 let isSidebarCollapsed = localStorage.getItem('etu_sidebar_collapsed') === '1';
@@ -75,8 +76,8 @@ export function renderNavbar(container) {
     <div class="dock-brand">
       <img src="/assets/logo.svg" alt="KampüsStok" style="width: 32px; height: 32px; border-radius: 6px;">
       <div class="dock-brand-text">
-        <h2>KampüsStok</h2>
-        <p>Kırtasiye & Depo Portalı</p>
+        <h2>${t('brand.title', 'KampüsStok')}</h2>
+        <p>${t('brand.subtitle', 'Kırtasiye & Depo Portalı')}</p>
       </div>
     </div>
   `;
@@ -84,7 +85,7 @@ export function renderNavbar(container) {
   // En Alttan Çıkan Aç/Kapa Düğmesi (Açıkken <<< , Kapalıyken >>>)
   const collapseBarHtml = `
     <div class="dock-collapse-bar">
-      <button type="button" class="btn-dock-collapse-bottom" id="btnDockCollapse" title="${isSidebarCollapsed ? 'Menüyü Genişlet' : 'Menüyü Daralt'}">
+      <button type="button" class="btn-dock-collapse-bottom" id="btnDockCollapse" title="${isSidebarCollapsed ? t('nav.expand', 'Menüyü Genişlet') : t('nav.collapse', 'Menüyü Daralt')}">
         <span class="collapse-icon">
           ${isSidebarCollapsed ? `
             <svg width="22" height="13" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
@@ -100,7 +101,7 @@ export function renderNavbar(container) {
             </svg>
           `}
         </span>
-        <span class="collapse-text">${isSidebarCollapsed ? '' : 'Menüyü Daralt'}</span>
+        <span class="collapse-text">${isSidebarCollapsed ? '' : t('nav.collapse', 'Menüyü Daralt')}</span>
       </button>
     </div>
   `;
@@ -114,13 +115,13 @@ export function renderNavbar(container) {
           <!-- Gelen Kutusu (Ağaç Hiyerarşisi + Hover Popover) -->
           <div class="dock-nav-wrapper ${isSatinalmaTreeOpen ? 'is-open' : ''}" id="wrapperSatinalma">
             <a href="#/satinalma" class="dock-nav-item" id="navSatinalma">
-              <span class="dock-icon-wrap" title="Gelen Kutusu & Talep Yönetimi">
+              <span class="dock-icon-wrap" title="${t('nav.inbox', 'Gelen Kutusu')}">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
                   <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
                 </svg>
               </span>
-              <span class="dock-nav-label">Gelen Kutusu</span>
+              <span class="dock-nav-label">${t('nav.inbox', 'Gelen Kutusu')}</span>
               <span class="sidebar-accordion-chevron" id="chevronSatinalma">▼</span>
             </a>
 
@@ -128,25 +129,25 @@ export function renderNavbar(container) {
             <div class="sidebar-tree-container" id="treeSatinalma">
               <div class="sidebar-tree-list">
                 <a href="#/satinalma?durum=beklemede" class="sidebar-tree-item" data-durum="beklemede">
-                  <span>Bekleyen Talepler</span>
+                  <span>${t('nav.pendingRequests', 'Bekleyen Talepler')}</span>
                 </a>
                 <a href="#/satinalma?durum=teslimat" class="sidebar-tree-item" data-durum="teslimat">
-                  <span>Teslim Bekleyenler</span>
+                  <span>${t('nav.waitingDelivery', 'Teslim Bekleyenler')}</span>
                 </a>
                 <a href="#/satinalma?durum=revize_onaylandi" class="sidebar-tree-item" data-durum="revize_onaylandi">
-                  <span>Revize Edilenler</span>
+                  <span>${t('nav.revisedRequests', 'Revize Edilenler')}</span>
                 </a>
                 <a href="#/satinalma?durum=reddedildi" class="sidebar-tree-item" data-durum="reddedildi">
-                  <span>Reddedilenler</span>
+                  <span>${t('nav.rejectedRequests', 'Reddedilenler')}</span>
                 </a>
                 <a href="#/satinalma?durum=teslim_edildi" class="sidebar-tree-item" data-durum="teslim_edildi">
-                  <span>Teslim Edilenler</span>
+                  <span>${t('nav.deliveredRequests', 'Teslim Edilenler')}</span>
                 </a>
                 <a href="#/satinalma?durum=atil_malzeme" class="sidebar-tree-item" data-durum="atil_malzeme">
-                  <span>İade Malzemeler</span>
+                  <span>${t('nav.returnedItems', 'İade Malzemeler')}</span>
                 </a>
                 <a href="#/satinalma?durum=odunc_ekipman" class="sidebar-tree-item" data-durum="odunc_ekipman">
-                  <span>Ödünç Ekipmanlar</span>
+                  <span>${t('nav.loanedEquipment', 'Ödünç Ekipmanlar')}</span>
                 </a>
               </div>
             </div>
@@ -154,17 +155,17 @@ export function renderNavbar(container) {
             <!-- Kompakt Modda Hover Flyout Popover -->
             <div class="dock-flyout-popover">
               <div class="flyout-header">
-                <span class="flyout-title">Gelen Kutusu & Talepler</span>
-                <span class="flyout-tag">Alt Menü</span>
+                <span class="flyout-title">${t('nav.inbox', 'Gelen Kutusu')}</span>
+                <span class="flyout-tag">${t('nav.subMenu', 'Alt Menü')}</span>
               </div>
               <div class="flyout-list">
-                <a href="#/satinalma?durum=beklemede" class="flyout-item">Bekleyen Talepler</a>
-                <a href="#/satinalma?durum=teslimat" class="flyout-item">Teslim Bekleyenler</a>
-                <a href="#/satinalma?durum=revize_onaylandi" class="flyout-item">Revize Edilenler</a>
-                <a href="#/satinalma?durum=reddedildi" class="flyout-item">Reddedilenler</a>
-                <a href="#/satinalma?durum=teslim_edildi" class="flyout-item">Teslim Edilenler</a>
-                <a href="#/satinalma?durum=atil_malzeme" class="flyout-item">İade Malzemeler</a>
-                <a href="#/satinalma?durum=odunc_ekipman" class="flyout-item">Ödünç Ekipmanlar</a>
+                <a href="#/satinalma?durum=beklemede" class="flyout-item">${t('nav.pendingRequests', 'Bekleyen Talepler')}</a>
+                <a href="#/satinalma?durum=teslimat" class="flyout-item">${t('nav.waitingDelivery', 'Teslim Bekleyenler')}</a>
+                <a href="#/satinalma?durum=revize_onaylandi" class="flyout-item">${t('nav.revisedRequests', 'Revize Edilenler')}</a>
+                <a href="#/satinalma?durum=reddedildi" class="flyout-item">${t('nav.rejectedRequests', 'Reddedilenler')}</a>
+                <a href="#/satinalma?durum=teslim_edildi" class="flyout-item">${t('nav.deliveredRequests', 'Teslim Edilenler')}</a>
+                <a href="#/satinalma?durum=atil_malzeme" class="flyout-item">${t('nav.returnedItems', 'İade Malzemeler')}</a>
+                <a href="#/satinalma?durum=odunc_ekipman" class="flyout-item">${t('nav.loanedEquipment', 'Ödünç Ekipmanlar')}</a>
               </div>
             </div>
           </div>
@@ -172,14 +173,14 @@ export function renderNavbar(container) {
           <!-- Depo Yönetimi (Ağaç Hiyerarşisi + Hover Popover) -->
           <div class="dock-nav-wrapper ${isYonetimTreeOpen ? 'is-open' : ''}" id="wrapperYonetim">
             <a href="#/yonetim" class="dock-nav-item" id="navYonetim">
-              <span class="dock-icon-wrap" title="Depo & Malzeme Yönetimi">
+              <span class="dock-icon-wrap" title="${t('nav.warehouseMgmt', 'Depo Yönetimi')}">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                   <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
                   <line x1="12" y1="22.08" x2="12" y2="12"></line>
                 </svg>
               </span>
-              <span class="dock-nav-label">Depo Yönetimi</span>
+              <span class="dock-nav-label">${t('nav.warehouseMgmt', 'Depo Yönetimi')}</span>
               <span class="sidebar-accordion-chevron" id="chevronYonetim">▼</span>
             </a>
 
@@ -187,16 +188,16 @@ export function renderNavbar(container) {
             <div class="sidebar-tree-container" id="treeYonetim">
               <div class="sidebar-tree-list">
                 <a href="#/yonetim?tab=urunler" class="sidebar-tree-item" data-tab="urunler">
-                  <span>Ürünler & Stok</span>
+                  <span>${t('nav.productsStock', 'Ürünler & Stok')}</span>
                 </a>
                 <a href="#/yonetim?tab=stok" class="sidebar-tree-item" data-tab="stok">
-                  <span>Stok Hareketleri</span>
+                  <span>${t('nav.stockMovements', 'Stok Hareketleri')}</span>
                 </a>
                 <a href="#/yonetim?tab=kategoriler" class="sidebar-tree-item" data-tab="kategoriler">
-                  <span>Kategori Ağacı</span>
+                  <span>${t('nav.categoriesTree', 'Kategori Ağacı')}</span>
                 </a>
                 <a href="#/satinalma?durum=teslim_edildi" class="sidebar-tree-item" data-tab="teslimat">
-                  <span>Teslim Edilen Siparişler</span>
+                  <span>${t('nav.deliveredOrders', 'Teslim Edilen Siparişler')}</span>
                 </a>
               </div>
             </div>
@@ -204,21 +205,21 @@ export function renderNavbar(container) {
             <!-- Kompakt Modda Hover Flyout Popover -->
             <div class="dock-flyout-popover">
               <div class="flyout-header">
-                <span class="flyout-title">Depo Yönetimi</span>
-                <span class="flyout-tag">Alt Menü</span>
+                <span class="flyout-title">${t('nav.warehouseMgmt', 'Depo Yönetimi')}</span>
+                <span class="flyout-tag">${t('nav.subMenu', 'Alt Menü')}</span>
               </div>
               <div class="flyout-list">
-                <a href="#/yonetim?tab=urunler" class="flyout-item">Ürünler & Stok</a>
-                <a href="#/yonetim?tab=stok" class="flyout-item">Stok Hareketleri</a>
-                <a href="#/yonetim?tab=kategoriler" class="flyout-item">Kategori Ağacı</a>
-                <a href="#/satinalma?durum=teslim_edildi" class="flyout-item">Teslim Edilen Siparişler</a>
+                <a href="#/yonetim?tab=urunler" class="flyout-item">${t('nav.productsStock', 'Ürünler & Stok')}</a>
+                <a href="#/yonetim?tab=stok" class="flyout-item">${t('nav.stockMovements', 'Stok Hareketleri')}</a>
+                <a href="#/yonetim?tab=kategoriler" class="flyout-item">${t('nav.categoriesTree', 'Kategori Ağacı')}</a>
+                <a href="#/satinalma?durum=teslim_edildi" class="flyout-item">${t('nav.deliveredOrders', 'Teslim Edilen Siparişler')}</a>
               </div>
             </div>
           </div>
 
           <!-- Kurumsal Rehber & Yetki -->
           <a href="#/rehber" class="dock-nav-item" id="navRehber">
-            <span class="dock-icon-wrap" title="Kurumsal Rehber & Yetki">
+            <span class="dock-icon-wrap" title="${t('nav.directory', 'Kurumsal Rehber & Yetki')}">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                 <circle cx="9" cy="7" r="4"></circle>
@@ -226,47 +227,47 @@ export function renderNavbar(container) {
                 <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
               </svg>
             </span>
-            <span class="dock-nav-label">Kurumsal Rehber & Yetki</span>
+            <span class="dock-nav-label">${t('nav.directory', 'Kurumsal Rehber & Yetki')}</span>
           </a>
 
           <!-- Denetim Logları -->
           <a href="#/loglar" class="dock-nav-item" id="navLoglar">
-            <span class="dock-icon-wrap" title="Denetim Logları">
+            <span class="dock-icon-wrap" title="${t('nav.auditLogs', 'Denetim Logları')}">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
               </svg>
             </span>
-            <span class="dock-nav-label">Denetim Logları</span>
+            <span class="dock-nav-label">${t('nav.auditLogs', 'Denetim Logları')}</span>
           </a>
 
           <!-- Raporlar -->
           <a href="#/raporlar" class="dock-nav-item" id="navRaporlar">
-            <span class="dock-icon-wrap" title="Raporlar ve İstatistikler">
+            <span class="dock-icon-wrap" title="${t('nav.reports', 'Raporlar ve İstatistikler')}">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="20" x2="18" y2="10"></line>
                 <line x1="12" y1="20" x2="12" y2="4"></line>
                 <line x1="6" y1="20" x2="6" y2="14"></line>
               </svg>
             </span>
-            <span class="dock-nav-label">Raporlar</span>
+            <span class="dock-nav-label">${t('nav.reports', 'Raporlar')}</span>
           </a>
 
           <!-- Yeşil Kampüs -->
           <a href="#/yesil-kampus" class="dock-nav-item" id="navYesilKampus">
-            <span class="dock-icon-wrap" title="Yeşil Kampüs & Sürdürülebilirlik">
+            <span class="dock-icon-wrap" title="${t('nav.greenCampus', 'Yeşil Kampüs')}">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path>
                 <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path>
               </svg>
             </span>
-            <span class="dock-nav-label">Yeşil Kampüs</span>
+            <span class="dock-nav-label">${t('nav.greenCampus', 'Yeşil Kampüs')}</span>
           </a>
 
           <!-- Hızlı Spotlight Arama -->
           <button type="button" class="dock-nav-item btn-dock-spotlight" id="btnDockSpotlight" style="background: rgba(59, 130, 246, 0.08); border: 1.2px dashed rgba(59, 130, 246, 0.4); margin-top: 10px; cursor: pointer; text-align: left; width: 100%;">
             <span class="dock-icon-wrap" style="display: none;"></span>
             <span style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-              <span>Hızlı Arama</span>
+              <span>${t('nav.quickSearch', 'Hızlı Arama')}</span>
               <kbd style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: rgba(100,116,139,0.2); font-family: monospace; font-weight: 700;">Ctrl K</kbd>
             </span>
           </button>
@@ -289,7 +290,7 @@ export function renderNavbar(container) {
 
         <nav class="dock-nav-list">
           <a href="#/katalog" class="dock-nav-item" id="navKatalog">
-            <span class="dock-icon-wrap" title="Malzeme Kataloğu">
+            <span class="dock-icon-wrap" title="${t('nav.catalog', 'Malzeme Kataloğu')}">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="3" width="7" height="7"></rect>
                 <rect x="14" y="3" width="7" height="7"></rect>
@@ -297,34 +298,34 @@ export function renderNavbar(container) {
                 <rect x="3" y="14" width="7" height="7"></rect>
               </svg>
             </span>
-            <span class="dock-nav-label">Malzeme Kataloğu</span>
+            <span class="dock-nav-label">${t('nav.catalog', 'Malzeme Kataloğu')}</span>
           </a>
 
           <!-- Yeşil Kampüs -->
           <a href="#/yesil-kampus" class="dock-nav-item" id="navYesilKampus">
-            <span class="dock-icon-wrap" title="Yeşil Kampüs & Sürdürülebilirlik">
+            <span class="dock-icon-wrap" title="${t('nav.greenCampus', 'Yeşil Kampüs')}">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path>
                 <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path>
               </svg>
             </span>
-            <span class="dock-nav-label">Yeşil Kampüs</span>
+            <span class="dock-nav-label">${t('nav.greenCampus', 'Yeşil Kampüs')}</span>
           </a>
 
           <a href="#/sepet" class="dock-nav-item ${state.cartCount > 0 ? 'has-cart-items' : ''}" id="navSepet">
-            <span class="dock-icon-wrap" title="Sepetim">
+            <span class="dock-icon-wrap" title="${t('nav.cart', 'Sepetim')}">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="9" cy="21" r="1"></circle>
                 <circle cx="20" cy="21" r="1"></circle>
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
               </svg>
             </span>
-            <span class="dock-nav-label">Sepetim</span>
+            <span class="dock-nav-label">${t('nav.cart', 'Sepetim')}</span>
             <span class="dock-cart-badge ${state.cartCount > 0 ? 'is-active' : ''}">${state.cartCount}</span>
           </a>
 
           <a href="#/taleplerim" class="dock-nav-item" id="navTaleplerim">
-            <span class="dock-icon-wrap" title="Taleplerim">
+            <span class="dock-icon-wrap" title="${t('nav.requests', 'Taleplerim')}">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                 <polyline points="14 2 14 8 20 8"></polyline>
@@ -333,14 +334,14 @@ export function renderNavbar(container) {
                 <polyline points="10 9 9 9 8 9"></polyline>
               </svg>
             </span>
-            <span class="dock-nav-label">Taleplerim</span>
+            <span class="dock-nav-label">${t('nav.requests', 'Taleplerim')}</span>
           </a>
 
           <!-- Hızlı Spotlight Arama -->
           <button type="button" class="dock-nav-item btn-dock-spotlight" id="btnDockSpotlight" style="background: rgba(59, 130, 246, 0.08); border: 1.2px dashed rgba(59, 130, 246, 0.4); margin-top: 10px; cursor: pointer; text-align: left; width: 100%;">
             <span class="dock-icon-wrap" style="display: none;"></span>
             <span style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-              <span>Hızlı Arama</span>
+              <span>${t('nav.quickSearch', 'Hızlı Arama')}</span>
               <kbd style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: rgba(100,116,139,0.2); font-family: monospace; font-weight: 700;">Ctrl K</kbd>
             </span>
           </button>

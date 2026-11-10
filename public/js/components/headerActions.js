@@ -7,6 +7,7 @@ import showOnboardingModal from './onboardingModal.js';
 import { mountNotificationBell, playChimeSound } from './notificationBell.js';
 import { openVekaletModal } from './vekaletModal.js';
 import { escapeHtml } from '../utils/text.js';
+import { t, getLanguage, setLanguage } from '../utils/i18n.js';
 
 function getInitials(name) {
   if (!name) return '??';
@@ -95,6 +96,7 @@ export function mountHeaderActions(targetEl, options = {}) {
 
   // Ses Durumu
   let isMuted = localStorage.getItem('satinalma_ses_durumu') === '0';
+  const curLang = getLanguage();
 
   targetEl.innerHTML = `
     <div class="satinalma-top-actions" style="display: flex; align-items: center; gap: 10px;">
@@ -128,34 +130,41 @@ export function mountHeaderActions(targetEl, options = {}) {
           ${isBirim ? `
             <button type="button" class="profile-dropdown-item" id="btnDropdownIstekSahibi">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-              <span>İstek Sahibi Değiştir</span>
+              <span>${t('header.switchRequester', 'İstek Sahibi Değiştir')}</span>
             </button>
           ` : `
             <button type="button" class="profile-dropdown-item" id="btnDropdownVekalet">
               <div style="text-align: left; line-height: 1.25;">
-                <div style="font-weight: 600;">Yetki Devri ve Görevlendirme</div>
-                <div style="font-size: 11px; color: var(--text-muted, #64748B);">Satın Alma Müdürü Onay Masası</div>
+                <div style="font-weight: 600;">${t('header.dutyDelegation', 'Yetki Devri ve Görevlendirme')}</div>
+                <div style="font-size: 11px; color: var(--text-muted, #64748B);">${t('header.dutyDelegationSub', 'Satın Alma Müdürü Onay Masası')}</div>
               </div>
             </button>
           `}
 
           <button type="button" class="profile-dropdown-item" id="btnDropdownSifre">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <span>Şifre Değiştir</span>
+            <span>${t('header.changePassword', 'Şifre Değiştir')}</span>
           </button>
 
           <div class="profile-dropdown-divider"></div>
 
           <button type="button" class="profile-dropdown-item text-destructive" id="btnDropdownLogout">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            <span>Çıkış Yap</span>
+            <span>${t('header.logout', 'Çıkış Yap')}</span>
           </button>
         </div>
       </div>
 
-      <!-- 3. Bildirim Sesi Düğmesi -->
-      <div id="headerSesToggle" class="switch-ui ${isMuted ? 'is-off' : 'is-on'}" role="button" tabindex="0" title="Bildirim Sesini Aç veya Kapat">
-        <span id="headerSesText">${isMuted ? 'Ses Kapalı' : 'Ses Açık'}</span>
+      <!-- 3. Dil Seçici Kapsülü (Apple Liquid Glass TR / EN) -->
+      <div id="headerLangToggle" class="lang-switch-capsule" role="button" tabindex="0" title="${t('header.langTitle', 'Dili Değiştir / Switch Language')}">
+        <span class="lang-option ${curLang === 'tr' ? 'active' : ''}">TR</span>
+        <span class="lang-sep">|</span>
+        <span class="lang-option ${curLang === 'en' ? 'active' : ''}">EN</span>
+      </div>
+
+      <!-- 4. Bildirim Sesi Düğmesi -->
+      <div id="headerSesToggle" class="switch-ui ${isMuted ? 'is-off' : 'is-on'}" role="button" tabindex="0" title="${t('header.soundTitle', 'Bildirim Sesini Aç veya Kapat')}">
+        <span id="headerSesText">${isMuted ? t('header.soundOff', 'Ses Kapalı') : t('header.soundOn', 'Ses Açık')}</span>
         <div class="switch-handle"></div>
       </div>
     </div>
@@ -229,9 +238,9 @@ export function mountHeaderActions(targetEl, options = {}) {
     e.stopPropagation();
     closeDropdown();
     const ok = await confirmModal({
-      title: 'Çıkış Yap',
-      message: 'Oturumunuz güvenli bir şekilde sonlandırılacaktır. Devam etmek istiyor musunuz?',
-      confirmText: 'Çıkış Yap',
+      title: t('header.logout', 'Çıkış Yap'),
+      message: curLang === 'en' ? 'Your session will be securely ended. Do you wish to continue?' : 'Oturumunuz güvenli bir şekilde sonlandırılacaktır. Devam etmek istiyor musunuz?',
+      confirmText: t('header.logout', 'Çıkış Yap'),
       confirmVariant: 'danger'
     });
     if (!ok) return;
@@ -239,14 +248,24 @@ export function mountHeaderActions(targetEl, options = {}) {
     try {
       await api.logout();
       state.setUser(null);
-      toast.info('Güvenli çıkış yapıldı.');
+      toast.info(curLang === 'en' ? 'Signed out securely.' : 'Güvenli çıkış yapıldı.');
       window.location.hash = '#/giris';
     } catch (err) {
       toast.error(err.message);
     }
   });
 
-  // 4) Ses Aç / Kapat Olayı
+  // 4) Dil Değiştirme (TR <-> EN)
+  const langToggle = targetEl.querySelector('#headerLangToggle');
+  langToggle?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const current = getLanguage();
+    const next = current === 'tr' ? 'en' : 'tr';
+    setLanguage(next);
+    toast.info(next === 'en' ? 'Language switched to English' : 'Dil Türkçe olarak ayarlandı');
+  });
+
+  // 5) Ses Aç / Kapat Olayı
   const sesToggle = targetEl.querySelector('#headerSesToggle');
   const sesText = targetEl.querySelector('#headerSesText');
 
@@ -254,18 +273,19 @@ export function mountHeaderActions(targetEl, options = {}) {
     e.stopPropagation();
     isMuted = !isMuted;
     localStorage.setItem('satinalma_ses_durumu', isMuted ? '0' : '1');
+    const activeLang = getLanguage();
 
     if (isMuted) {
       sesToggle.classList.remove('is-on');
       sesToggle.classList.add('is-off');
-      if (sesText) sesText.textContent = 'Ses Kapalı';
-      toast.info('Bildirim sesleri kapatıldı.');
+      if (sesText) sesText.textContent = activeLang === 'en' ? 'Sound Muted' : 'Ses Kapalı';
+      toast.info(activeLang === 'en' ? 'Notification chime muted' : 'Bildirim sesleri kapatıldı.');
     } else {
       sesToggle.classList.remove('is-off');
       sesToggle.classList.add('is-on');
-      if (sesText) sesText.textContent = 'Ses Açık';
+      if (sesText) sesText.textContent = activeLang === 'en' ? 'Sound On' : 'Ses Açık';
       playChimeSound();
-      toast.success('Bildirim sesleri açıldı.');
+      toast.success(activeLang === 'en' ? 'Notification chime unmuted' : 'Bildirim sesleri açıldı.');
     }
   });
 }

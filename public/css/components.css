@@ -973,6 +973,54 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
+/* Dil Seçici Kapsülü (Apple Liquid Glass) */
+.lang-switch-capsule {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  padding: 0 14px;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.2px solid rgba(255, 255, 255, 0.9);
+  border-radius: 9999px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--font-family, 'Plus Jakarta Sans', sans-serif);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.lang-switch-capsule:hover {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08), inset 0 1px 1px rgba(255, 255, 255, 1);
+  transform: translateY(-1px);
+}
+
+.lang-switch-capsule .lang-option {
+  color: #64748b;
+  transition: color 0.15s ease, font-weight 0.15s ease;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.lang-switch-capsule .lang-option.active {
+  color: #2563eb;
+  font-weight: 800;
+}
+
+.lang-switch-capsule .lang-sep {
+  color: #cbd5e1;
+  font-weight: 400;
+  font-size: 11px;
+}
+
 /* 2. Yanıp Sönen Kırmızı Uyarı Noktası (Pulsing Red Dot) */
 .pulse-dot-red {
   display: inline-block;
@@ -2917,6 +2965,11 @@ body.sidebar-collapsed .dock-nav-wrapper:hover .dock-flyout-popover {
   .switch-ui .switch-handle {
     width: 28px;
     height: 28px;
+  }
+  .lang-switch-capsule {
+    height: 38px;
+    padding: 0 10px;
+    font-size: 11px;
   }
 }
 
