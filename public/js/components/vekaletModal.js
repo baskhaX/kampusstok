@@ -42,9 +42,10 @@ export async function openVekaletModal(onUpdated) {
   });
 
   const isAssigned = Boolean(aktifVekalet && (aktifVekalet.alan_ad_soyad || aktifVekalet.adSoyad));
-  const aktifAdSoyad = aktifVekalet?.alan_ad_soyad || aktifVekalet?.adSoyad || 'Satın Alma Müdürü (Makam)';
+  const defaultManagerName = isEn ? 'Procurement Director' : 'Satın Alma Müdürü';
+  const aktifAdSoyad = isAssigned ? (aktifVekalet?.alan_ad_soyad || aktifVekalet?.adSoyad) : defaultManagerName;
   const aktifTur = aktifVekalet?.tur || 'devir';
-  const aktifEtiket = aktifVekalet?.rol_model_etiket || (aktifTur === 'izin' ? 'Yıllık İzin Vekili' : 'Kırtasiye ve Depo Sorumlusu');
+  const aktifEtiket = aktifVekalet?.rol_model_etiket || (aktifTur === 'izin' ? (isEn ? 'Annual Leave Delegate' : 'Yıllık İzin Vekili') : (isEn ? 'Stationery & Warehouse Lead' : 'Kırtasiye ve Depo Sorumlusu'));
   const aktifPersonelId = Number(aktifVekalet?.alan_personel_id || aktifVekalet?.personelId || 0);
 
   // Tarih ve Saat Formatlama (datetime-local için)
@@ -98,7 +99,7 @@ export async function openVekaletModal(onUpdated) {
               ${aktifAdSoyad ? aktifAdSoyad.slice(0, 2).toLocaleUpperCase('tr-TR') : 'SA'}
             </div>
             <div id="cardPersonName" style="font-size: 15px; font-weight: 800; color: #0F172A; margin-bottom: 2px;">
-              ${escapeHtml(aktifAdSoyad)}
+              ${escapeHtml(isEn && (!isAssigned || (aktifAdSoyad && aktifAdSoyad.toLowerCase().includes('satın alma müdür'))) ? 'Procurement Director' : aktifAdSoyad)}
             </div>
             <div id="cardPersonBirim" style="font-size: 12px; color: #64748B; margin-bottom: 12px;">
               ${isEn ? 'Procurement Directorate' : 'Satın Alma Müdürlüğü'}
@@ -107,7 +108,7 @@ export async function openVekaletModal(onUpdated) {
             <div style="border-top: 1px solid #E2E8F0; padding-top: 12px; text-align: left; font-size: 12px; display: flex; flex-direction: column; gap: 8px;">
               <div style="display: flex; justify-content: space-between;">
                 <span style="color: #64748B;">${isEn ? 'Title / Role:' : 'Unvan / Görev:'}</span>
-                <strong id="cardPersonGorev" style="color: #0F172A;">${escapeHtml(tTitle(aktifVekalet?.personel_gorev) || (isEn ? 'Authorized Staff' : 'Yetkili Personel'))}</strong>
+                <strong id="cardPersonGorev" style="color: #0F172A;">${escapeHtml(isEn && (!isAssigned || !aktifVekalet?.personel_gorev || aktifVekalet.personel_gorev.toLowerCase().includes('müdür')) ? 'Director' : (tTitle(aktifVekalet?.personel_gorev) || (isEn ? 'Director' : 'Müdür')))}</strong>
               </div>
               <div style="display: flex; justify-content: space-between;">
                 <span style="color: #64748B;">${isEn ? 'Extension Phone:' : 'Dahili Telefon:'}</span>
@@ -256,12 +257,12 @@ export async function openVekaletModal(onUpdated) {
       const name = opt.dataset.name || '';
       cardName.textContent = name;
       cardAvatar.textContent = name.slice(0, 2).toLocaleUpperCase('tr-TR');
-      cardGorev.textContent = opt.dataset.gorev || 'Personel';
+      cardGorev.textContent = tTitle(opt.dataset.gorev) || (isEn ? 'Staff' : 'Personel');
       cardTel.textContent = opt.dataset.tel || '-';
     } else {
-      cardName.textContent = 'Satın Alma Müdürü';
+      cardName.textContent = isEn ? 'Procurement Director' : 'Satın Alma Müdürü';
       cardAvatar.textContent = 'SA';
-      cardGorev.textContent = 'Müdür';
+      cardGorev.textContent = isEn ? 'Director' : 'Müdür';
       cardTel.textContent = '4050';
     }
   };
