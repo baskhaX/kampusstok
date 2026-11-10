@@ -3,13 +3,14 @@ import api from '../api.js';
 import toast from '../components/toast.js';
 import createModal from '../components/modal.js';
 import { renderProgressRailStepperHtml } from '../components/stepper.js';
+import { t } from '../utils/i18n.js';
 
 export async function renderTaleplerim(appContainer) {
   appContainer.innerHTML = `
     <div class="container main-content">
       <div style="margin-bottom: 24px;">
-        <h2 style="font-size: 24px; font-weight: 700; color: #0F172A; margin: 0;">Taleplerim</h2>
-        <p style="color: var(--color-muted-foreground); font-size: 13px; margin-top: 4px;">Adınıza oluşturduğunuz geçmiş talepleri ve teslimat tarihlerini takip edin.</p>
+        <h2 style="font-size: 24px; font-weight: 700; color: #0F172A; margin: 0;">${t('requests.title', 'Taleplerim')}</h2>
+        <p style="color: var(--color-muted-foreground); font-size: 13px; margin-top: 4px;">${t('requests.subtitle', 'Adınıza oluşturduğunuz geçmiş talepleri ve teslimat tarihlerini takip edin.')}</p>
       </div>
 
       <!-- Filtreler -->
@@ -17,16 +18,16 @@ export async function renderTaleplerim(appContainer) {
         <div style="display: flex; gap: 14px; flex-wrap: wrap;">
           <div style="flex: 1; min-width: 180px;">
             <select id="filtreDurum">
-              <option value="">Tüm Durumlar</option>
-              <option value="beklemede">Beklemede</option>
-              <option value="onaylandi">Onaylandı</option>
-              <option value="revize_onaylandi">Revize Edilerek Onaylandı</option>
-              <option value="reddedildi">Reddedildi</option>
-              <option value="teslim_edildi">Teslim Edildi</option>
+              <option value="">${t('requests.allStatuses', 'Tüm Durumlar')}</option>
+              <option value="beklemede">${t('status.beklemede', 'Beklemede')}</option>
+              <option value="onaylandi">${t('status.onaylandi', 'Onaylandı')}</option>
+              <option value="revize_onaylandi">${t('status.revize_onaylandi', 'Revize Edilerek Onaylandı')}</option>
+              <option value="reddedildi">${t('status.reddedildi', 'Reddedildi')}</option>
+              <option value="teslim_edildi">${t('status.teslim_edildi', 'Teslim Edildi')}</option>
             </select>
           </div>
           <button id="btnFiltrele" class="btn btn-outline btn-sm">
-            Filtrele
+            ${t('requests.filter', 'Filtrele')}
           </button>
         </div>
       </div>
@@ -36,17 +37,17 @@ export async function renderTaleplerim(appContainer) {
         <table class="data-table">
           <thead>
             <tr>
-              <th>Talep No</th>
-              <th>Tarih</th>
-              <th>İstek Sahibi</th>
-              <th>Kalem Sayısı</th>
-              <th>Durum</th>
-              <th>Teslim Tarihi</th>
-              <th style="text-align: right;">İşlemler</th>
+              <th>${t('requests.colNo', 'Talep No')}</th>
+              <th>${t('requests.colDate', 'Tarih')}</th>
+              <th>${t('requests.colOwner', 'İstek Sahibi')}</th>
+              <th>${t('requests.colItems', 'Kalem Sayısı')}</th>
+              <th>${t('requests.colStatus', 'Durum')}</th>
+              <th>${t('requests.colDelivery', 'Teslim Tarihi')}</th>
+              <th style="text-align: right;">${t('requests.colActions', 'İşlemler')}</th>
             </tr>
           </thead>
           <tbody id="taleplerTableBody">
-            <tr><td colspan="7" style="text-align: center; padding: 40px;">Yükleniyor...</td></tr>
+            <tr><td colspan="7" style="text-align: center; padding: 40px;">${t('common.loading', 'Yükleniyor...')}</td></tr>
           </tbody>
         </table>
       </div>

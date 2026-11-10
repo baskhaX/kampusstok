@@ -6,6 +6,7 @@ import { renderProgressRailStepperHtml } from '../components/stepper.js';
 import { mountNotificationBell, closeSSEConnection, playChimeSound } from '../components/notificationBell.js';
 import { openVekaletModal } from '../components/vekaletModal.js';
 import { escapeHtml } from '../utils/text.js';
+import { t, getLanguage } from '../utils/i18n.js';
 
 let sseEventSource = null;
 
@@ -37,7 +38,7 @@ function getInitials(name) {
 }
 
 /**
- * İlk teslimat Çarşambası tarihini formatlı Türkçe metin olarak döner
+ * İlk teslimat Çarşambası tarihini aktif dile göre formatlanmış metin olarak döner
  */
 function getGelecekCarsambaText() {
   const now = new Date();
@@ -49,7 +50,10 @@ function getGelecekCarsambaText() {
   const nextWed = new Date(now);
   nextWed.setDate(now.getDate() + diff);
 
-  return new Intl.DateTimeFormat('tr-TR', {
+  const lang = getLanguage();
+  const locale = lang === 'en' ? 'en-US' : (lang === 'de' ? 'de-DE' : (lang === 'fr' ? 'fr-FR' : (lang === 'es' ? 'es-ES' : (lang === 'ar' ? 'ar-SA' : 'tr-TR'))));
+
+  return new Intl.DateTimeFormat(locale, {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
@@ -67,8 +71,8 @@ export async function renderSatinalma(appContainer) {
     <div class="satinalma-page-wrap" style="width: 100%; max-width: 100%; box-sizing: border-box;">
       <!-- Üst Başlık -->
       <div style="margin-bottom: 22px;">
-        <h2 style="font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: #0F172A;">Gelen Kutusu & Talep Yönetimi</h2>
-        <p style="color: var(--text-dim); font-size: 13.5px; margin-top: 4px;">Birimlerden gelen kırtasiye taleplerini hiyerarşik ağaç akışında inceleyin ve sonuçlandırın.</p>
+        <h2 style="font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: #0F172A;">${t('satinalma.title', 'Gelen Kutusu & Talep Yönetimi')}</h2>
+        <p style="color: var(--text-dim); font-size: 13.5px; margin-top: 4px;">${t('satinalma.subtitle', 'Birimlerden gelen kırtasiye taleplerini hiyerarşik ağaç akışında inceleyin ve sonuçlandırın.')}</p>
       </div>
 
       <!-- ===================================================================
@@ -76,55 +80,55 @@ export async function renderSatinalma(appContainer) {
            =================================================================== -->
       <div class="satinalma-kpi-grid-5">
         <!-- Kart 1: Bekleyen Talep -->
-        <div class="kpi-card-apple" id="cardKpiBekleyen" style="cursor: pointer;" title="Sadece bekleyen talepleri filtrele">
+        <div class="kpi-card-apple" id="cardKpiBekleyen" style="cursor: pointer;" title="${t('satinalma.kpiPending', 'Bekleyen Talep')}">
           <div class="kpi-val" id="kpiBekleyen" style="color: #0284C7;">-</div>
-          <div class="kpi-label">Bekleyen Talep</div>
-          <div class="kpi-sub">İnceleme ve Onay Bekliyor</div>
+          <div class="kpi-label">${t('satinalma.kpiPending', 'Bekleyen Talep')}</div>
+          <div class="kpi-sub">${t('satinalma.kpiPendingSub', 'İnceleme ve Onay Bekliyor')}</div>
         </div>
 
         <!-- Kart 2: Çarşamba Teslimat (Sayı + Kırmızı/Yeşil Nokta + Toplu Teslim Et) -->
-        <div class="kpi-card-apple" id="cardKpiTeslimat" style="cursor: pointer; position: relative;" title="Çarşamba teslimat bekleyenleri filtrele">
+        <div class="kpi-card-apple" id="cardKpiTeslimat" style="cursor: pointer; position: relative;" title="${t('satinalma.kpiDelivery', 'Çarşamba Teslimat')}">
           <div style="display: flex; align-items: center; justify-content: space-between;">
             <div style="display: flex; align-items: center; gap: 10px;">
               <span id="deliveryPulseDot" class="pulse-dot-red"></span>
               <div class="kpi-val" id="deliveryCount" style="color: #0F172A;">0</div>
             </div>
             <span style="font-size: 11px; font-weight: 700; color: #B45309; background: rgba(245, 158, 11, 0.15); padding: 2px 8px; border-radius: 9999px;">
-              Teslimat
+              ${t('satinalma.deliveryBadge', 'Teslimat')}
             </span>
           </div>
           <div>
-            <div class="kpi-label">Çarşamba Teslimat</div>
+            <div class="kpi-label">${t('satinalma.kpiDelivery', 'Çarşamba Teslimat')}</div>
             <div class="kpi-sub" id="deliveryTargetDateText" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
               ${getGelecekCarsambaText()}
             </div>
           </div>
           <div style="margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(226, 232, 240, 0.7); display: flex; justify-content: flex-end;">
             <button id="btnTopluTeslimEt" class="btn btn-primary btn-sm" style="font-size: 11px; padding: 4px 12px; border-radius: 9999px;">
-              Toplu Teslim Et
+              ${t('satinalma.batchDeliver', 'Toplu Teslim Et')}
             </button>
           </div>
         </div>
 
         <!-- Kart 3: Revize Onaylanan -->
-        <div class="kpi-card-apple" id="cardKpiRevize" style="cursor: pointer;" title="Revize onaylanan talepleri filtrele">
+        <div class="kpi-card-apple" id="cardKpiRevize" style="cursor: pointer;" title="${t('satinalma.kpiRevised', 'Revize Onaylanan')}">
           <div class="kpi-val" id="kpiRevize" style="color: #D97706;">-</div>
-          <div class="kpi-label">Revize Onaylanan</div>
-          <div class="kpi-sub">Miktar Düzeltmeli Onay</div>
+          <div class="kpi-label">${t('satinalma.kpiRevised', 'Revize Onaylanan')}</div>
+          <div class="kpi-sub">${t('satinalma.kpiRevisedSub', 'Miktar Düzeltmeli Onay')}</div>
         </div>
 
         <!-- Kart 4: Reddedilen -->
-        <div class="kpi-card-apple" id="cardKpiReddedilen" style="cursor: pointer;" title="Reddedilen talepleri filtrele">
+        <div class="kpi-card-apple" id="cardKpiReddedilen" style="cursor: pointer;" title="${t('satinalma.kpiRejected', 'Reddedilen')}">
           <div class="kpi-val" id="kpiReddedilen" style="color: #DC2626;">-</div>
-          <div class="kpi-label">Reddedilen</div>
-          <div class="kpi-sub">İptal Edilen Talepler</div>
+          <div class="kpi-label">${t('satinalma.kpiRejected', 'Reddedilen')}</div>
+          <div class="kpi-sub">${t('satinalma.kpiRejectedSub', 'İptal Edilen Talepler')}</div>
         </div>
 
         <!-- Kart 5: Teslim Edilenler (Yeşil - Kullanıcının Aradığı Arşiv) -->
-        <div class="kpi-card-apple" id="cardKpiTeslimEdildi" style="cursor: pointer;" title="Teslim edilen tüm tamamlanmış talepleri filtrele">
+        <div class="kpi-card-apple" id="cardKpiTeslimEdildi" style="cursor: pointer;" title="${t('satinalma.kpiDelivered', 'Teslim Edilenler')}">
           <div class="kpi-val" id="kpiTeslimEdildi" style="color: #059669;">-</div>
-          <div class="kpi-label">Teslim Edilenler</div>
-          <div class="kpi-sub">Tamamlanan Talepler</div>
+          <div class="kpi-label">${t('satinalma.kpiDelivered', 'Teslim Edilenler')}</div>
+          <div class="kpi-sub">${t('satinalma.kpiDeliveredSub', 'Tamamlanan Talepler')}</div>
         </div>
       </div>
 
@@ -133,35 +137,35 @@ export async function renderSatinalma(appContainer) {
            =================================================================== -->
       <div class="satinalma-tabs-bar" id="satinalmaTabsBar">
         <button type="button" class="satinalma-tab-btn ${initialDurum === 'beklemede' ? 'active' : ''}" data-durum="beklemede">
-          <span>Bekleyen Talepler</span>
+          <span>${t('satinalma.tabPending', 'Bekleyen Talepler')}</span>
           <span class="tab-badge" id="badgeTabBekleyen">0</span>
         </button>
         <button type="button" class="satinalma-tab-btn ${initialDurum === 'teslimat' ? 'active' : ''}" data-durum="teslimat">
-          <span>Teslim Bekleyenler</span>
+          <span>${t('satinalma.tabDelivery', 'Teslim Bekleyenler')}</span>
           <span class="tab-badge" id="badgeTabTeslimat">0</span>
         </button>
         <button type="button" class="satinalma-tab-btn ${initialDurum === 'revize_onaylandi' ? 'active' : ''}" data-durum="revize_onaylandi">
-          <span>Revize Edilenler</span>
+          <span>${t('satinalma.tabRevised', 'Revize Edilenler')}</span>
           <span class="tab-badge" id="badgeTabRevize">0</span>
         </button>
         <button type="button" class="satinalma-tab-btn ${initialDurum === 'reddedildi' ? 'active' : ''}" data-durum="reddedildi">
-          <span>Reddedilenler</span>
+          <span>${t('satinalma.tabRejected', 'Reddedilenler')}</span>
           <span class="tab-badge" id="badgeTabRed">0</span>
         </button>
         <button type="button" class="satinalma-tab-btn ${initialDurum === 'teslim_edildi' ? 'active' : ''}" data-durum="teslim_edildi">
-          <span>Teslim Edilenler</span>
+          <span>${t('satinalma.tabDelivered', 'Teslim Edilenler')}</span>
           <span class="tab-badge" id="badgeTabTeslimEdildi">0</span>
         </button>
         <button type="button" class="satinalma-tab-btn ${initialDurum === 'atil_malzeme' ? 'active' : ''}" data-durum="atil_malzeme">
-          <span>İade Malzemeler</span>
+          <span>${t('satinalma.tabReturned', 'İade Malzemeler')}</span>
           <span class="tab-badge" id="badgeTabAtil">0</span>
         </button>
         <button type="button" class="satinalma-tab-btn ${initialDurum === 'odunc_ekipman' ? 'active' : ''}" data-durum="odunc_ekipman">
-          <span>Ödünç Ekipmanlar</span>
+          <span>${t('satinalma.tabLoaned', 'Ödünç Ekipmanlar')}</span>
           <span class="tab-badge" id="badgeTabOdunc">0</span>
         </button>
         <button type="button" class="satinalma-tab-btn ${initialDurum === 'hepsi' ? 'active' : ''}" data-durum="hepsi">
-          <span>Tüm Talepler</span>
+          <span>${t('satinalma.tabAll', 'Tüm Talepler')}</span>
           <span class="tab-badge" id="badgeTabHepsi">0</span>
         </button>
       </div>
@@ -171,29 +175,30 @@ export async function renderSatinalma(appContainer) {
            =================================================================== -->
       <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 20px;">
         <div style="flex: 1; min-width: 220px; position: relative;">
-          <input type="text" id="filtreKuyrukSearch" placeholder="Talep No, Birim veya İstek Sahibi ara (Örn: TLP-2026, Mühendislik, Ahmet)..." class="input-apple" style="width: 100%; padding: 10px 18px; border-radius: 9999px; font-size: 13.5px; background: rgba(255, 255, 255, 0.85); border: 1.2px solid rgba(255, 255, 255, 0.95); box-shadow: var(--glass-shadow); box-sizing: border-box; outline: none;">
+          <input type="text" id="filtreKuyrukSearch" placeholder="${t('satinalma.searchPlaceholder', 'Talep No, Birim veya İstek Sahibi ara (Örn: TLP-2026, Mühendislik, Ahmet)...')}" class="input-apple" style="width: 100%; padding: 10px 18px; border-radius: 9999px; font-size: 13.5px; background: rgba(255, 255, 255, 0.85); border: 1.2px solid rgba(255, 255, 255, 0.95); box-shadow: var(--glass-shadow); box-sizing: border-box; outline: none;">
         </div>
 
         <select id="filtreKuyrukDurum" class="select-apple" style="width: auto !important; min-width: 180px; max-width: 230px; padding: 10px 16px; border-radius: 9999px; font-size: 13px; font-weight: 600; color: #1e293b; background: rgba(255, 255, 255, 0.88); border: 1.2px solid rgba(255, 255, 255, 0.95); box-shadow: var(--glass-shadow); outline: none; cursor: pointer; flex-shrink: 0;">
-          <option value="beklemede" ${initialDurum === 'beklemede' ? 'selected' : ''}>Sadece Bekleyenler</option>
-          <option value="teslimat" ${initialDurum === 'teslimat' ? 'selected' : ''}>Çarşamba Teslimatı Bekleyenler</option>
-          <option value="atil_malzeme" ${initialDurum === 'atil_malzeme' ? 'selected' : ''}>İade Malzemeler</option>
-          <option value="odunc_ekipman" ${initialDurum === 'odunc_ekipman' ? 'selected' : ''}>Ödünç Ekipman Talepleri</option>
-          <option value="hepsi" ${initialDurum === 'hepsi' ? 'selected' : ''}>Tüm Talepler</option>
-          <option value="onaylandi" ${initialDurum === 'onaylandi' ? 'selected' : ''}>Onaylananlar</option>
-          <option value="revize_onaylandi" ${initialDurum === 'revize_onaylandi' ? 'selected' : ''}>Revize Onaylananlar</option>
-          <option value="teslim_edildi" ${initialDurum === 'teslim_edildi' ? 'selected' : ''}>Teslim Edilenler</option>
-          <option value="reddedildi" ${initialDurum === 'reddedildi' ? 'selected' : ''}>Reddedilenler</option>
+          <option value="beklemede" ${initialDurum === 'beklemede' ? 'selected' : ''}>${t('satinalma.optPendingOnly', 'Sadece Bekleyenler')}</option>
+          <option value="teslimat" ${initialDurum === 'teslimat' ? 'selected' : ''}>${t('satinalma.optDeliveryWed', 'Çarşamba Teslimatı Bekleyenler')}</option>
+          <option value="atil_malzeme" ${initialDurum === 'atil_malzeme' ? 'selected' : ''}>${t('satinalma.optReturned', 'İade Malzemeler')}</option>
+          <option value="odunc_ekipman" ${initialDurum === 'odunc_ekipman' ? 'selected' : ''}>${t('satinalma.optLoaned', 'Ödünç Ekipman Talepleri')}</option>
+          <option value="hepsi" ${initialDurum === 'hepsi' ? 'selected' : ''}>${t('satinalma.optAll', 'Tüm Talepler')}</option>
+          <option value="onaylandi" ${initialDurum === 'onaylandi' ? 'selected' : ''}>${t('satinalma.optApproved', 'Onaylananlar')}</option>
+          <option value="revize_onaylandi" ${initialDurum === 'revize_onaylandi' ? 'selected' : ''}>${t('satinalma.optRevised', 'Revize Onaylananlar')}</option>
+          <option value="teslim_edildi" ${initialDurum === 'teslim_edildi' ? 'selected' : ''}>${t('satinalma.optDelivered', 'Teslim Edilenler')}</option>
+          <option value="reddedildi" ${initialDurum === 'reddedildi' ? 'selected' : ''}>${t('satinalma.optRejected', 'Reddedilenler')}</option>
         </select>
 
         <button id="btnKuyrukYenile" class="btn btn-secondary btn-sm" style="padding: 10px 20px; border-radius: 9999px; flex-shrink: 0;">
-          Yenile
+          ${t('satinalma.refresh', 'Yenile')}
         </button>
       </div>
 
       <!-- Tek Hiyerarşik Ağaç Alanı -->
       <div id="satinalmaContentArea" style="min-height: 240px;">
-        <div style="text-align: center; padding: 48px 24px; color: var(--text-dim); font-size: 14px;">Talepler yükleniyor...</div>
+        <div style="text-align: center; padding: 48px 24px; color: var(--text-dim); font-size: 14px;">${t('satinalma.loading', 'Talepler yükleniyor...')}</div>
+      </div>
       </div>
     </div>
   `;
@@ -456,8 +461,8 @@ async function loadGelenTalepler(appContainer) {
     if (filtrelenmis.length === 0) {
       contentArea.innerHTML = `
         <div style="text-align: center; padding: 48px 24px; background: rgba(255, 255, 255, 0.7); border-radius: 24px; border: 1.5px dashed rgba(148, 163, 184, 0.35);">
-          <h4 style="font-size: 15px; font-weight: 700; color: #0F172A; margin-bottom: 4px;">Kayıtlı Talep Bulunamadı</h4>
-          <p style="font-size: 13px; color: var(--text-dim); margin: 0;">Seçili filtrelere uygun gelen talep bulunmuyor.</p>
+          <h4 style="font-size: 15px; font-weight: 700; color: #0F172A; margin-bottom: 4px;">${t('satinalma.noRequestsTitle', 'Kayıtlı Talep Bulunamadı')}</h4>
+          <p style="font-size: 13px; color: var(--text-dim); margin: 0;">${t('satinalma.noRequestsSub', 'Seçili filtrelere uygun gelen talep bulunmuyor.')}</p>
         </div>
       `;
     } else {
@@ -465,7 +470,7 @@ async function loadGelenTalepler(appContainer) {
     }
 
   } catch (err) {
-    contentArea.innerHTML = `<div style="padding: 20px; color: #DC2626;">Veriler yüklenirken hata oluştu: ${err.message}</div>`;
+    contentArea.innerHTML = `<div style="padding: 20px; color: #DC2626;">${t('common.error', 'Hata')}: ${err.message}</div>`;
   }
 }
 
@@ -484,8 +489,8 @@ function renderAtilMalzemeKuyruk(contentArea, list, search, appContainer) {
   if (filtered.length === 0) {
     contentArea.innerHTML = `
       <div style="text-align: center; padding: 48px 24px; background: rgba(255, 255, 255, 0.7); border-radius: 24px; border: 1.5px dashed rgba(148, 163, 184, 0.35);">
-        <h4 style="font-size: 15px; font-weight: 700; color: #0F172A; margin-bottom: 4px;">Atıl Malzeme Bildirimi Bulunamadı</h4>
-        <p style="font-size: 13px; color: var(--text-dim); margin: 0;">Henüz bekleyen veya teslim alınmış bir atıl malzeme bildirimi bulunmuyor.</p>
+        <h4 style="font-size: 15px; font-weight: 700; color: #0F172A; margin-bottom: 4px;">${t('satinalma.noSurplusTitle', 'Atıl Malzeme Bildirimi Bulunamadı')}</h4>
+        <p style="font-size: 13px; color: var(--text-dim); margin: 0;">${t('satinalma.noSurplusSub', 'Henüz bekleyen veya teslim alınmış bir atıl malzeme bildirimi bulunmuyor.')}</p>
       </div>
     `;
     return;
@@ -722,37 +727,37 @@ function renderTreeList(container, talepler, appContainer) {
               ${birimAd}
             </div>
             <div class="tree-desc" style="font-size: 12px; color: var(--text-dim);">
-              ${items.length} Talep Bildirimi
+              ${items.length} ${t('satinalma.notificationsCount', 'Talep Bildirimi')}
             </div>
           </div>
         </div>
         <div class="tree-meta">
-          <span class="badge badge-neutral" style="font-size: 11px;">${items.length} İstek</span>
+          <span class="badge badge-neutral" style="font-size: 11px;">${items.length} ${t('satinalma.requestsCount', 'İstek')}</span>
         </div>
       </div>
     `;
     totalIndex++;
 
     // Dal Seviyesi: İstek Sahibi ve Talepler (Level-1 Branch)
-    items.forEach((t, itemIdx) => {
+    items.forEach((tItem, itemIdx) => {
       const isLastInGroup = itemIdx === items.length - 1;
-      const initials = getInitials(t.personel_adi);
-      const isUnread = t.durum === 'beklemede';
+      const initials = getInitials(tItem.personel_adi);
+      const isUnread = tItem.durum === 'beklemede';
 
-      let durumBadge = '<span class="badge badge-neutral" style="font-size: 11px;">Beklemede</span>';
-      if (t.durum === 'onaylandi') durumBadge = '<span class="badge badge-success" style="font-size: 11px;">Onaylandı</span>';
-      else if (t.durum === 'revize_onaylandi') durumBadge = '<span class="badge badge-warning" style="font-size: 11px;">Revize Onay</span>';
-      else if (t.durum === 'teslim_edildi') {
-        if (t.kullanici_teslim_aldi === 1) {
-          durumBadge = '<span class="badge badge-success" style="font-size: 11px; background: rgba(16, 185, 129, 0.15); color: #047857; border: 1px solid rgba(16, 185, 129, 0.4);">✓ Teslim Alındı (Kullanıcı Teyitli)</span>';
+      let durumBadge = `<span class="badge badge-neutral" style="font-size: 11px;">${t('status.beklemede', 'Beklemede')}</span>`;
+      if (tItem.durum === 'onaylandi') durumBadge = `<span class="badge badge-success" style="font-size: 11px;">${t('status.onaylandi', 'Onaylandı')}</span>`;
+      else if (tItem.durum === 'revize_onaylandi') durumBadge = `<span class="badge badge-warning" style="font-size: 11px;">${t('status.revize_onaylandi', 'Revize Onay')}</span>`;
+      else if (tItem.durum === 'teslim_edildi') {
+        if (tItem.kullanici_teslim_aldi === 1) {
+          durumBadge = `<span class="badge badge-success" style="font-size: 11px; background: rgba(16, 185, 129, 0.15); color: #047857; border: 1px solid rgba(16, 185, 129, 0.4);">${t('satinalma.userConfirmed', '✓ Teslim Alındı (Kullanıcı Teyitli)')}</span>`;
         } else {
-          durumBadge = '<span class="badge badge-warning" style="font-size: 11px; background: rgba(245, 158, 11, 0.15); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.4);">Teslim Edildi (Kullanıcı Teyidi Bekleniyor)</span>';
+          durumBadge = `<span class="badge badge-warning" style="font-size: 11px; background: rgba(245, 158, 11, 0.15); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.4);">${t('satinalma.awaitingUserConfirm', 'Teslim Edildi (Kullanıcı Teyidi Bekleniyor)')}</span>`;
         }
       }
-      else if (t.durum === 'reddedildi') durumBadge = '<span class="badge badge-danger" style="font-size: 11px;">Reddedildi</span>';
+      else if (tItem.durum === 'reddedildi') durumBadge = `<span class="badge badge-danger" style="font-size: 11px;">${t('status.reddedildi', 'Reddedildi')}</span>`;
 
       html += `
-        <div class="tree-row level-1 ${isUnread ? 'unread' : ''} ${isLastInGroup ? 'last-node' : ''}" data-talep-id="${t.id}">
+        <div class="tree-row level-1 ${isUnread ? 'unread' : ''} ${isLastInGroup ? 'last-node' : ''}" data-talep-id="${tItem.id}">
           <div class="tree-row-left">
             <div class="tree-node-col">
               <div class="tree-avatar">
@@ -761,14 +766,14 @@ function renderTreeList(container, talepler, appContainer) {
             </div>
             <div class="tree-content">
               <div class="tree-title" style="font-weight: 600; font-size: 13.5px; color: #1E293B;">
-                ${t.personel_adi}
+                ${tItem.personel_adi}
               </div>
               <div class="tree-desc" style="font-size: 12px; color: var(--text-dim);">
-                <strong>${t.talep_no}</strong> • ${t.kalem_sayisi || 0} Kalem Malzeme ${t.notlar ? `(${t.notlar})` : ''}
-                ${t.durum === 'teslim_edildi' ? `
+                <strong>${tItem.talep_no}</strong> • ${tItem.kalem_sayisi || 0} ${t('satinalma.itemsCount', 'Kalem Malzeme')} ${tItem.notlar ? `(${tItem.notlar})` : ''}
+                ${tItem.durum === 'teslim_edildi' ? `
                   <div style="font-size: 11.5px; color: #047857; margin-top: 3px; font-weight: 600;">
-                    ✓ ${t.personel_adi} tarafından teslim alındı ${t.kullanici_teslim_tarihi ? `(${t.kullanici_teslim_tarihi.substring(0, 16)})` : ''}
-                    ${t.kullanici_teslim_notu ? `<span style="font-style: italic; color: #475569; font-weight: 400; margin-left: 6px;">— "${t.kullanici_teslim_notu}"</span>` : ''}
+                    ✓ ${tItem.personel_adi} (${tItem.kullanici_teslim_tarihi ? tItem.kullanici_teslim_tarihi.substring(0, 16) : ''})
+                    ${tItem.kullanici_teslim_notu ? `<span style="font-style: italic; color: #475569; font-weight: 400; margin-left: 6px;">— "${tItem.kullanici_teslim_notu}"</span>` : ''}
                   </div>
                 ` : ''}
               </div>
@@ -777,26 +782,26 @@ function renderTreeList(container, talepler, appContainer) {
 
           <div class="tree-meta">
             ${durumBadge}
-            <span class="tree-time" style="font-size: 12px; color: var(--text-dim);">${(t.olusturma_tarihi || '').substring(0, 16)}</span>
+            <span class="tree-time" style="font-size: 12px; color: var(--text-dim);">${(tItem.olusturma_tarihi || '').substring(0, 16)}</span>
             <div class="tree-actions" style="display: flex; gap: 8px;">
-              ${t.durum === 'beklemede' ? `
-                <button class="btn btn-primary btn-sm btn-talep-incele" data-id="${t.id}" style="font-size: 12px; padding: 5px 12px;">
-                  İncele & Onayla
+              ${tItem.durum === 'beklemede' ? `
+                <button class="btn btn-primary btn-sm btn-talep-incele" data-id="${tItem.id}" style="font-size: 12px; padding: 5px 12px;">
+                  ${t('satinalma.inspectAndApprove', 'İncele & Onayla')}
                 </button>
               ` : `
-                <button class="btn btn-secondary btn-sm btn-talep-incele" data-id="${t.id}" style="font-size: 12px; padding: 5px 10px;">
-                  İncele
+                <button class="btn btn-secondary btn-sm btn-talep-incele" data-id="${tItem.id}" style="font-size: 12px; padding: 5px 10px;">
+                  ${t('satinalma.inspect', 'İncele')}
                 </button>
               `}
 
-              ${(t.durum === 'onaylandi' || t.durum === 'revize_onaylandi') ? `
-                <button class="btn btn-secondary btn-sm btn-talep-teslim-et" data-id="${t.id}" style="font-size: 12px; padding: 5px 10px;" title="Malzemeleri Teslim Edildi Olarak İşaretle">
-                  Teslim Edildi Yap
+              ${(tItem.durum === 'onaylandi' || tItem.durum === 'revize_onaylandi') ? `
+                <button class="btn btn-secondary btn-sm btn-talep-teslim-et" data-id="${tItem.id}" style="font-size: 12px; padding: 5px 10px;" title="${t('satinalma.markDelivered', 'Teslim Edildi Yap')}">
+                  ${t('satinalma.markDelivered', 'Teslim Edildi Yap')}
                 </button>
               ` : ''}
 
-              <button class="btn btn-secondary btn-sm btn-talep-yazdir" data-id="${t.id}" style="font-size: 12px; padding: 5px 10px;" title="Malzeme Teslim Fişi Yazdır">
-                ${t.durum === 'teslim_edildi' ? 'Teslim Fişi' : 'Yazdır'}
+              <button class="btn btn-secondary btn-sm btn-talep-yazdir" data-id="${tItem.id}" style="font-size: 12px; padding: 5px 10px;" title="${t('satinalma.print', 'Yazdır')}">
+                ${tItem.durum === 'teslim_edildi' ? t('satinalma.deliveryReceipt', 'Teslim Fişi') : t('satinalma.print', 'Yazdır')}
               </button>
             </div>
           </div>

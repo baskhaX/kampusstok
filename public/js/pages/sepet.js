@@ -4,20 +4,21 @@ import state from '../state.js';
 import toast from '../components/toast.js';
 import { createModal, confirmModal } from '../components/modal.js';
 import { escapeHtml } from '../utils/text.js';
+import { t } from '../utils/i18n.js';
 
 export async function renderSepet(appContainer) {
   appContainer.innerHTML = `
     <div class="container main-content">
       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
         <div>
-          <h2 style="font-size: 24px; font-weight: 700; color: #0F172A; margin: 0;">Malzeme Talep Sepeti</h2>
+          <h2 style="font-size: 24px; font-weight: 700; color: #0F172A; margin: 0;">${t('cart.title', 'Malzeme Talep Sepeti')}</h2>
           <p style="color: var(--color-muted-foreground); font-size: 13px; margin-top: 4px;">
-            Talep listenizi gözden geçirin, adetleri düzenleyin ve onaylayarak Satın Alma Müdürlüğü'ne iletin.
+            ${t('cart.subtitle', 'Talep listenizi gözden geçirin, adetleri düzenleyin ve onaylayarak Satın Alma Müdürlüğü\'ne iletin.')}
           </p>
         </div>
         <div>
           <button id="btnSepetTemizle" class="btn btn-outline btn-sm" style="color: var(--color-destructive); height: 38px; border-radius: 9999px;">
-            Sepeti Temizle
+            ${t('cart.clearCart', 'Sepeti Temizle')}
           </button>
         </div>
       </div>
@@ -26,7 +27,7 @@ export async function renderSepet(appContainer) {
         <!-- Sol: Kalemler Listesi -->
         <div class="card" style="padding: 24px;">
           <div id="sepetKalemlerList">
-            <p style="text-align: center; color: var(--color-muted-foreground); padding: 40px;">Sepet yükleniyor...</p>
+            <p style="text-align: center; color: var(--color-muted-foreground); padding: 40px;">${t('common.loading', 'Sepet yükleniyor...')}</p>
           </div>
         </div>
 
@@ -34,42 +35,42 @@ export async function renderSepet(appContainer) {
         <aside>
           <div class="card" style="padding: 24px; position: sticky; top: 80px;">
             <h3 style="font-size: 17px; margin-bottom: 16px; border-bottom: 1px solid var(--color-border); padding-bottom: 10px;">
-              Talep Özeti
+              ${t('cart.summary', 'Talep Özeti')}
             </h3>
 
             <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
-              <span>İstek Sahibi:</span>
+              <span>${t('cart.requester', 'İstek Sahibi:')}</span>
               <strong>${state.user?.seciliPersonel?.adSoyad || 'Bilinmiyor'}</strong>
             </div>
 
             <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
-              <span>Birim:</span>
+              <span>${t('cart.department', 'Birim:')}</span>
               <strong>${state.user?.birimAdi || 'Birim'}</strong>
             </div>
 
             <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
-              <span>Toplam Çeşit:</span>
+              <span>${t('cart.totalVariety', 'Toplam Çeşit:')}</span>
               <strong id="ozetToplamKalem">0</strong>
             </div>
 
             <div style="display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 14px;">
-              <span>Toplam Adet:</span>
+              <span>${t('cart.totalQty', 'Toplam Adet:')}</span>
               <strong id="ozetToplamAdet">0</strong>
             </div>
 
             <div style="margin-bottom: 16px;">
               <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 6px; color: var(--color-muted-foreground);">
-                Talep Notu / Açıklama (İsteğe Bağlı):
+                ${t('cart.memoLabel', 'Talep Notu / Açıklama (İsteğe Bağlı):')}
               </label>
-              <textarea id="sepetNotu" rows="3" placeholder="Gereksinim detayları veya aciliyet bilgisi..."></textarea>
+              <textarea id="sepetNotu" rows="3" placeholder="${t('cart.memoPlaceholder', 'Gereksinim detayları veya aciliyet bilgisi...')}"></textarea>
             </div>
 
             <div style="background-color: #ECFDF5; border: 1px solid #A7F3D0; border-radius: var(--radius-md); padding: 12px; margin-bottom: 20px; font-size: 12px; color: #065F46;">
-              <strong>Teslimat Kuralı:</strong> Talebiniz onaylandıktan sonra depodan dağıtımlar <strong>Çarşamba</strong> günleri yapılır.
+              <strong>${t('cart.deliveryRule', 'Teslimat Kuralı: Talebiniz onaylandıktan sonra depodan dağıtımlar Çarşamba günleri yapılır.')}</strong>
             </div>
 
             <button id="btnTalebiGonder" class="btn btn-accent" style="width: 100%; padding: 14px; font-size: 15px;">
-              Talebi Onayla ve Gönder
+              ${t('cart.submit', 'Talebi Onayla ve Gönder')}
             </button>
           </div>
         </aside>
@@ -147,9 +148,9 @@ async function loadFullSepet(appContainer) {
     if (kalemler.length === 0) {
       listContainer.innerHTML = `
         <div class="empty-state">
-          <h3 class="empty-state-title">Sepetiniz Boş</h3>
-          <p class="empty-state-desc">Katalogdan ihtiyacınız olan kırtasiye ürünlerini seçebilirsiniz.</p>
-          <a href="#/katalog" class="btn btn-accent">Kataloğa Git</a>
+          <h3 class="empty-state-title">${t('cart.emptyTitle', 'Sepetiniz Boş')}</h3>
+          <p class="empty-state-desc">${t('cart.emptyDesc', 'Katalogdan ihtiyacınız olan kırtasiye ürünlerini seçebilirsiniz.')}</p>
+          <a href="#/katalog" class="btn btn-accent">${t('cart.browseCatalog', 'Kataloğa Git')}</a>
         </div>
       `;
       btnGonder.disabled = true;

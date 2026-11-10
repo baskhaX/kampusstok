@@ -42,6 +42,8 @@ test('KampüsStok Çoklu Dil (i18n) Motoru Testleri', async (tSuite) => {
     assert.equal(t('nav.inbox'), 'Gelen Kutusu');
     assert.equal(t('header.logout'), 'Çıkış Yap');
     assert.equal(t('auth.title'), 'KampüsStok Portalı');
+    assert.equal(t('satinalma.title'), 'Gelen Kutusu & Talep Yönetimi');
+    assert.equal(t('satinalma.kpiPending'), 'Bekleyen Talep');
   });
 
   await tSuite.test('İngilizceye geçiş yapılabilmeli ve EN terimler doğru dönmelidir', () => {
@@ -53,6 +55,8 @@ test('KampüsStok Çoklu Dil (i18n) Motoru Testleri', async (tSuite) => {
     assert.equal(t('nav.inbox'), 'Approval Inbox');
     assert.equal(t('header.logout'), 'Sign Out');
     assert.equal(t('auth.title'), 'CampusStock Portal');
+    assert.equal(t('satinalma.title'), 'Approval Inbox & Order Flow');
+    assert.equal(t('satinalma.kpiPending'), 'Pending Orders');
   });
 
   await tSuite.test('Bilinmeyen veya eksik anahtarlar için fallback metni veya Türkçe karşılığı dönmelidir', () => {

@@ -5,6 +5,7 @@ import toast from '../components/toast.js';
 import { openSepetDrawer } from '../components/sepetDrawer.js';
 import { openProductLightbox } from '../components/productLightbox.js';
 import { escapeHtml } from '../utils/text.js';
+import { t } from '../utils/i18n.js';
 
 let aktifKategoriId = null;
 let aramaMetni = '';
@@ -74,11 +75,11 @@ export async function renderKatalog(appContainer) {
       <div class="katalog-layout">
         <!-- Sol: Kategori Ağacı -->
         <aside class="kategori-sidebar">
-          <div class="kategori-title">Kategoriler</div>
+          <div class="kategori-title">${t('catalog.allCategories', 'Kategoriler')}</div>
           <ul class="kategori-list" id="kategoriTree">
             <li class="kategori-item">
               <button class="kategori-btn active" data-id="">
-                <span>Tüm Kategoriler</span>
+                <span>${t('catalog.allCategories', 'Tüm Kategoriler')}</span>
               </button>
             </li>
           </ul>
@@ -88,17 +89,17 @@ export async function renderKatalog(appContainer) {
         <main>
           <div class="katalog-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
             <div>
-              <h2 style="font-size: 24px; font-weight: 700; color: #0F172A; margin: 0;">Malzeme Kataloğu</h2>
-              <p style="color: var(--color-muted-foreground); font-size: 13px; margin-top: 4px;">Biriminiz için gereken kırtasiye malzemelerini seçip sepete ekleyin.</p>
+              <h2 style="font-size: 24px; font-weight: 700; color: #0F172A; margin: 0;">${t('catalog.title', 'Malzeme Kataloğu')}</h2>
+              <p style="color: var(--color-muted-foreground); font-size: 13px; margin-top: 4px;">${t('catalog.subtitle', 'Biriminiz için gereken kırtasiye ve sarf malzemelerini seçip sepete ekleyin.')}</p>
             </div>
 
             <!-- Filtre ve Arama Çubuğu -->
             <div style="display: flex; gap: 12px; align-items: center;">
               <button id="btnToggleFavoriler" class="btn ${sadeceFavoriler ? 'btn-primary' : 'btn-outline'} btn-sm" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 700; height: 38px; border-radius: 9999px; white-space: nowrap;">
-                Favorilerim${favCount > 0 ? ` (${favCount})` : ''}
+                ${t('catalog.favorites', 'Favorilerim')}${favCount > 0 ? ` (${favCount})` : ''}
               </button>
               <div class="search-bar-wrapper" style="min-width: 280px;">
-                <input type="text" id="katalogSearchInput" placeholder="Ürün adı, marka veya kategori ara..." value="${aramaMetni}">
+                <input type="text" id="katalogSearchInput" placeholder="${t('catalog.searchPlaceholder', 'Ürün adı, marka veya kategori ara...')}" value="${aramaMetni}">
               </div>
             </div>
           </div>
@@ -106,7 +107,7 @@ export async function renderKatalog(appContainer) {
           <!-- Ürün Listesi Grid -->
           <div class="urun-grid" id="urunGrid">
             <p style="padding: 40px; text-align: center; color: var(--color-muted-foreground); grid-column: 1 / -1;">
-              Ürünler yükleniyor...
+              ${t('common.loading', 'Ürünler yükleniyor...')}
             </p>
           </div>
         </main>
@@ -389,26 +390,26 @@ async function loadUrunler(appContainer) {
       const isFav = favoriler.has(Number(u.id));
       let badgeHtml = '';
       if (u.stokDurumu === 'stokta') {
-        badgeHtml = `<span class="badge badge-success">Stokta</span>`;
+        badgeHtml = `<span class="badge badge-success">${t('catalog.inStock', 'Stokta')}</span>`;
       } else if (u.stokDurumu === 'sinirli') {
-        badgeHtml = `<span class="badge badge-warning">Sınırlı Stok</span>`;
+        badgeHtml = `<span class="badge badge-warning">${t('catalog.inStock', 'Sınırlı Stok')}</span>`;
       } else {
-        badgeHtml = `<span class="badge badge-danger">Tükendi</span>`;
+        badgeHtml = `<span class="badge badge-danger">${t('catalog.outOfStock', 'Tükendi')}</span>`;
       }
 
       return `
         <div class="card urun-card" style="position: relative; ${isFav ? 'border: 1.5px solid #fcd34d;' : ''}">
           <button class="btn-toggle-fav-card" data-id="${u.id}" title="${isFav ? 'Favorilerden Çıkar' : 'Favorilere Ekle'}" style="position: absolute; top: 10px; right: 10px; z-index: 4; background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(0,0,0,0.08); border-radius: 9999px; padding: 4px 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.06); font-size: 11px; font-weight: 700; color: ${isFav ? '#b45309' : '#64748b'}; transition: transform 0.15s ease;">
-            ${isFav ? 'Favori' : '+Fav'}
+            ${isFav ? t('catalog.favorited', 'Favori') : t('catalog.addFavorite', '+Fav')}
           </button>
           <div class="urun-img-wrap" data-lightbox-id="${u.id}" style="cursor: pointer;" title="Detaylı HD İncelemek ve Büyütmek İçin Tıklayın">
             <img src="${u.gorselYolu || '/assets/placeholder.svg'}" onerror="this.onerror=null;this.src='/assets/placeholder.svg';" class="urun-img" alt="${u.ad}" loading="lazy" decoding="async">
             <div class="urun-badge-pos" style="display: flex; gap: 4px; flex-wrap: wrap;">
-              ${isFav ? `<span class="badge" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a; font-weight: 700; font-size: 10.5px;">Favori</span>` : ''}
-              ${u.demirbas ? `<span class="badge" style="background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe; font-weight: 700; font-size: 10.5px;">Demirbaş</span>` : ''}
+              ${isFav ? `<span class="badge" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a; font-weight: 700; font-size: 10.5px;">${t('catalog.favorited', 'Favori')}</span>` : ''}
+              ${u.demirbas ? `<span class="badge" style="background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe; font-weight: 700; font-size: 10.5px;">${t('catalog.durable', 'Demirbaş')}</span>` : ''}
               ${badgeHtml}
             </div>
-            <span class="urun-zoom-chip">İncele</span>
+            <span class="urun-zoom-chip">${t('catalog.inspect', 'İncele')}</span>
           </div>
           <div class="urun-content">
             <span class="urun-marka">${u.marka || u.kategoriAdi}</span>
@@ -424,7 +425,7 @@ async function loadUrunler(appContainer) {
                 </div>
               </div>
               <button class="btn btn-accent btn-sepete-ekle" data-id="${u.id}">
-                Sepete Ekle
+                ${t('catalog.addToCart', 'Sepete Ekle')}
               </button>
             </div>
           </div>
