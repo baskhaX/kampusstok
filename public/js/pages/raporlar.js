@@ -437,7 +437,8 @@ async function loadCanliAnaliz(appContainer) {
 async function renderToplamaOnizleme(appContainer, carsambaTarihi, binaSirali = 1) {
   const container = appContainer.querySelector('#raporOnizlemeContainer');
   container.style.display = 'block';
-  container.innerHTML = `<p style="text-align: center; padding: 30px;">Toplama verileri yükleniyor...</p>`;
+  const isEn = getLanguage() === 'en';
+  container.innerHTML = `<p style="text-align: center; padding: 30px;">${isEn ? 'Loading picking list...' : 'Toplama verileri yükleniyor...'}</p>`;
 
   try {
     const res = await api.getHaftalikToplama(carsambaTarihi, binaSirali);
@@ -447,77 +448,77 @@ async function renderToplamaOnizleme(appContainer, carsambaTarihi, binaSirali = 
       <div class="card" style="padding: 24px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;" class="no-print">
           <div>
-            <h3 style="font-size: 18px; font-weight: 700;">Haftalık Depo Toplama Listesi (${teslimatTarihiText})</h3>
-            <span style="font-size: 13px; color: var(--color-muted-foreground);">Toplam ${talepler.length} birim talebi &bull; ${kalemler.length} kalem malzeme</span>
+            <h3 style="font-size: 18px; font-weight: 700;">${isEn ? 'Weekly Warehouse Picking List' : 'Haftalık Depo Toplama Listesi'} (${teslimatTarihiText})</h3>
+            <span style="font-size: 13px; color: var(--color-muted-foreground);">${isEn ? `Total ${talepler.length} department requisitions • ${kalemler.length} items` : `Toplam ${talepler.length} birim talebi • ${kalemler.length} kalem malzeme`}</span>
           </div>
           <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
             <a href="/api/raporlar/toplu-teslim-fisleri?carsambaTarihi=${encodeURIComponent(carsambaTarihi)}&print=1" target="_blank" class="btn btn-primary" style="box-shadow: 0 4px 12px rgba(37,99,235,0.25); font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-              Tüm Teslim Fişlerini Toplu Yazdır (${talepler.length} Birim A4)
+              ${isEn ? `Print All Delivery Slips (${talepler.length} Depts A4)` : `Tüm Teslim Fişlerini Toplu Yazdır (${talepler.length} Birim A4)`}
             </a>
             <button class="btn btn-outline" id="btnA4ToplamaYazdir" style="font-weight: 600;">
-              A4 Toplama Listesini Yazdır
+              ${isEn ? 'Print A4 Picking List' : 'A4 Toplama Listesini Yazdır'}
             </button>
           </div>
         </div>
 
         <div class="print-header">
           <div>
-            <h1 style="font-size: 18px; font-weight: 800;">KURUMSAL KIRTASİYE VE DEPO YÖNETİMİ</h1>
-            <p style="font-size: 13px; color: #475569;">Satın Alma Müdürlüğü &bull; Haftalık Depo Malzeme Toplama Listesi</p>
+            <h1 style="font-size: 18px; font-weight: 800;">${isEn ? 'INSTITUTIONAL STATIONERY & INVENTORY MANAGEMENT' : 'KURUMSAL KIRTASİYE VE DEPO YÖNETİMİ'}</h1>
+            <p style="font-size: 13px; color: #475569;">${isEn ? 'Procurement Directorate • Weekly Warehouse Picking List' : 'Satın Alma Müdürlüğü • Haftalık Depo Malzeme Toplama Listesi'}</p>
           </div>
           <div style="text-align: right;">
-            <strong>Teslimat Günü:</strong> ${teslimatTarihiText}
+            <strong>${isEn ? 'Delivery Day:' : 'Teslimat Günü:'}</strong> ${teslimatTarihiText}
           </div>
         </div>
 
-        <h4 style="font-size: 14px; font-weight: 700; margin: 16px 0 8px 0;">1. Depodan Çıkarılacak Toplam Malzemeler (Özet)</h4>
+        <h4 style="font-size: 14px; font-weight: 700; margin: 16px 0 8px 0;">${isEn ? '1. Total Items to Pick from Warehouse (Summary)' : '1. Depodan Çıkarılacak Toplam Malzemeler (Özet)'}</h4>
         <table class="data-table" style="margin-bottom: 24px;">
           <thead>
             <tr>
-              <th>Ürün Adı</th>
-              <th>Ölçü Birimi</th>
-              <th style="text-align: right;">Toplam Adet</th>
+              <th>${isEn ? 'Item Name' : 'Ürün Adı'}</th>
+              <th>${isEn ? 'Unit' : 'Ölçü Birimi'}</th>
+              <th style="text-align: right;">${isEn ? 'Total Units' : 'Toplam Adet'}</th>
             </tr>
           </thead>
           <tbody>
             ${urunOzet.map(u => `
               <tr>
-                <td><strong>${u.urun_adi}</strong></td>
-                <td>${u.olcu_birimi}</td>
+                <td><strong>${escapeHtml(tProduct(u.urun_adi))}</strong></td>
+                <td>${escapeHtml(tUnit(u.olcu_birimi))}</td>
                 <td style="text-align: right;"><strong>${u.toplam_adet ?? u.toplam_onaylanan ?? 0}</strong></td>
               </tr>
             `).join('')}
           </tbody>
         </table>
 
-        <h4 style="font-size: 14px; font-weight: 700; margin: 16px 0 8px 0;">2. Birim ve Oda Bazında Dağıtım Detayı</h4>
+        <h4 style="font-size: 14px; font-weight: 700; margin: 16px 0 8px 0;">${isEn ? '2. Distribution Details by Department & Room' : '2. Birim ve Oda Bazında Dağıtım Detayı'}</h4>
         <table class="data-table">
           <thead>
             <tr>
-              <th>Talep No</th>
-              <th>Birim</th>
-              <th>Teslim Alacak Kişi & Yer</th>
-              <th>Malzeme</th>
-              <th style="text-align: right;">Adet</th>
-              <th style="width: 70px; text-align: center;">Teslim</th>
-              <th style="width: 95px; text-align: center;" class="no-print">Fiş</th>
+              <th>${isEn ? 'Req No' : 'Talep No'}</th>
+              <th>${isEn ? 'Department' : 'Birim'}</th>
+              <th>${isEn ? 'Recipient & Location' : 'Teslim Alacak Kişi & Yer'}</th>
+              <th>${isEn ? 'Item' : 'Malzeme'}</th>
+              <th style="text-align: right;">${isEn ? 'Qty' : 'Adet'}</th>
+              <th style="width: 70px; text-align: center;">${isEn ? 'Delivered' : 'Teslim'}</th>
+              <th style="width: 95px; text-align: center;" class="no-print">${isEn ? 'Slip' : 'Fiş'}</th>
             </tr>
           </thead>
           <tbody>
             ${kalemler.map(k => `
               <tr>
                 <td><strong style="color: #1e3a8a; font-family: monospace;">${k.talep_no}</strong></td>
-                <td><strong>${k.birim_adi}</strong></td>
+                <td><strong>${escapeHtml(tDepartment(k.birim_adi))}</strong></td>
                 <td>
-                  <strong>${k.personel_adi || '-'}</strong>
-                  <div style="font-size: 11px; color: #475569;">${[k.bina_adi, k.oda_no ? `Oda: ${k.oda_no}` : ''].filter(Boolean).join(' - ') || 'Oda Belirtilmemiş'}</div>
+                  <strong>${escapeHtml(k.personel_adi || '-')}</strong>
+                  <div style="font-size: 11px; color: #475569;">${[tBuilding(k.bina_adi), k.oda_no ? `${isEn ? 'Room' : 'Oda'}: ${k.oda_no}` : ''].filter(Boolean).join(' - ') || (isEn ? 'Room Unspecified' : 'Oda Belirtilmemiş')}</div>
                 </td>
-                <td>${k.urun_adi}</td>
-                <td style="text-align: right;"><strong>${k.onaylanan_adet} ${k.olcu_birimi}</strong></td>
+                <td>${escapeHtml(tProduct(k.urun_adi))}</td>
+                <td style="text-align: right;"><strong>${k.onaylanan_adet} ${escapeHtml(tUnit(k.olcu_birimi))}</strong></td>
                 <td style="text-align: center;">[ &nbsp; ]</td>
                 <td style="text-align: center;" class="no-print">
-                  <a href="/api/raporlar/teslim-fisi/${k.talep_id}?print=1" target="_blank" class="btn btn-sm btn-outline" title="Bu birimin teslim fişini yazdır" style="padding: 4px 10px; font-size: 11.5px; font-weight: 600; white-space: nowrap; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-                    Fişi Yazdır
+                  <a href="/api/raporlar/teslim-fisi/${k.talep_id}?print=1" target="_blank" class="btn btn-sm btn-outline" title="${isEn ? 'Print delivery slip for this department' : 'Bu birimin teslim fişini yazdır'}" style="padding: 4px 10px; font-size: 11.5px; font-weight: 600; white-space: nowrap; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                    ${isEn ? 'Print Slip' : 'Fişi Yazdır'}
                   </a>
                 </td>
               </tr>
@@ -527,26 +528,26 @@ async function renderToplamaOnizleme(appContainer, carsambaTarihi, binaSirali = 
 
         ${atilIadeler.length > 0 ? `
           <h4 style="font-size: 14px; font-weight: 700; margin: 24px 0 8px 0; color: #065f46;">
-            3. Çarşamba Odalardan Teslim Alınacak Atıl Malzemeler ve İadeler (+20 Yeşil Puan)
+            ${isEn ? '3. Surplus Materials & Returns to Collect on Wednesday (+20 Green Points)' : '3. Çarşamba Odalardan Teslim Alınacak Atıl Malzemeler ve İadeler (+20 Yeşil Puan)'}
           </h4>
           <table class="data-table">
             <thead>
               <tr style="background: #ecfdf5; color: #065f46;">
-                <th style="width: 70px;">Kayıt</th>
-                <th style="width: 180px;">Bina / Oda</th>
-                <th style="width: 180px;">Birim & Bildiren</th>
-                <th>Teslim Alınacak Malzeme Notu</th>
-                <th style="width: 90px; text-align: center;">Durum</th>
+                <th style="width: 70px;">${isEn ? 'Record' : 'Kayıt'}</th>
+                <th style="width: 180px;">${isEn ? 'Building / Room' : 'Bina / Oda'}</th>
+                <th style="width: 180px;">${isEn ? 'Department & Reporter' : 'Birim & Bildiren'}</th>
+                <th>${isEn ? 'Item Collection Notes' : 'Teslim Alınacak Malzeme Notu'}</th>
+                <th style="width: 90px; text-align: center;">${isEn ? 'Status' : 'Durum'}</th>
               </tr>
             </thead>
             <tbody>
               ${atilIadeler.map(a => `
                 <tr>
                   <td><strong style="color: #059669;">#${a.id}</strong></td>
-                  <td><strong>${a.bina_adi || 'Bina Belirtilmemiş'}</strong><br><span style="font-size: 11px; color: #475569;">Oda: ${a.oda_no || '-'}</span></td>
-                  <td><strong>${a.birim_adi}</strong><br><span style="font-size: 11px; color: #475569;">${a.bildiren_adi}</span></td>
-                  <td>${a.aciklama}</td>
-                  <td style="text-align: center;"><span class="badge badge-warning">Beklemede</span></td>
+                  <td><strong>${escapeHtml(tBuilding(a.bina_adi) || (isEn ? 'Building Unspecified' : 'Bina Belirtilmemiş'))}</strong><br><span style="font-size: 11px; color: #475569;">${isEn ? 'Room' : 'Oda'}: ${escapeHtml(a.oda_no || '-')}</span></td>
+                  <td><strong>${escapeHtml(tDepartment(a.birim_adi))}</strong><br><span style="font-size: 11px; color: #475569;">${escapeHtml(a.bildiren_adi)}</span></td>
+                  <td>${escapeHtml(a.aciklama)}</td>
+                  <td style="text-align: center;"><span class="badge badge-warning">${isEn ? 'Pending' : 'Beklemede'}</span></td>
                 </tr>
               `).join('')}
             </tbody>
@@ -570,32 +571,34 @@ async function renderYoneticiBulteniOnizleme(appContainer, ay, yil) {
   const container = appContainer.querySelector('#raporOnizlemeContainer');
   if (!container) return;
 
+  const isEn = getLanguage() === 'en';
   container.style.display = 'block';
   container.innerHTML = `
     <div class="card" style="padding: 32px; text-align: center;">
-      <p style="color: var(--color-muted-foreground);">Yönetici bülteni hazırlanıyor...</p>
+      <p style="color: var(--color-muted-foreground);">${isEn ? 'Preparing executive consumption bulletin...' : 'Yönetici bülteni hazırlanıyor...'}</p>
     </div>
   `;
 
   try {
     const res = await api.getYoneticiBulteni({ ay, yil });
     const { donem, ozet, enCokTuketenBirimler = [], enCokTalepEdilenUrunler = [], demirbasDagitimlari = [] } = res;
+    const donemLabel = isEn ? `${tMonth(ay)} ${yil} Period` : `${donem.donemAdi} Dönemi`;
 
     container.innerHTML = `
       <div class="card" style="padding: 28px; margin-bottom: 24px; border: 1.5px solid #3b82f6; background: rgba(255, 255, 255, 0.95); box-shadow: 0 16px 40px rgba(37,99,235,0.1);">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; flex-wrap: wrap; gap: 14px;">
           <div>
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span class="badge badge-primary" style="font-size: 11px;">Rektörlük &bull; Genel Sekreterlik</span>
-              <span style="font-size: 13px; color: #64748b;">${donem.donemAdi} Dönemi</span>
+              <span class="badge badge-primary" style="font-size: 11px;">${isEn ? 'Executive Leadership • General Secretariat' : 'Rektörlük • Genel Sekreterlik'}</span>
+              <span style="font-size: 13px; color: #64748b;">${donemLabel}</span>
             </div>
-            <h3 style="font-size: 20px; font-weight: 800; color: #0f172a; margin-top: 4px;">Aylık Kırtasiye Tüketim & Tasarruf Bülteni</h3>
+            <h3 style="font-size: 20px; font-weight: 800; color: #0f172a; margin-top: 4px;">${isEn ? 'Monthly Stationery Consumption & Savings Bulletin' : 'Aylık Kırtasiye Tüketim & Tasarruf Bülteni'}</h3>
           </div>
           <div style="display: flex; gap: 10px;">
             <a href="/api/raporlar/yonetici-bulteni?ay=${ay}&yil=${yil}&format=html&print=1" target="_blank" class="btn btn-primary" style="box-shadow: 0 4px 12px rgba(37,99,235,0.25); font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-              Resmi A4 Bülteni Yazdır
+              ${isEn ? 'Print Official A4 Bulletin' : 'Resmi A4 Bülteni Yazdır'}
             </a>
-            <button class="btn btn-outline" id="btnBultenKapat">Kapat</button>
+            <button class="btn btn-outline" id="btnBultenKapat">${t('common.close', 'Kapat')}</button>
           </div>
         </div>
 
@@ -603,75 +606,75 @@ async function renderYoneticiBulteniOnizleme(appContainer, ay, yil) {
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 24px;">
           <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-top: 3px solid #0f172a; border-radius: 12px; padding: 14px 16px; text-align: center;">
             <div style="font-size: 26px; font-weight: 800; color: #0f172a;">${ozet.toplamTalep}</div>
-            <div style="font-size: 11.5px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-top: 2px;">Toplam Talep</div>
-            <div style="font-size: 11px; color: #64748b; margin-top: 4px;">${ozet.aktifBirimSayisi} Aktif Birim</div>
+            <div style="font-size: 11.5px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-top: 2px;">${isEn ? 'Total Requisitions' : 'Toplam Talep'}</div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 4px;">${ozet.aktifBirimSayisi} ${isEn ? 'Active Departments' : 'Aktif Birim'}</div>
           </div>
 
           <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-top: 3px solid #1e3a8a; border-radius: 12px; padding: 14px 16px; text-align: center;">
             <div style="font-size: 26px; font-weight: 800; color: #1e3a8a;">${ozet.toplamKarsilanan}</div>
-            <div style="font-size: 11.5px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-top: 2px;">Karşılanan Adet</div>
-            <div style="font-size: 11px; color: #64748b; margin-top: 4px;">İstenen: ${ozet.toplamIstenen} Adet</div>
+            <div style="font-size: 11.5px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-top: 2px;">${isEn ? 'Fulfilled Units' : 'Karşılanan Adet'}</div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 4px;">${isEn ? 'Requested' : 'İstenen'}: ${ozet.toplamIstenen} ${isEn ? 'Units' : 'Adet'}</div>
           </div>
 
           <div style="background: rgba(236, 253, 245, 0.6); border: 1.5px solid #a7f3d0; border-top: 3px solid #059669; border-radius: 12px; padding: 14px 16px; text-align: center;">
             <div style="font-size: 26px; font-weight: 800; color: #059669;">%${ozet.tasarrufOrani}</div>
-            <div style="font-size: 11.5px; font-weight: 700; color: #047857; text-transform: uppercase; margin-top: 2px;">İsraf Tasarrufu</div>
-            <div style="font-size: 11px; color: #047857; font-weight: 700; margin-top: 4px;">${ozet.tasarrufAdet} Adet Tasarruf</div>
+            <div style="font-size: 11.5px; font-weight: 700; color: #047857; text-transform: uppercase; margin-top: 2px;">${isEn ? 'Waste Prevention' : 'İsraf Tasarrufu'}</div>
+            <div style="font-size: 11px; color: #047857; font-weight: 700; margin-top: 4px;">${ozet.tasarrufAdet} ${isEn ? 'Units Saved' : 'Adet Tasarruf'}</div>
           </div>
 
           <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-top: 3px solid #d97706; border-radius: 12px; padding: 14px 16px; text-align: center;">
             <div style="font-size: 26px; font-weight: 800; color: #d97706;">${ozet.teslimEdilenTalep + ozet.onayliTalep}</div>
-            <div style="font-size: 11.5px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-top: 2px;">Sonuçlanan Talep</div>
-            <div style="font-size: 11px; color: #64748b; margin-top: 4px;">${ozet.reddedilenTalep} Reddedilen</div>
+            <div style="font-size: 11.5px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-top: 2px;">${isEn ? 'Completed Requisitions' : 'Sonuçlanan Talep'}</div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 4px;">${ozet.reddedilenTalep} ${isEn ? 'Rejected' : 'Reddedilen'}</div>
           </div>
         </div>
 
         <!-- 2 Kolon: Birimler ve Ürünler -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; margin-bottom: 20px;">
           <div>
-            <h4 style="font-size: 14.5px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">En Çok Tüketen İlk 5 Birim</h4>
+            <h4 style="font-size: 14.5px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">${isEn ? 'Top 5 Consuming Departments' : 'En Çok Tüketen İlk 5 Birim'}</h4>
             <table class="data-table">
               <thead>
                 <tr>
                   <th style="width: 30px;">#</th>
-                  <th>Birim / Fakülte</th>
-                  <th style="text-align: center; width: 80px;">Talep</th>
-                  <th style="text-align: right; width: 90px;">Toplam Adet</th>
+                  <th>${isEn ? 'Department / Faculty' : 'Birim / Fakülte'}</th>
+                  <th style="text-align: center; width: 80px;">${isEn ? 'Requisitions' : 'Talep'}</th>
+                  <th style="text-align: right; width: 90px;">${isEn ? 'Total Units' : 'Toplam Adet'}</th>
                 </tr>
               </thead>
               <tbody>
                 ${enCokTuketenBirimler.map((b, idx) => `
                   <tr>
                     <td style="text-align: center; font-weight: 700; color: #64748b;">${idx + 1}</td>
-                    <td><strong>${b.birim_adi}</strong></td>
-                    <td style="text-align: center;">${b.talep_sayisi} Talep</td>
-                    <td style="text-align: right; font-weight: 800; color: #1e3a8a;">${b.toplam_adet} Adet</td>
+                    <td><strong>${escapeHtml(tDepartment(b.birim_adi))}</strong></td>
+                    <td style="text-align: center;">${b.talep_sayisi} ${isEn ? 'Reqs' : 'Talep'}</td>
+                    <td style="text-align: right; font-weight: 800; color: #1e3a8a;">${b.toplam_adet} ${isEn ? 'Units' : 'Adet'}</td>
                   </tr>
-                `).join('') || '<tr><td colspan="4" style="text-align: center; padding: 14px;">Kayıt bulunamadı.</td></tr>'}
+                `).join('') || `<tr><td colspan="4" style="text-align: center; padding: 14px;">${isEn ? 'No records found.' : 'Kayıt bulunamadı.'}</td></tr>`}
               </tbody>
             </table>
           </div>
 
           <div>
-            <h4 style="font-size: 14.5px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">En Çok Talep Edilen İlk 5 Malzeme</h4>
+            <h4 style="font-size: 14.5px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">${isEn ? 'Top 5 Most Requested Items' : 'En Çok Talep Edilen İlk 5 Malzeme'}</h4>
             <table class="data-table">
               <thead>
                 <tr>
                   <th style="width: 30px;">#</th>
-                  <th>Malzeme Adı</th>
-                  <th style="text-align: center; width: 70px;">Birim</th>
-                  <th style="text-align: right; width: 90px;">Miktar</th>
+                  <th>${isEn ? 'Item Name' : 'Malzeme Adı'}</th>
+                  <th style="text-align: center; width: 70px;">${isEn ? 'Unit' : 'Birim'}</th>
+                  <th style="text-align: right; width: 90px;">${isEn ? 'Qty' : 'Miktar'}</th>
                 </tr>
               </thead>
               <tbody>
                 ${enCokTalepEdilenUrunler.map((u, idx) => `
                   <tr>
                     <td style="text-align: center; font-weight: 700; color: #64748b;">${idx + 1}</td>
-                    <td><strong>${u.urun_adi}</strong></td>
-                    <td style="text-align: center;"><span class="badge badge-neutral" style="font-size: 10px;">${u.olcu_birimi}</span></td>
-                    <td style="text-align: right; font-weight: 800; color: #059669;">${u.toplam_adet} Adet</td>
+                    <td><strong>${escapeHtml(tProduct(u.urun_adi))}</strong></td>
+                    <td style="text-align: center;"><span class="badge badge-neutral" style="font-size: 10px;">${escapeHtml(tUnit(u.olcu_birimi))}</span></td>
+                    <td style="text-align: right; font-weight: 800; color: #059669;">${u.toplam_adet} ${isEn ? 'Units' : 'Adet'}</td>
                   </tr>
-                `).join('') || '<tr><td colspan="4" style="text-align: center; padding: 14px;">Kayıt bulunamadı.</td></tr>'}
+                `).join('') || `<tr><td colspan="4" style="text-align: center; padding: 14px;">${isEn ? 'No records found.' : 'Kayıt bulunamadı.'}</td></tr>`}
               </tbody>
             </table>
           </div>
@@ -679,24 +682,24 @@ async function renderYoneticiBulteniOnizleme(appContainer, ay, yil) {
 
         ${demirbasDagitimlari.length > 0 ? `
           <div style="margin-top: 10px;">
-            <h4 style="font-size: 14.5px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Dağıtılan Demirbaş ve Dayanıklı Malzemeler (Zimmet Takibi)</h4>
+            <h4 style="font-size: 14.5px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">${isEn ? 'Dispatched Fixtures & Durable Assets (Custodian Tracking)' : 'Dağıtılan Demirbaş ve Dayanıklı Malzemeler (Zimmet Takibi)'}</h4>
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Malzeme Tanımı</th>
-                  <th>Teslim Edilen Birim</th>
-                  <th>Teslim Alan Kişi</th>
-                  <th style="text-align: center; width: 80px;">Adet</th>
-                  <th style="text-align: center; width: 110px;">Talep No</th>
+                  <th>${isEn ? 'Asset Description' : 'Malzeme Tanımı'}</th>
+                  <th>${isEn ? 'Recipient Department' : 'Teslim Edilen Birim'}</th>
+                  <th>${isEn ? 'Recipient Person' : 'Teslim Alan Kişi'}</th>
+                  <th style="text-align: center; width: 80px;">${isEn ? 'Qty' : 'Adet'}</th>
+                  <th style="text-align: center; width: 110px;">${isEn ? 'Req No' : 'Talep No'}</th>
                 </tr>
               </thead>
               <tbody>
                 ${demirbasDagitimlari.map(d => `
                   <tr>
-                    <td><strong>${d.urun_adi}</strong></td>
-                    <td>${d.birim_adi}</td>
-                    <td>${d.personel_adi}</td>
-                    <td style="text-align: center; font-weight: 700; color: #d97706;">${d.adet} Adet</td>
+                    <td><strong>${escapeHtml(tProduct(d.urun_adi))}</strong></td>
+                    <td>${escapeHtml(tDepartment(d.birim_adi))}</td>
+                    <td>${escapeHtml(d.personel_adi)}</td>
+                    <td style="text-align: center; font-weight: 700; color: #d97706;">${d.adet} ${isEn ? 'Units' : 'Adet'}</td>
                     <td style="text-align: center; font-family: monospace; font-size: 11.5px; color: #2563eb;">${d.talep_no}</td>
                   </tr>
                 `).join('')}
@@ -714,7 +717,7 @@ async function renderYoneticiBulteniOnizleme(appContainer, ay, yil) {
     container.scrollIntoView({ behavior: 'smooth' });
 
   } catch (err) {
-    container.innerHTML = `<p style="color: var(--color-destructive); text-align: center; padding: 20px;">Bülten yüklenemedi: ${err.message}</p>`;
+    container.innerHTML = `<p style="color: var(--color-destructive); text-align: center; padding: 20px;">${isEn ? 'Bulletin failed to load' : 'Bülten yüklenemedi'}: ${err.message}</p>`;
   }
 }
 

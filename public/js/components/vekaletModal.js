@@ -2,6 +2,7 @@
 import api from '../api.js';
 import toast from './toast.js';
 import createModal, { confirmModal } from './modal.js';
+import { t, getLanguage, tDepartment, tTitle } from '../utils/i18n.js';
 
 function escapeHtml(str) {
   if (!str) return '';
@@ -61,8 +62,10 @@ export async function openVekaletModal(onUpdated) {
   const defaultBaslangic = aktifVekalet?.baslangic_tarihi ? formatDatetime(aktifVekalet.baslangic_tarihi) : now.toISOString().slice(0, 16);
   const defaultBitis = aktifVekalet?.bitis_tarihi ? formatDatetime(aktifVekalet.bitis_tarihi) : '';
 
+  const isEn = getLanguage() === 'en';
+
   const modal = createModal({
-    title: 'Satın Alma - Görev Devri ve İzin Yetkilendirme Masası',
+    title: isEn ? 'Procurement Desk - Delegation of Authority & Leave Handover' : 'Satın Alma - Görev Devri ve İzin Yetkilendirme Masası',
     maxWidth: '880px',
     contentHtml: `
       <div style="padding: 4px 0;">
@@ -74,15 +77,15 @@ export async function openVekaletModal(onUpdated) {
             </div>
             <div>
               <div style="font-weight: 700; font-size: 14px; color: #0F172A;">
-                ${isAssigned ? `Aktif Yönetici: ${escapeHtml(aktifAdSoyad)}` : 'Makam: Satın Alma Müdürü (Asıl Otorite)'}
+                ${isAssigned ? (isEn ? `Active Manager: ${escapeHtml(aktifAdSoyad)}` : `Aktif Yönetici: ${escapeHtml(aktifAdSoyad)}`) : (isEn ? 'Authority: Procurement Director (Primary Seat)' : 'Makam: Satın Alma Müdürü (Asıl Otorite)')}
               </div>
               <div style="font-size: 12px; color: var(--text-dim); margin-top: 1px;">
-                ${isAssigned ? `Yetki Durumu: ${escapeHtml(aktifEtiket)} (${aktifTur === 'izin' ? 'Saatli Yıllık İzin Vekaleti' : 'Tam Yetkili Asıl Sorumlu'})` : 'Kırtasiye onay ve depo yönetim yetkisi doğrudan müdürlük makamındadır.'}
+                ${isAssigned ? (isEn ? `Authority Status: ${escapeHtml(aktifEtiket)} (${aktifTur === 'izin' ? 'Scheduled Annual Leave Delegation' : 'Primary Full Authority'})` : `Yetki Durumu: ${escapeHtml(aktifEtiket)} (${aktifTur === 'izin' ? 'Saatli Yıllık İzin Vekaleti' : 'Tam Yetkili Asıl Sorumlu'})`) : (isEn ? 'Stationery approval and warehouse inventory control are held directly by Director.' : 'Kırtasiye onay ve depo yönetim yetkisi doğrudan müdürlük makamındadır.')}
               </div>
             </div>
           </div>
           <span style="font-size: 12px; font-weight: 700; color: ${isAssigned ? '#047857' : '#B45309'}; background: ${isAssigned ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)'}; padding: 4px 12px; border-radius: 9999px;">
-            ${isAssigned ? 'Yürürlükte' : 'Asıl Makamda'}
+            ${isAssigned ? (isEn ? 'Active Delegation' : 'Yürürlükte') : (isEn ? 'Primary Seat' : 'Asıl Makamda')}
           </span>
         </div>
 
@@ -98,25 +101,25 @@ export async function openVekaletModal(onUpdated) {
               ${escapeHtml(aktifAdSoyad)}
             </div>
             <div id="cardPersonBirim" style="font-size: 12px; color: #64748B; margin-bottom: 12px;">
-              Satın Alma Müdürlüğü
+              ${isEn ? 'Procurement Directorate' : 'Satın Alma Müdürlüğü'}
             </div>
 
             <div style="border-top: 1px solid #E2E8F0; padding-top: 12px; text-align: left; font-size: 12px; display: flex; flex-direction: column; gap: 8px;">
               <div style="display: flex; justify-content: space-between;">
-                <span style="color: #64748B;">Unvan / Görev:</span>
-                <strong id="cardPersonGorev" style="color: #0F172A;">${escapeHtml(aktifVekalet?.personel_gorev || 'Yetkili Personel')}</strong>
+                <span style="color: #64748B;">${isEn ? 'Title / Role:' : 'Unvan / Görev:'}</span>
+                <strong id="cardPersonGorev" style="color: #0F172A;">${escapeHtml(tTitle(aktifVekalet?.personel_gorev) || (isEn ? 'Authorized Staff' : 'Yetkili Personel'))}</strong>
               </div>
               <div style="display: flex; justify-content: space-between;">
-                <span style="color: #64748B;">Dahili Telefon:</span>
+                <span style="color: #64748B;">${isEn ? 'Extension Phone:' : 'Dahili Telefon:'}</span>
                 <strong id="cardPersonTel" style="color: #0F172A;">${escapeHtml(aktifVekalet?.personel_telefon || '4050')}</strong>
               </div>
               <div style="display: flex; justify-content: space-between;">
-                <span style="color: #64748B;">Hesap Durumu:</span>
-                <span style="font-weight: 700; color: #059669;">Aktif Hesap</span>
+                <span style="color: #64748B;">${isEn ? 'Account Status:' : 'Hesap Durumu:'}</span>
+                <span style="font-weight: 700; color: #059669;">${isEn ? 'Active Account' : 'Aktif Hesap'}</span>
               </div>
               <div style="display: flex; justify-content: space-between;">
-                <span style="color: #64748B;">Erişim Kapsamı:</span>
-                <span style="font-weight: 700; color: #2563EB;">Tam Yetkili Yönetici</span>
+                <span style="color: #64748B;">${isEn ? 'Access Scope:' : 'Erişim Kapsamı:'}</span>
+                <span style="font-weight: 700; color: #2563EB;">${isEn ? 'Full Access Manager' : 'Tam Yetkili Yönetici'}</span>
               </div>
             </div>
           </div>
@@ -126,26 +129,26 @@ export async function openVekaletModal(onUpdated) {
             <!-- A. Hazır Yetki Şablonu -->
             <div style="padding: 10px 14px; background: rgba(239, 246, 255, 0.7); border: 1.2px solid #BFDBFE; border-radius: 10px;">
               <label style="font-size: 12px; font-weight: 700; color: #1E3A8A; display: block; margin-bottom: 6px;">
-                Hazır Yetki Şablonu Uygula
+                ${isEn ? 'Apply Preset Delegation Template' : 'Hazır Yetki Şablonu Uygula'}
               </label>
               <select id="modalSablonSelect" style="width: 100%; padding: 8px 12px; font-size: 13px; border-radius: 8px; border: 1px solid #93C5FD; background: #fff;">
-                <option value="">-- Şablon Seçiniz --</option>
-                <option value="asilsorumlu">Asıl Kırtasiye ve Depo Yöneticisi Ataması (Ozan Can Şimşek)</option>
-                <option value="yillikizin">Yıllık İzin Geçici Vekaleti (Saatli ve Tarihli)</option>
-                <option value="depolojistik">Çarşamba Dağıtım ve Depo Sorumlusu</option>
+                <option value="">${isEn ? '-- Select Template --' : '-- Şablon Seçiniz --'}</option>
+                <option value="asilsorumlu">${isEn ? 'Primary Stationery & Warehouse Manager Appointment (Ozan Can Şimşek)' : 'Asıl Kırtasiye ve Depo Yöneticisi Ataması (Ozan Can Şimşek)'}</option>
+                <option value="yillikizin">${isEn ? 'Annual Leave Delegation (Scheduled & Dated)' : 'Yıllık İzin Geçici Vekaleti (Saatli ve Tarihli)'}</option>
+                <option value="depolojistik">${isEn ? 'Wednesday Logistics & Warehouse Lead' : 'Çarşamba Dağıtım ve Depo Sorumlusu'}</option>
               </select>
             </div>
 
             <!-- B. Yetki Devredilecek Personel -->
             <div class="form-group">
               <label style="font-size: 12.5px; font-weight: 700; color: #0F172A; display: block; margin-bottom: 5px;">
-                Yetkilendirilecek Satın Alma Personeli *
+                ${isEn ? 'Procurement Staff to Authorize *' : 'Yetkilendirilecek Satın Alma Personeli *'}
               </label>
               <select id="modalVekilSelect" style="width: 100%; padding: 9px 12px; font-size: 13px; border-radius: 10px; border: 1.5px solid #CBD5E1; background: #fff;">
-                <option value="">-- Yetkiyi Geri Al (Müdürlük Makamına İade Et) --</option>
+                <option value="">${isEn ? '-- Revoke Delegation (Return to Director) --' : '-- Yetkiyi Geri Al (Müdürlük Makamına İade Et) --'}</option>
                 ${satinalmaPersonelleri.map(p => `
                   <option value="${p.id}" data-name="${p.ad_soyad}" data-email="${p.eposta || ''}" data-birim="${p.birim_adi || 'Satın Alma Müdürlüğü'}" data-tel="${p.telefon || ''}" data-gorev="${p.gorev || 'Personel'}" ${(aktifPersonelId === p.id || (!aktifPersonelId && p.ad_soyad.includes('Ozan'))) ? 'selected' : ''}>
-                    ${p.ad_soyad} • ${p.gorev || 'Personel'} (Dahili: ${p.telefon || '-'})
+                    ${p.ad_soyad} • ${tTitle(p.gorev) || p.gorev || 'Staff'} (${isEn ? 'Ext' : 'Dahili'}: ${p.telefon || '-'})
                   </option>
                 `).join('')}
               </select>
@@ -154,21 +157,21 @@ export async function openVekaletModal(onUpdated) {
             <!-- C. Yetki Türü Seçimi (Devir vs İzin) -->
             <div class="form-group">
               <label style="font-size: 12.5px; font-weight: 700; color: #0F172A; display: block; margin-bottom: 6px;">
-                Yetkilendirme Modeli
+                ${isEn ? 'Delegation Model' : 'Yetkilendirme Modeli'}
               </label>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                 <label style="display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px; border: 1.5px solid #CBD5E1; border-radius: 10px; cursor: pointer; background: #fff;" id="lblModelDevir">
                   <input type="radio" name="yetkiModeli" value="devir" ${aktifTur === 'devir' ? 'checked' : ''} style="margin-top: 2px;">
                   <div>
-                    <strong style="font-size: 12.5px; color: #0F172A;">Asıl Görev Devri</strong>
-                    <div style="font-size: 11px; color: #64748B;">Makamdan sorumlu personele tam devir.</div>
+                    <strong style="font-size: 12.5px; color: #0F172A;">${isEn ? 'Primary Handover' : 'Asıl Görev Devri'}</strong>
+                    <div style="font-size: 11px; color: #64748B;">${isEn ? 'Complete transfer to designated staff.' : 'Makamdan sorumlu personele tam devir.'}</div>
                   </div>
                 </label>
                 <label style="display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px; border: 1.5px solid #CBD5E1; border-radius: 10px; cursor: pointer; background: #fff;" id="lblModelIzin">
                   <input type="radio" name="yetkiModeli" value="izin" ${aktifTur === 'izin' ? 'checked' : ''} style="margin-top: 2px;">
                   <div>
-                    <strong style="font-size: 12.5px; color: #0F172A;">Saatli / Tarihli İzin Vekaleti</strong>
-                    <div style="font-size: 11px; color: #64748B;">Yıllık izin süresince geçici vekalet.</div>
+                    <strong style="font-size: 12.5px; color: #0F172A;">${isEn ? 'Scheduled Leave Handover' : 'Saatli / Tarihli İzin Vekaleti'}</strong>
+                    <div style="font-size: 11px; color: #64748B;">${isEn ? 'Temporary delegation during annual leave.' : 'Yıllık izin süresince geçici vekalet.'}</div>
                   </div>
                 </label>
               </div>
@@ -178,39 +181,39 @@ export async function openVekaletModal(onUpdated) {
             <div id="wrapZamanAyari" style="display: ${aktifTur === 'izin' ? 'grid' : 'none'}; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px 14px; background: rgba(254, 243, 199, 0.5); border: 1.2px solid #FDE68A; border-radius: 10px;">
               <div class="form-group">
                 <label style="font-size: 12px; font-weight: 700; color: #92400E; display: block; margin-bottom: 4px;">
-                  İzin Başlangıç (Tarih ve Saat) *
+                  ${isEn ? 'Leave Start (Date & Time) *' : 'İzin Başlangıç (Tarih ve Saat) *'}
                 </label>
                 <input type="datetime-local" id="vekaletBaslangic" value="${defaultBaslangic}" style="width: 100%; padding: 7px 10px; font-size: 12.5px; border-radius: 8px; border: 1px solid #CBD5E1; background: #fff; box-sizing: border-box;">
               </div>
               <div class="form-group">
                 <label style="font-size: 12px; font-weight: 700; color: #92400E; display: block; margin-bottom: 4px;">
-                  İzin Bitiş (Tarih ve Saat - Otomatik İade) *
+                  ${isEn ? 'Leave End (Date & Time - Auto Revert) *' : 'İzin Bitiş (Tarih ve Saat - Otomatik İade) *'}
                 </label>
                 <input type="datetime-local" id="vekaletBitis" value="${defaultBitis}" style="width: 100%; padding: 7px 10px; font-size: 12.5px; border-radius: 8px; border: 1px solid #CBD5E1; background: #fff; box-sizing: border-box;">
               </div>
               <div style="grid-column: 1 / -1; font-size: 11px; color: #B45309; line-height: 1.3;">
-                <em>Bitiş tarihi ve saati geldiğinde sistem yetkiyi vekilden <strong>otomatik olarak geri alır</strong> ve asıl personele iade eder.</em>
+                <em>${isEn ? 'When the end date and time arrive, authority will <strong>automatically revert</strong> back to the primary Director.' : 'Bitiş tarihi ve saati geldiğinde sistem yetkiyi vekilden <strong>otomatik olarak geri alır</strong> ve asıl personele iade eder.'}</em>
               </div>
             </div>
 
             <!-- E. Yetki Kapsamı (5 Granüler Checkbox) -->
             <div style="padding: 10px 12px; background: rgba(241, 245, 249, 0.7); border-radius: 10px; border: 1px solid #E2E8F0;">
-              <div style="font-size: 11.5px; font-weight: 700; color: #475569; margin-bottom: 6px; text-transform: uppercase;">Devredilen Yetkiler (Granüler):</div>
+              <div style="font-size: 11.5px; font-weight: 700; color: #475569; margin-bottom: 6px; text-transform: uppercase;">${isEn ? 'Delegated Permissions (Granular):' : 'Devredilen Yetkiler (Granüler):'}</div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 12px; color: #1E293B;">
-                <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" checked disabled> Talep İnceleme ve Onay</label>
-                <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" checked disabled> Depo Stok ve Sayım Düzeltme</label>
-                <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" checked disabled> Çarşamba Lojistik Listesi</label>
-                <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" checked disabled> Tüketim ve Denetim Raporları</label>
-                <label style="display: flex; align-items: center; gap: 6px; grid-column: 1 / -1; color: #2563EB; font-weight: 600;"><input type="checkbox" checked disabled> Görev Devri Masası (İzne çıkarken vekil atama yetkisi)</label>
+                <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" checked disabled> ${isEn ? 'Requisition Review & Approval' : 'Talep İnceleme ve Onay'}</label>
+                <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" checked disabled> ${isEn ? 'Warehouse Stock & Inventory Adjustment' : 'Depo Stok ve Sayım Düzeltme'}</label>
+                <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" checked disabled> ${isEn ? 'Wednesday Logistics Picking List' : 'Çarşamba Lojistik Listesi'}</label>
+                <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" checked disabled> ${isEn ? 'Consumption & Audit Reports' : 'Tüketim ve Denetim Raporları'}</label>
+                <label style="display: flex; align-items: center; gap: 6px; grid-column: 1 / -1; color: #2563EB; font-weight: 600;"><input type="checkbox" checked disabled> ${isEn ? 'Delegation Desk (Re-delegating while away)' : 'Görev Devri Masası (İzne çıkarken vekil atama yetkisi)'}</label>
               </div>
             </div>
 
             <!-- F. Resmi İdari Not -->
             <div class="form-group">
               <label style="font-size: 12px; font-weight: 600; color: #0F172A; display: block; margin-bottom: 4px;">
-                Resmi İdari Görevlendirme Notu
+                ${isEn ? 'Official Administrative Note' : 'Resmi İdari Görevlendirme Notu'}
               </label>
-              <input type="text" id="modalVekilNedeni" placeholder="Örn: 2026-2027 Dönemi Kırtasiye Yöneticisi veya Yıllık İzin Devri..." value="${escapeHtml(aktifVekalet?.neden || 'Kırtasiye ve Depo Portalı Yönetici Görevlendirmesi')}" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1.5px solid #CBD5E1; font-size: 12.5px; box-sizing: border-box;">
+              <input type="text" id="modalVekilNedeni" placeholder="${isEn ? 'e.g. 2026-2027 Stationery Manager Appointment or Annual Leave...' : 'Örn: 2026-2027 Dönemi Kırtasiye Yöneticisi veya Yıllık İzin Devri...'}" value="${escapeHtml(aktifVekalet?.neden || (isEn ? 'Stationery & Inventory Portal Manager Appointment' : 'Kırtasiye ve Depo Portalı Yönetici Görevlendirmesi'))}" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1.5px solid #CBD5E1; font-size: 12.5px; box-sizing: border-box;">
             </div>
 
           </div>
@@ -220,13 +223,13 @@ export async function openVekaletModal(onUpdated) {
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-top: 14px; border-top: 1px solid #E2E8F0; margin-top: 16px;">
           ${isAssigned ? `
             <button id="btnVekaletSonlandir" class="btn btn-secondary" style="color: #DC2626; border-color: rgba(220, 38, 38, 0.3); font-weight: 600; font-size: 13px;">
-              Yetkiyi Geri Al (Müdürlük Makamına İade Et)
+              ${isEn ? 'Revoke Authority (Return to Director)' : 'Yetkiyi Geri Al (Müdürlük Makamına İade Et)'}
             </button>
           ` : `<div></div>`}
           <div style="display: flex; gap: 10px;">
-            <button id="btnVekaletIptal" class="btn btn-secondary" style="font-size: 13px;">Kapat</button>
+            <button id="btnVekaletIptal" class="btn btn-secondary" style="font-size: 13px;">${t('common.close', 'Kapat')}</button>
             <button id="btnVekaletKaydet" class="btn btn-primary" style="background: #2563EB; font-weight: 700; font-size: 13px;">
-              Yetkiyi Devret ve Görevlendir
+              ${isEn ? 'Save Delegation & Assign' : 'Yetkiyi Devret ve Görevlendir'}
             </button>
           </div>
         </div>
@@ -313,9 +316,9 @@ export async function openVekaletModal(onUpdated) {
   if (btnSonlandir) {
     btnSonlandir.onclick = async () => {
       const ok = await confirmModal({
-        title: 'Yetkiyi Geri Al',
-        message: 'Aktif görev devri sonlandırılarak tüm kırtasiye onay ve yönetim yetkileri Satın Alma Müdürü makamına iade edilecektir. Onaylıyor musunuz?',
-        confirmText: 'Evet, Yetkiyi Geri Al',
+        title: isEn ? 'Revoke Authority' : 'Yetkiyi Geri Al',
+        message: isEn ? 'The active delegation will be terminated and all approval and inventory controls will revert to the Procurement Director seat. Do you confirm?' : 'Aktif görev devri sonlandırılarak tüm kırtasiye onay ve yönetim yetkileri Satın Alma Müdürü makamına iade edilecektir. Onaylıyor musunuz?',
+        confirmText: isEn ? 'Yes, Revoke Delegation' : 'Evet, Yetkiyi Geri Al',
         confirmVariant: 'danger'
       });
       if (!ok) return;
@@ -323,11 +326,11 @@ export async function openVekaletModal(onUpdated) {
       try {
         await api.sonlandirGorevDevri();
         localStorage.removeItem('satinalma_vekil_info');
-        toast.success('Görev devri sonlandırıldı. Yetki Satın Alma Müdürü makamına iade edildi.');
+        toast.success(isEn ? 'Delegation terminated. Authority reverted to Procurement Director.' : 'Görev devri sonlandırıldı. Yetki Satın Alma Müdürü makamına iade edildi.');
         modal.close();
         if (typeof onUpdated === 'function') onUpdated();
       } catch (err) {
-        toast.error('Yetki geri alınamadı: ' + err.message);
+        toast.error((isEn ? 'Could not revoke authority: ' : 'Yetki geri alınamadı: ') + err.message);
       }
     };
   }
@@ -339,9 +342,9 @@ export async function openVekaletModal(onUpdated) {
 
     if (!val) {
       const ok = await confirmModal({
-        title: 'Yetkiyi Geri Al',
-        message: 'Personel seçilmedi. Aktif görev devri iptal edilecek ve yetkiler Satın Alma Müdürü makamına iade edilecektir. Onaylıyor musunuz?',
-        confirmText: 'Evet, İade Et',
+        title: isEn ? 'Revoke Authority' : 'Yetkiyi Geri Al',
+        message: isEn ? 'No staff selected. Active delegation will be canceled and authority will revert to Procurement Director. Do you confirm?' : 'Personel seçilmedi. Aktif görev devri iptal edilecek ve yetkiler Satın Alma Müdürü makamına iade edilecektir. Onaylıyor musunuz?',
+        confirmText: isEn ? 'Yes, Revert' : 'Evet, İade Et',
         confirmVariant: 'danger'
       });
       if (!ok) return;
@@ -349,7 +352,7 @@ export async function openVekaletModal(onUpdated) {
       try {
         await api.sonlandirGorevDevri();
         localStorage.removeItem('satinalma_vekil_info');
-        toast.info('Personel seçilmedi, yetki Satın Alma Müdürü makamına iade edildi.');
+        toast.info(isEn ? 'No staff selected, authority reverted to Procurement Director.' : 'Personel seçilmedi, yetki Satın Alma Müdürü makamına iade edildi.');
         modal.close();
         if (typeof onUpdated === 'function') onUpdated();
       } catch (err) {
@@ -390,11 +393,11 @@ export async function openVekaletModal(onUpdated) {
       };
       localStorage.setItem('satinalma_vekil_info', JSON.stringify(localInfo));
 
-      toast.success(res.mesaj || `Kırtasiye yönetim yetkisi başarıyla devredildi: ${selectedOption.dataset.name}`);
+      toast.success(res.mesaj || (isEn ? `Authority successfully delegated: ${selectedOption.dataset.name}` : `Kırtasiye yönetim yetkisi başarıyla devredildi: ${selectedOption.dataset.name}`));
       modal.close();
       if (typeof onUpdated === 'function') onUpdated();
     } catch (err) {
-      toast.error('Yetki devredilemedi: ' + err.message);
+      toast.error((isEn ? 'Could not delegate authority: ' : 'Yetki devredilemedi: ') + err.message);
     }
   };
 }

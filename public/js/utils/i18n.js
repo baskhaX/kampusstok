@@ -1214,7 +1214,14 @@ export const CATEGORY_MAP = {
   'Bant, Yapıştırıcı ve Makas': { en: 'Tape, Glue & Scissors', tr: 'Bant, Yapıştırıcı ve Makas' },
   'Ataç ve Kıskaçlar': { en: 'Paperclips & Binder Clips', tr: 'Ataç ve Kıskaçlar' },
   'Masaüstü Düzen ve Kaşe': { en: 'Desk Organizers & Stamps', tr: 'Masaüstü Düzen ve Kaşe' },
-  'Ofis Elektroniği ve Piller': { en: 'Office Electronics & Batteries', tr: 'Ofis Elektroniği ve Piller' }
+  'Ofis Elektroniği ve Piller': { en: 'Office Electronics & Batteries', tr: 'Ofis Elektroniği ve Piller' },
+
+  // Shared Pool Equipment Categories
+  'Ciltleme & Zımba': { en: 'Binding & Stapling', tr: 'Ciltleme & Zımba' },
+  'Kesim & Düzeltme': { en: 'Cutting & Trimming', tr: 'Kesim & Düzeltme' },
+  'Kaplama': { en: 'Laminating & Coating', tr: 'Kaplama' },
+  'Elektronik & Sunum': { en: 'Electronics & Presentation', tr: 'Elektronik & Sunum' },
+  'Organizasyon': { en: 'Organization & Events', tr: 'Organizasyon' }
 };
 
 export const PRODUCT_MAP = {
@@ -1241,7 +1248,15 @@ export const PRODUCT_MAP = {
   'Resmi Antetli A4 Kağıdı (500 Sayfa)': { en: 'Official Letterhead A4 Paper (500 Sheets)', tr: 'Resmi Antetli A4 Kağıdı (500 Sayfa)' },
   "Resmi Diplomat Zarf Pencereli (100'lü Kutu)": { en: 'Official Windowed Diplomat Envelopes (Box of 100)', tr: "Resmi Diplomat Zarf Pencereli (100'lü Kutu)" },
   'USB 3.0 Flash Bellek 32 GB (Metal Gövde)': { en: 'USB 3.0 Flash Drive 32 GB (Metal Body)', tr: 'USB 3.0 Flash Bellek 32 GB (Metal Gövde)' },
-  'Alkalin Kalem Pil AA 1.5V (Tane)': { en: 'Alkaline AA Battery 1.5V (Single Unit)', tr: 'Alkalin Kalem Pil AA 1.5V (Tane)' }
+  'Alkalin Kalem Pil AA 1.5V (Tane)': { en: 'Alkaline AA Battery 1.5V (Single Unit)', tr: 'Alkalin Kalem Pil AA 1.5V (Tane)' },
+
+  // Shared Pool Equipment
+  'Ağır Hizmet Tipi Kollu Zımba (200 Sayfa)': { en: 'Heavy-Duty Lever Stapler (200 Sheets)', tr: 'Ağır Hizmet Tipi Kollu Zımba (200 Sayfa)' },
+  'A3/A4 Profesyonel Kağıt Giyotini': { en: 'A3/A4 Professional Paper Guillotine', tr: 'A3/A4 Profesyonel Kağıt Giyotini' },
+  'Laminasyon (PVC Kaplama) Makinesi A3/A4': { en: 'A3/A4 Laminating Machine (PVC Coating)', tr: 'Laminasyon (PVC Kaplama) Makinesi A3/A4' },
+  'Helezon Spiral Tel Ciltleme Cihazı': { en: 'Spiral Wire Binding Machine', tr: 'Helezon Spiral Tel Ciltleme Cihazı' },
+  'Sunum Kumandası & Yeşil Lazer Pointer': { en: 'Presentation Remote & Green Laser Pointer', tr: 'Sunum Kumandası & Yeşil Lazer Pointer' },
+  'Toplu Yaka Kartı Delgeci ve Aparatları': { en: 'Bulk Badge Punch & Accessories', tr: 'Toplu Yaka Kartı Delgeci ve Aparatları' }
 };
 
 export const DEPARTMENT_MAP = {
@@ -1311,7 +1326,14 @@ export const BUILDING_MAP = {
   'Öğrenci Merkezi': { en: 'Student Center', tr: 'Öğrenci Merkezi' },
   'İdari Bina': { en: 'Administrative Building', tr: 'İdari Bina' },
   'Bilişim Merkezi': { en: 'IT Center', tr: 'Bilişim Merkezi' },
-  'Merkez Kütüphane': { en: 'Central Library', tr: 'Merkez Kütüphane' }
+  'Merkez Kütüphane': { en: 'Central Library', tr: 'Merkez Kütüphane' },
+  'Ana Bina': { en: 'Main Campus Building', tr: 'Ana Bina' },
+  'Tıp Fakültesi': { en: 'Faculty of Medicine', tr: 'Tıp Fakültesi' },
+  'GAR Binası': { en: 'GAR Building', tr: 'GAR Binası' },
+  'Yabancı Diller Bölümü': { en: 'School of Foreign Languages', tr: 'Yabancı Diller Bölümü' },
+  'Teknoloji Merkezi': { en: 'Technology Center', tr: 'Teknoloji Merkezi' },
+  'İdari ve Mali İşler Depo': { en: 'Admin & Financial Affairs Warehouse', tr: 'İdari ve Mali İşler Depo' },
+  'Diğer': { en: 'Other', tr: 'Diğer' }
 };
 
 export const MONTH_NAMES = {
@@ -1416,19 +1438,22 @@ export function formatLogDetail(text) {
 export function tCategory(name) {
   if (!name) return '';
   const lang = currentLang === 'en' ? 'en' : 'tr';
-  return (CATEGORY_MAP[name] && CATEGORY_MAP[name][lang]) || name;
+  const clean = String(name).trim();
+  return (CATEGORY_MAP[clean] && CATEGORY_MAP[clean][lang]) || (CATEGORY_MAP[name] && CATEGORY_MAP[name][lang]) || name;
 }
 
 export function tProduct(name) {
   if (!name) return '';
   const lang = currentLang === 'en' ? 'en' : 'tr';
-  return (PRODUCT_MAP[name] && PRODUCT_MAP[name][lang]) || name;
+  const clean = String(name).trim();
+  return (PRODUCT_MAP[clean] && PRODUCT_MAP[clean][lang]) || (PRODUCT_MAP[name] && PRODUCT_MAP[name][lang]) || name;
 }
 
 export function tDepartment(name) {
   if (!name) return '';
   const lang = currentLang === 'en' ? 'en' : 'tr';
-  return (DEPARTMENT_MAP[name] && DEPARTMENT_MAP[name][lang]) || name;
+  const clean = String(name).trim();
+  return (DEPARTMENT_MAP[clean] && DEPARTMENT_MAP[clean][lang]) || (DEPARTMENT_MAP[name] && DEPARTMENT_MAP[name][lang]) || name;
 }
 
 export function tUnit(unit) {
@@ -1441,7 +1466,8 @@ export function tUnit(unit) {
 export function tBuilding(name) {
   if (!name) return '';
   const lang = currentLang === 'en' ? 'en' : 'tr';
-  return (BUILDING_MAP[name] && BUILDING_MAP[name][lang]) || name;
+  const clean = String(name).trim();
+  return (BUILDING_MAP[clean] && BUILDING_MAP[clean][lang]) || (BUILDING_MAP[name] && BUILDING_MAP[name][lang]) || name;
 }
 
 export function tMonth(monthVal) {

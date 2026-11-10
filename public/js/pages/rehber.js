@@ -245,14 +245,27 @@ export default async function renderRehber(appContainer) {
    * Personel Şifre Sıfırlama ve Outlook Taslağı Oluşturma
    */
   const sifreSifirlaVeOutlookGonder = async (personelId, adSoyad, eposta) => {
+    const isEn = getLanguage() === 'en';
     try {
       const res = await api.sifirlaPersonelSifre(personelId, 'Kurum1234!.');
-      toast.success(`${adSoyad} şifresi sıfırlandı. Outlook bildirim taslağı açılıyor...`);
+      toast.success(isEn ? `Password reset for ${adSoyad}. Opening Outlook draft...` : `${adSoyad} şifresi sıfırlandı. Outlook bildirim taslağı açılıyor...`);
 
       const portalUrl = window.location.origin;
       const targetEmail = eposta || res.eposta;
-      const subject = encodeURIComponent('Kurumsal Kırtasiye Portalı - Giriş Şifreniz Sıfırlandı');
+      const subject = encodeURIComponent(isEn ? 'CampusStock Portal - Your Login Password Has Been Reset' : 'Kurumsal Kırtasiye Portalı - Giriş Şifreniz Sıfırlandı');
       const body = encodeURIComponent(
+isEn ? `Dear ${adSoyad},
+
+Your access password for the Institutional Stationery and Inventory Portal has been reset.
+
+Portal URL    : ${portalUrl}
+Username      : ${targetEmail || res.kullanici_adi}
+Temporary Pwd : Kurum1234!.
+
+For institutional security, you will be prompted to choose a new password upon first login.
+
+Best regards,
+Procurement & Administrative Services Directorate` :
 `Sayın ${adSoyad},
 
 Kurumsal Kırtasiye ve Ofis Malzemesi Talep Portalı giriş şifreniz güncellenmiştir.
@@ -272,37 +285,37 @@ Satın Alma Müdürlüğü
       window.location.href = mailtoUrl;
 
       createModal({
-        title: 'Şifre Sıfırlandı ve Outlook Taslağı Hazırlandı',
+        title: isEn ? 'Password Reset & Outlook Draft Prepared' : 'Şifre Sıfırlandı ve Outlook Taslağı Hazırlandı',
         content: `
           <div style="padding: 6px 0;">
             <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 14px; margin-bottom: 16px;">
-              <div style="font-weight: 700; color: #065f46; font-size: 14px; margin-bottom: 4px;">Şifre Başarıyla Sıfırlandı</div>
-              <div style="font-size: 13px; color: #047857;"><strong>${adSoyad}</strong> için yeni şifre: <code style="font-size: 13px; font-weight: 800; background: #fff; padding: 2px 8px; border-radius: 4px; border: 1px solid #6ee7b7;">Kurum1234!.</code></div>
+              <div style="font-weight: 700; color: #065f46; font-size: 14px; margin-bottom: 4px;">${isEn ? 'Password Successfully Reset' : 'Şifre Başarıyla Sıfırlandı'}</div>
+              <div style="font-size: 13px; color: #047857;">${isEn ? `New temporary password for <strong>${adSoyad}</strong>:` : `<strong>${adSoyad}</strong> için yeni şifre:`} <code style="font-size: 13px; font-weight: 800; background: #fff; padding: 2px 8px; border-radius: 4px; border: 1px solid #6ee7b7;">Kurum1234!.</code></div>
             </div>
             <p style="font-size: 13px; color: #334155; margin-bottom: 12px; line-height: 1.5;">
-              Varsayılan e-posta istemcinizde (Microsoft Outlook) alıcı adresi, konu ve şifre bilgileriyle birlikte hazır taslak açılmıştır. Doğrudan <strong>Gönder</strong> butonuna basmanız yeterlidir.
+              ${isEn ? 'A pre-filled draft has opened in your default email client (Microsoft Outlook) with the recipient, subject, and credentials. Simply click <strong>Send</strong>.' : 'Varsayılan e-posta istemcinizde (Microsoft Outlook) alıcı adresi, konu ve şifre bilgileriyle birlikte hazır taslak açılmıştır. Doğrudan <strong>Gönder</strong> butonuna basmanız yeterlidir.'}
             </p>
-            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; font-size: 12px; font-family: monospace; white-space: pre-wrap; color: #1e293b; margin-bottom: 16px;">Kullanıcı Adı: ${targetEmail || res.kullanici_adi}\nGeçici Şifre : Kurum1234!.\nGiriş Adresi : ${portalUrl}</div>
+            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; font-size: 12px; font-family: monospace; white-space: pre-wrap; color: #1e293b; margin-bottom: 16px;">${isEn ? 'Username' : 'Kullanıcı Adı'}: ${targetEmail || res.kullanici_adi}\n${isEn ? 'Temporary Password' : 'Geçici Şifre'} : Kurum1234!.\n${isEn ? 'Portal URL' : 'Giriş Adresi'} : ${portalUrl}</div>
           </div>
         `,
         buttons: [
           {
-            text: 'Giriş Bilgilerini Kopyala',
+            text: isEn ? 'Copy Credentials' : 'Giriş Bilgilerini Kopyala',
             class: 'btn-secondary',
             onClick: () => {
-              navigator.clipboard.writeText(`Kullanıcı Adı: ${targetEmail || res.kullanici_adi}\nGeçici Şifre: Etu1234!.\nGiriş Adresi: ${portalUrl}`);
-              toast.success('Giriş bilgileri panoya kopyalandı.');
+              navigator.clipboard.writeText(`${isEn ? 'Username' : 'Kullanıcı Adı'}: ${targetEmail || res.kullanici_adi}\n${isEn ? 'Temporary Password' : 'Geçici Şifre'}: Kurum1234!.\n${isEn ? 'Portal URL' : 'Giriş Adresi'}: ${portalUrl}`);
+              toast.success(isEn ? 'Credentials copied to clipboard.' : 'Giriş bilgileri panoya kopyalandı.');
             }
           },
           {
-            text: 'Outlook Taslağını Yeniden Aç',
+            text: isEn ? 'Reopen Outlook Draft' : 'Outlook Taslağını Yeniden Aç',
             class: 'btn-primary',
             onClick: () => {
               window.location.href = mailtoUrl;
             }
           },
           {
-            text: 'Kapat',
+            text: t('common.close', 'Kapat'),
             class: 'btn-outline',
             onClick: (m) => m.close()
           }

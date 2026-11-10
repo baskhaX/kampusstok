@@ -3,6 +3,8 @@ import api from '../api.js';
 import state from '../state.js';
 import toast from './toast.js';
 import createModal from './modal.js';
+import { t, getLanguage, tDepartment, tProduct, tUnit, tBuilding, DEPARTMENT_MAP, PRODUCT_MAP, BUILDING_MAP } from '../utils/i18n.js';
+import { escapeHtml } from '../utils/text.js';
 
 let sseSource = null;
 let activeBellContainer = null;
@@ -45,15 +47,111 @@ export function playChimeSound() {
 }
 
 /**
+ * Bildirim başlık ve gövdesini aktif dile göre çevirir
+ */
+export function formatNotificationContent(n) {
+  const isEn = getLanguage() === 'en';
+  if (!isEn) {
+    return {
+      title: n.baslik || 'Sistem Bildirimi',
+      msg: n.mesaj || ''
+    };
+  }
+
+  let title = (n.baslik || 'System Notification').trim();
+  let msg = (n.mesaj || '').trim();
+
+  // Dekoratif emojileri temizle
+  title = title.replace(/^[♻️🧰📦⚠️✓]+\s*/u, '');
+
+  if (title.startsWith('Atıl Malzeme İadesi:')) {
+    const rawDept = title.replace('Atıl Malzeme İadesi:', '').trim();
+    title = `Surplus Material Return: ${tDepartment(rawDept)}`;
+  } else if (title.includes('Malzeme Depoya Kazandırıldı')) {
+    title = 'Material Recovered to Warehouse (+20 Green Points!)';
+  } else if (title.startsWith('Ortak Ekipman Rezervasyonu:')) {
+    const rawEq = title.replace('Ortak Ekipman Rezervasyonu:', '').trim();
+    title = `Shared Equipment Reservation: ${tProduct(rawEq)}`;
+  } else if (title.includes('Ödünç Ekipman Teslim Alındı')) {
+    title = 'Equipment Returned to Warehouse (+5 Points)';
+  } else if (title.startsWith('Yeni Malzeme Talebi:')) {
+    title = title.replace('Yeni Malzeme Talebi:', 'New Material Requisition:');
+  } else if (title.startsWith('Talep Onaylandı:')) {
+    title = title.replace('Talep Onaylandı:', 'Requisition Approved:');
+  } else if (title.startsWith('Talep Revize Edilerek Onaylandı:')) {
+    title = title.replace('Talep Revize Edilerek Onaylandı:', 'Requisition Approved with Revision:');
+  } else if (title.startsWith('Talep Reddedildi:')) {
+    title = title.replace('Talep Reddedildi:', 'Requisition Rejected:');
+  } else if (title.startsWith('Malzemeler Teslim Edildi:')) {
+    title = title.replace('Malzemeler Teslim Edildi:', 'Materials Delivered:');
+  } else if (title.startsWith('Kritik Stok Uyarısı:')) {
+    const rawProd = title.replace('Kritik Stok Uyarısı:', '').trim();
+    title = `Critical Stock Alert: ${tProduct(rawProd)}`;
+  }
+
+  // Mesaj gövdesi çevirileri
+  if (msg.includes('konumundan atıl malzeme bildirildi:')) {
+    let cleanMsg = msg;
+    for (const [binaTr, binaObj] of Object.entries(BUILDING_MAP)) {
+      if (cleanMsg.includes(binaTr)) {
+        cleanMsg = cleanMsg.split(binaTr).join(binaObj.en);
+      }
+    }
+    msg = cleanMsg
+      .replace('konumundan atıl malzeme bildirildi:', 'surplus materials reported:')
+      .replace(/Oda\s+/g, 'Room ');
+  } else if (msg.includes('Bildirdiğiniz ihtiyaç fazlası malzemeler teslim alındı')) {
+    msg = 'Reported surplus supplies received and recovered to institution inventory. +20 Green Points added to your department!';
+  } else if (msg.includes('rezerve etti')) {
+    let cleanMsg = msg;
+    for (const [deptTr, deptObj] of Object.entries(DEPARTMENT_MAP)) {
+      if (cleanMsg.includes(deptTr)) {
+        cleanMsg = cleanMsg.split(deptTr).join(deptObj.en);
+      }
+    }
+    for (const [prodTr, prodObj] of Object.entries(PRODUCT_MAP)) {
+      if (cleanMsg.includes(prodTr)) {
+        cleanMsg = cleanMsg.split(prodTr).join(prodObj.en);
+      }
+    }
+    msg = cleanMsg
+      .replace(/\s*\(\s*(\d{4}-\d{2}-\d{2})\s*-\s*(\d{4}-\d{2}-\d{2})\s*\)\s*tarihleri\s*için\s*/i, ' ($1 - $2) for dates ')
+      .replace('tarihleri için', 'for dates')
+      .replace('rezerve etti.', 'reserved.')
+      .replace('rezerve etti', 'reserved')
+      .replace('Tercih: Depodan Elden Teslim.', 'Method: Direct Warehouse Pickup.')
+      .replace('Tercih: Depodan Elden Teslim', 'Method: Direct Warehouse Pickup')
+      .replace('Tercih: Rutin Dağıtımla Odaya Teslim.', 'Method: Routine Wednesday Delivery to Room.')
+      .replace('Tercih: Rutin Dağıtımla Odaya Teslim', 'Method: Routine Wednesday Delivery to Room');
+  } else if (msg.includes('tarafından') && msg.includes('numaralı malzeme talebi oluşturuldu.')) {
+    msg = msg
+      .replace('tarafından', 'submitted requisition')
+      .replace('numaralı malzeme talebi oluşturuldu.', '.');
+  } else if (msg.includes('Talebiniz satın alma tarafından onaylandı.')) {
+    msg = 'Your requisition has been approved by Procurement. Delivery scheduled for Wednesday.';
+  } else if (msg.includes('Talebinizdeki ürün miktarları düzenlenerek onaylandı.')) {
+    msg = 'Your requisition quantities have been adjusted and approved.';
+  } else if (msg.includes('Talebiniz satın alma tarafından uygun görülmeyerek reddedildi.')) {
+    msg = 'Your requisition was reviewed and not approved by Procurement.';
+  } else if (msg.includes('Malzemeler biriminize teslim edilmiştir.')) {
+    msg = 'Supplies have been delivered to your department. Please confirm receipt.';
+  }
+
+  return { title, msg };
+}
+
+/**
  * Bildirim çanını hedef DOM elemanına monte eder
  */
 export async function mountNotificationBell(targetEl) {
   if (!targetEl) return;
   activeBellContainer = targetEl;
 
+  const isEn = getLanguage() === 'en';
+
   targetEl.innerHTML = `
     <div class="bell-wrapper" id="bellWrapper" style="position: relative; display: inline-flex; align-items: center;">
-      <button type="button" class="bell-header-btn" id="btnNotificationBell" title="Bildirimler" aria-label="Bildirimler">
+      <button type="button" class="bell-header-btn" id="btnNotificationBell" title="${t('header.notifications', 'Bildirimler')}" aria-label="${t('header.notifications', 'Bildirimler')}">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
           <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
@@ -65,22 +163,22 @@ export async function mountNotificationBell(targetEl) {
       <div class="bell-dropdown-flyout" id="bellDropdownFlyout" style="display: none;">
         <div class="bell-flyout-header">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-weight: 700; font-size: 14.5px; color: #0F172A;">Bildirimler</span>
-            <span class="badge badge-primary" id="bellFlyoutUnreadBadge" style="font-size: 11px; padding: 2px 7px;">0 yeni</span>
+            <span style="font-weight: 700; font-size: 14.5px; color: #0F172A;">${t('header.notifications', 'Bildirimler')}</span>
+            <span class="badge badge-primary" id="bellFlyoutUnreadBadge" style="font-size: 11px; padding: 2px 7px;">0 ${isEn ? 'new' : 'yeni'}</span>
           </div>
           <button type="button" class="btn-text-action" id="btnMarkAllRead" style="font-size: 12px; color: #2563EB; font-weight: 600; cursor: pointer; background: none; border: none; padding: 4px;">
-            Tümünü Okundu Say
+            ${t('header.markAllRead', 'Tümünü Okundu Say')}
           </button>
         </div>
 
         <div class="bell-flyout-body" id="bellFlyoutBody">
-          <div class="bell-loading-placeholder">Yükleniyor...</div>
+          <div class="bell-loading-placeholder">${t('common.loading', 'Yükleniyor...')}</div>
         </div>
 
         ${state.user?.rol === 'satin_alma' ? `
           <div class="bell-flyout-footer">
             <button type="button" class="btn-kritik-stok-link" id="btnOpenKritikStokModal">
-              Kritik Stok Listesi ve Tedarik İhtiyaçları &rsaquo;
+              ${isEn ? 'Critical Stock List & Procurement Needs ›' : 'Kritik Stok Listesi ve Tedarik İhtiyaçları ›'}
             </button>
           </div>
         ` : ''}
@@ -118,9 +216,9 @@ export async function mountNotificationBell(targetEl) {
         currentNotifications.forEach(n => n.okundu = 1);
         updateBellBadge();
         renderBellList();
-        toast.success('Tüm bildirimler okundu olarak işaretlendi.');
+        toast.success(getLanguage() === 'en' ? 'All notifications marked as read.' : 'Tüm bildirimler okundu olarak işaretlendi.');
       } catch (err) {
-        toast.error('İşlem başarısız: ' + err.message);
+        toast.error((getLanguage() === 'en' ? 'Operation failed: ' : 'İşlem başarısız: ') + err.message);
       }
     });
   }
@@ -159,14 +257,15 @@ function updateBellBadge() {
   const flyoutBadge = activeBellContainer?.querySelector('#bellFlyoutUnreadBadge');
   if (!badgeEl) return;
 
+  const isEn = getLanguage() === 'en';
   const unreadCount = currentNotifications.filter(n => !n.okundu).length;
   if (unreadCount > 0) {
     badgeEl.textContent = unreadCount > 99 ? '99+' : unreadCount;
     badgeEl.style.display = 'flex';
-    if (flyoutBadge) flyoutBadge.textContent = `${unreadCount} yeni`;
+    if (flyoutBadge) flyoutBadge.textContent = `${unreadCount} ${isEn ? 'new' : 'yeni'}`;
   } else {
     badgeEl.style.display = 'none';
-    if (flyoutBadge) flyoutBadge.textContent = '0 yeni';
+    if (flyoutBadge) flyoutBadge.textContent = `0 ${isEn ? 'new' : 'yeni'}`;
   }
 }
 
@@ -180,8 +279,8 @@ function renderBellList() {
   if (currentNotifications.length === 0) {
     bodyEl.innerHTML = `
       <div class="bell-empty-state">
-        <div style="font-weight: 600; color: #475569; font-size: 13.5px;">Henüz yeni bildirim yok</div>
-        <div style="font-size: 12px; color: #94A3B8; margin-top: 2px;">Tüm süreçler güncel görünüyor.</div>
+        <div style="font-weight: 600; color: #475569; font-size: 13.5px;">${t('header.noNotifications', 'Henüz yeni bildirim yok')}</div>
+        <div style="font-size: 12px; color: #94A3B8; margin-top: 2px;">${t('header.allUpToDate', 'Tüm süreçler güncel görünüyor.')}</div>
       </div>
     `;
     return;
@@ -222,6 +321,7 @@ function renderBellList() {
       iconColor = '#0891B2';
     }
 
+    const { title: displayTitle, msg: displayMsg } = formatNotificationContent(n);
     const zamanText = formatTimeAgo(n.olusturma_tarihi || n.tarih);
 
     return `
@@ -230,8 +330,8 @@ function renderBellList() {
           ${iconSvg}
         </div>
         <div class="bell-item-content">
-          <div class="bell-item-title">${escapeHtml(n.baslik || 'Sistem Bildirimi')}</div>
-          <div class="bell-item-msg">${escapeHtml(n.mesaj || '')}</div>
+          <div class="bell-item-title">${escapeHtml(displayTitle)}</div>
+          <div class="bell-item-msg">${escapeHtml(displayMsg)}</div>
           <div class="bell-item-time">${zamanText}</div>
         </div>
         ${!n.okundu ? '<span class="bell-unread-dot"></span>' : ''}
@@ -306,8 +406,8 @@ function initSSE() {
         updateBellBadge();
         playChimeSound();
 
-        // Hafif zarif toast bildirimi
-        toast.info(`${data.baslik}: ${data.mesaj.substring(0, 50)}...`);
+        const { title, msg } = formatNotificationContent(data);
+        toast.info(`${title}: ${msg.substring(0, 50)}...`);
 
         // Eğer flyout açıksa listeyi yeniden çiz
         const flyout = activeBellContainer?.querySelector('#bellDropdownFlyout');
@@ -341,22 +441,23 @@ export function closeSSEConnection() {
  */
 export async function openKritikStokModal() {
   let urunler = [];
+  const isEn = getLanguage() === 'en';
   try {
     const res = await api.getKritikStok();
     urunler = res.urunler || [];
   } catch (err) {
-    toast.error('Kritik stok listesi alınamadı: ' + err.message);
+    toast.error((isEn ? 'Failed to fetch critical stock list: ' : 'Kritik stok listesi alınamadı: ') + err.message);
     return;
   }
 
   const modal = createModal({
-    title: 'Depo Kritik Stok ve Tedarik İhtiyaç Listesi',
+    title: isEn ? 'Warehouse Critical Stock & Procurement Needs List' : 'Depo Kritik Stok ve Tedarik İhtiyaç Listesi',
     maxWidth: '860px',
     content: `
       <div style="font-size: 13.5px; color: #475569; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-        <span>Stok seviyesi kritik eşiğin altına inen veya bekleyen taleplerle stoğu tükenen ürünler aşağıda listelenmiştir.</span>
+        <span>${isEn ? 'Stationery items below critical thresholds or exhausted by pending requisitions are listed below.' : 'Stok seviyesi kritik eşiğin altına inen veya bekleyen taleplerle stoğu tükenen ürünler aşağıda listelenmiştir.'}</span>
         <button type="button" class="btn btn-primary btn-sm" id="btnExcelKritikStok" style="gap: 6px;">
-          Temiz Excel Sipariş Listesi İndir
+          ${isEn ? 'Download Clean Excel Order List' : 'Temiz Excel Sipariş Listesi İndir'}
         </button>
       </div>
 
@@ -364,34 +465,34 @@ export async function openKritikStokModal() {
         <table class="table-clean" style="width: 100%; border-collapse: collapse; font-size: 13px;">
           <thead>
             <tr style="background: #F8FAFC; border-bottom: 1.5px solid #E2E8F0; text-align: left;">
-              <th style="padding: 10px 14px;">Ürün Adı</th>
-              <th style="padding: 10px 14px;">Marka / Kategori</th>
-              <th style="padding: 10px 14px; text-align: center;">Mevcut Stok</th>
-              <th style="padding: 10px 14px; text-align: center;">Kritik Eşik</th>
-              <th style="padding: 10px 14px; text-align: center;">Bekleyen Talep</th>
-              <th style="padding: 10px 14px; text-align: center; color: #0284C7;">Önerilen Sipariş</th>
+              <th style="padding: 10px 14px;">${isEn ? 'Item Name' : 'Ürün Adı'}</th>
+              <th style="padding: 10px 14px;">${isEn ? 'Brand / Category' : 'Marka / Kategori'}</th>
+              <th style="padding: 10px 14px; text-align: center;">${isEn ? 'Current Stock' : 'Mevcut Stok'}</th>
+              <th style="padding: 10px 14px; text-align: center;">${isEn ? 'Critical Threshold' : 'Kritik Eşik'}</th>
+              <th style="padding: 10px 14px; text-align: center;">${isEn ? 'Pending Requisitions' : 'Bekleyen Talep'}</th>
+              <th style="padding: 10px 14px; text-align: center; color: #0284C7;">${isEn ? 'Suggested Order' : 'Önerilen Sipariş'}</th>
             </tr>
           </thead>
           <tbody>
             ${urunler.length === 0 ? `
               <tr>
                 <td colspan="6" style="text-align: center; padding: 30px; color: #059669; font-weight: 600;">
-                  Depoda kritik eşiğin altına düşen hiçbir ürün bulunmamaktadır.
+                  ${isEn ? 'There are currently no items below the critical threshold in the warehouse.' : 'Depoda kritik eşiğin altına düşen hiçbir ürün bulunmamaktadır.'}
                 </td>
               </tr>
             ` : urunler.map(u => `
               <tr style="border-bottom: 1px solid #F1F5F9;">
-                <td style="padding: 10px 14px; font-weight: 600; color: #0F172A;">${escapeHtml(u.ad)}</td>
+                <td style="padding: 10px 14px; font-weight: 600; color: #0F172A;">${escapeHtml(tProduct(u.ad))}</td>
                 <td style="padding: 10px 14px; color: #64748B;">${escapeHtml(u.marka || '-')} • ${escapeHtml(u.kategori_adi || '')}</td>
                 <td style="padding: 10px 14px; text-align: center; font-weight: 700; color: ${u.stok <= 0 ? '#DC2626' : '#D97706'};">
-                  ${u.stok} ${u.olcu_birimi || 'adet'}
+                  ${u.stok} ${escapeHtml(tUnit(u.olcu_birimi || 'adet'))}
                 </td>
                 <td style="padding: 10px 14px; text-align: center; color: #64748B;">${u.kritik_stok}</td>
                 <td style="padding: 10px 14px; text-align: center; font-weight: 600; color: #B45309;">
                   ${u.bekleyen_talep_adedi || 0}
                 </td>
                 <td style="padding: 10px 14px; text-align: center; font-weight: 800; color: #2563EB;">
-                  ${u.oneriSiparisMiktari} ${u.olcu_birimi || 'adet'}
+                  ${u.oneriSiparisMiktari} ${escapeHtml(tUnit(u.olcu_birimi || 'adet'))}
                 </td>
               </tr>
             `).join('')}
@@ -400,7 +501,7 @@ export async function openKritikStokModal() {
       </div>
 
       <div style="display: flex; justify-content: flex-end; margin-top: 18px;">
-        <button type="button" class="btn btn-secondary" id="btnModalKritikKapat">Kapat</button>
+        <button type="button" class="btn btn-secondary" id="btnModalKritikKapat">${t('common.close', 'Kapat')}</button>
       </div>
     `
   });
@@ -419,54 +520,47 @@ export async function openKritikStokModal() {
  * Excel / CSV dışa aktarımı (Resmi antetsiz, tedarikçiye atılabilecek sade ve temiz format)
  */
 function exportKritikStokToExcel(urunler) {
-  try {
-    const headers = ['Ürün Adı', 'Marka', 'Kategori', 'Mevcut Stok', 'Ölçü Birimi', 'Kritik Eşik', 'Bekleyen Talep', 'Önerilen Sipariş Miktarı'];
-    const rows = urunler.map(u => [
-      `"${(u.ad || '').replace(/"/g, '""')}"`,
-      `"${(u.marka || '').replace(/"/g, '""')}"`,
-      `"${(u.kategori_adi || '').replace(/"/g, '""')}"`,
-      u.stok,
-      `"${u.olcu_birimi || 'adet'}"`,
-      u.kritik_stok,
-      u.bekleyen_talep_adedi || 0,
-      u.oneriSiparisMiktari
-    ]);
+  const isEn = getLanguage() === 'en';
+  const headers = isEn 
+    ? ['Item Name', 'Brand', 'Category', 'Current Stock', 'Unit', 'Critical Threshold', 'Pending Orders', 'Suggested Order Quantity']
+    : ['Ürün Adı', 'Marka', 'Kategori', 'Mevcut Stok', 'Ölçü Birimi', 'Kritik Eşik', 'Bekleyen Talep', 'Önerilen Sipariş Miktarı'];
+  
+  const rows = urunler.map(u => [
+    `"${(isEn ? tProduct(u.ad) : (u.ad || '')).replace(/"/g, '""')}"`,
+    `"${(u.marka || '-').replace(/"/g, '""')}"`,
+    `"${(u.kategori_adi || '-').replace(/"/g, '""')}"`,
+    u.stok,
+    `"${(isEn ? tUnit(u.olcu_birimi) : (u.olcu_birimi || 'adet')).replace(/"/g, '""')}"`,
+    u.kritik_stok,
+    u.bekleyen_talep_adedi || 0,
+    u.oneriSiparisMiktari
+  ]);
 
-    const csvContent = '\uFEFF' + [headers.join(';'), ...rows.map(r => r.join(';'))].join('\r\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `KampusStok_Malzeme_Tedarik_Ihtiyac_Listesi_${new Date().toISOString().substring(0, 10)}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    toast.success('Malzeme tedarik ihtiyaç listesi indirildi.');
-  } catch (err) {
-    toast.error('Dışa aktarma hatası: ' + err.message);
-  }
+  const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const tarihStr = new Date().toISOString().slice(0, 10);
+  a.download = `KampusStok_Kritik_Tedarik_Listesi_${tarihStr}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  toast.success(isEn ? 'Critical stock order list exported successfully.' : 'Kritik stok sipariş listesi başarıyla indirildi.');
 }
 
-function formatTimeAgo(isoString) {
+export function formatTimeAgo(isoString) {
   if (!isoString) return '';
   const date = new Date(isoString);
   const diffSec = Math.floor((Date.now() - date.getTime()) / 1000);
+  const isEn = getLanguage() === 'en';
 
-  if (diffSec < 60) return 'Az önce';
-  if (diffSec < 3600) return `${Math.floor(diffSec / 60)} dk önce`;
-  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)} saat önce`;
-  return date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
-}
-
-function escapeHtml(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+  if (diffSec < 60) return isEn ? 'Just now' : 'Az önce';
+  if (diffSec < 3600) return isEn ? `${Math.floor(diffSec / 60)}m ago` : `${Math.floor(diffSec / 60)} dk önce`;
+  if (diffSec < 86400) return isEn ? `${Math.floor(diffSec / 3600)}h ago` : `${Math.floor(diffSec / 3600)} saat önce`;
+  return date.toLocaleDateString(isEn ? 'en-US' : 'tr-TR', { day: 'numeric', month: 'short' });
 }
 
 /**
@@ -475,35 +569,37 @@ function escapeHtml(str) {
 export function openAtilMalzemeDetayModal(item) {
   if (!item) return;
   const atilId = item.atil_id || item.extraData?.atil_id;
+  const isEn = getLanguage() === 'en';
+  const { title: formattedTitle, msg: formattedMsg } = formatNotificationContent(item);
 
   const modal = createModal({
-    title: 'İhtiyaç Fazlası Atıl Malzeme Bildirimi',
+    title: isEn ? 'Surplus Material Return Report' : 'İhtiyaç Fazlası Atıl Malzeme Bildirimi',
     maxWidth: '540px',
     content: `
       <div style="font-size: 14px; line-height: 1.5; color: #1E293B;">
         <div style="background: #F0FDF4; border: 1.2px solid #86EFAC; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;">
           <div style="font-weight: 700; color: #065F46; font-size: 15px; margin-bottom: 4px;">
-            ${escapeHtml(item.baslik || 'Atıl Malzeme Bildirimi')}
+            ${escapeHtml(formattedTitle)}
           </div>
           <div style="color: #047857; font-size: 13.5px;">
-            ${escapeHtml(item.mesaj || '')}
+            ${escapeHtml(formattedMsg)}
           </div>
         </div>
 
         <div style="font-size: 13px; color: #64748B; margin-bottom: 20px;">
           <p style="margin: 0 0 6px;">
-            Bu malzeme Çarşamba dağıtımında birimden teslim alınarak depoya kazandırılacaktır.
+            ${isEn ? 'This material will be collected from the department during Wednesday distribution and recovered to warehouse inventory.' : 'Bu malzeme Çarşamba dağıtımında birimden teslim alınarak depoya kazandırılacaktır.'}
           </p>
           <p style="margin: 0;">
-            Depoya teslim alındığında birime otomatik <strong>+20 Yeşil Kampüs Puanı</strong> tanımlanır.
+            ${isEn ? 'When received into the warehouse, <strong>+20 Green Campus Points</strong> are automatically credited to the department.' : 'Depoya teslim alındığında birime otomatik <strong>+20 Yeşil Kampüs Puanı</strong> tanımlanır.'}
           </p>
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 10px;">
-          <button type="button" class="btn btn-secondary" id="btnKapatAtilDetay">Kapat</button>
+          <button type="button" class="btn btn-secondary" id="btnKapatAtilDetay">${t('common.close', 'Kapat')}</button>
           ${(state.user?.rol === 'satin_alma' && atilId) ? `
             <button type="button" class="btn btn-primary" id="btnModalTeslimAlAtil" style="background: #10B981; border: none; font-weight: 700; border-radius: 9999px;">
-              Depoya Teslim Al (+20 P)
+              ${isEn ? 'Accept to Warehouse (+20 P)' : 'Depoya Teslim Al (+20 P)'}
             </button>
           ` : ''}
         </div>
@@ -518,18 +614,18 @@ export function openAtilMalzemeDetayModal(item) {
 
   btnTeslim?.addEventListener('click', async () => {
     btnTeslim.disabled = true;
-    btnTeslim.textContent = 'İşleniyor...';
+    btnTeslim.textContent = isEn ? 'Processing...' : 'İşleniyor...';
     try {
       await api.teslimAlAtilMalzeme(atilId);
-      toast.success('Malzeme teslim alındı ve birime +20 Yeşil Puan kazandırıldı!');
+      toast.success(isEn ? 'Material received into warehouse and +20 Green Points awarded!' : 'Malzeme teslim alındı ve birime +20 Yeşil Puan kazandırıldı!');
       modal.close();
       if (window.location.hash.includes('#/satinalma')) {
         window.location.reload();
       }
     } catch (err) {
-      toast.error(err.message || 'Teslim alma işlemi başarısız');
+      toast.error(err.message || (isEn ? 'Receiving failed' : 'Teslim alma işlemi başarısız'));
       btnTeslim.disabled = false;
-      btnTeslim.textContent = 'Depoya Teslim Al (+20 P)';
+      btnTeslim.textContent = isEn ? 'Accept to Warehouse (+20 P)' : 'Depoya Teslim Al (+20 P)';
     }
   });
 }
@@ -540,38 +636,40 @@ export function openAtilMalzemeDetayModal(item) {
 export function openEkipmanRezervasyonDetayModal(item) {
   if (!item) return;
   const rezId = item.rezervasyon_id || item.extraData?.rezervasyon_id;
+  const isEn = getLanguage() === 'en';
+  const { title: formattedTitle, msg: formattedMsg } = formatNotificationContent(item);
 
   const modal = createModal({
-    title: 'Ortak Ekipman Ödünç Rezervasyonu',
+    title: isEn ? 'Shared Equipment Loan Reservation' : 'Ortak Ekipman Ödünç Rezervasyonu',
     maxWidth: '540px',
     content: `
       <div style="font-size: 14px; line-height: 1.5; color: #1E293B;">
         <div style="background: #EFF6FF; border: 1.2px solid #93C5FD; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;">
           <div style="font-weight: 700; color: #1E40AF; font-size: 15px; margin-bottom: 4px;">
-            ${escapeHtml(item.baslik || 'Ekipman Rezervasyonu')}
+            ${escapeHtml(formattedTitle)}
           </div>
           <div style="color: #1D4ED8; font-size: 13.5px;">
-            ${escapeHtml(item.mesaj || '')}
+            ${escapeHtml(formattedMsg)}
           </div>
         </div>
 
         <div style="font-size: 13px; color: #64748B; margin-bottom: 20px;">
           <p style="margin: 0 0 6px;">
-            Ekipman teslim edildiğinde <em>Birimde Kullanımda</em> durumuna geçer.
+            ${isEn ? 'When equipment is dispatched, its status changes to <em>In Use at Department</em>.' : 'Ekipman teslim edildiğinde <em>Birimde Kullanımda</em> durumuna geçer.'}
           </p>
           <p style="margin: 0;">
-            Süre bitiminde depoya iade alındığında birime <strong>+5 Yeşil Kampüs Puanı</strong> eklenir.
+            ${isEn ? 'Upon completion and return to warehouse, <strong>+5 Green Campus Points</strong> are credited to the department.' : 'Süre bitiminde depoya iade alındığında birime <strong>+5 Yeşil Kampüs Puanı</strong> eklenir.'}
           </p>
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
-          <button type="button" class="btn btn-secondary" id="btnKapatEkipmanDetay">Kapat</button>
+          <button type="button" class="btn btn-secondary" id="btnKapatEkipmanDetay">${t('common.close', 'Kapat')}</button>
           ${(state.user?.rol === 'satin_alma' && rezId) ? `
             <button type="button" class="btn btn-primary" id="btnModalEkipmanTeslim" style="background: #2563EB; border: none; font-weight: 700; border-radius: 9999px;">
-              Birime Teslim Edildi
+              ${isEn ? 'Dispatched to Department' : 'Birime Teslim Edildi'}
             </button>
             <button type="button" class="btn btn-primary" id="btnModalEkipmanIade" style="background: #10B981; border: none; font-weight: 700; border-radius: 9999px;">
-              Depoya İade Alındı (+5 P)
+              ${isEn ? 'Returned to Warehouse (+5 P)' : 'Depoya İade Alındı (+5 P)'}
             </button>
           ` : ''}
         </div>
@@ -589,13 +687,13 @@ export function openEkipmanRezervasyonDetayModal(item) {
     btnTeslim.disabled = true;
     try {
       await api.teslimEtEkipman(rezId);
-      toast.success('Ekipman birime teslim edildi olarak işaretlendi.');
+      toast.success(isEn ? 'Equipment marked as delivered to department.' : 'Ekipman birime teslim edildi olarak işaretlendi.');
       modal.close();
       if (window.location.hash.includes('#/satinalma')) {
         window.location.reload();
       }
     } catch (err) {
-      toast.error(err.message || 'İşlem başarısız');
+      toast.error(err.message || (isEn ? 'Operation failed' : 'İşlem başarısız'));
       btnTeslim.disabled = false;
     }
   });
@@ -604,13 +702,13 @@ export function openEkipmanRezervasyonDetayModal(item) {
     btnIade.disabled = true;
     try {
       await api.iadeAlEkipman(rezId);
-      toast.success('Ekipman depoya iade alındı ve birime +5 Yeşil Puan kazandırıldı!');
+      toast.success(isEn ? 'Equipment returned to warehouse and +5 Green Points awarded!' : 'Ekipman depoya iade alındı ve birime +5 Yeşil Puan kazandırıldı!');
       modal.close();
       if (window.location.hash.includes('#/satinalma')) {
         window.location.reload();
       }
     } catch (err) {
-      toast.error(err.message || 'İşlem başarısız');
+      toast.error(err.message || (isEn ? 'Operation failed' : 'İşlem başarısız'));
       btnIade.disabled = false;
     }
   });
