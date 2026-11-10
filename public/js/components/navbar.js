@@ -455,11 +455,12 @@ export function renderNavbar(container) {
     const btn = container.querySelector(selector);
     if (!btn) return;
     btn.addEventListener('click', async () => {
+      const isEn = getLanguage() === 'en';
       const onay = await confirmModal({
-        title: 'Oturumu Kapat',
-        message: 'Kırtasiye Talep Portalı oturumunuzu sonlandırmak istediğinize emin misiniz?',
-        confirmText: 'Çıkış Yap',
-        cancelText: 'Vazgeç',
+        title: isEn ? 'Sign Out' : 'Oturumu Kapat',
+        message: isEn ? 'Are you sure you want to end your CampusStock Portal session?' : 'Kırtasiye Talep Portalı oturumunuzu sonlandırmak istediğinize emin misiniz?',
+        confirmText: isEn ? 'Sign Out' : 'Çıkış Yap',
+        cancelText: isEn ? 'Cancel' : 'Vazgeç',
         type: 'danger'
       });
       if (!onay) return;
@@ -470,7 +471,7 @@ export function renderNavbar(container) {
         state.cartCount = 0;
         window.location.hash = '#/giris';
       } catch (err) {
-        toast.error('Çıkış yapılırken bir hata oluştu: ' + err.message);
+        toast.error((isEn ? 'Error while signing out: ' : 'Çıkış yapılırken bir hata oluştu: ') + err.message);
       }
     });
   };

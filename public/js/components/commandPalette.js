@@ -3,73 +3,78 @@ import api from '../api.js';
 import state from '../state.js';
 import toast from './toast.js';
 import { openProductLightbox } from './productLightbox.js';
+import { escapeHtml } from '../utils/text.js';
+import { t, getLanguage, tCategory, tProduct, tDepartment, tTitle, tUnit } from '../utils/i18n.js';
 
 let paletteBackdrop = null;
 let selectedIndex = 0;
 let currentResults = [];
 let searchDebounceTimer = null;
 
-const STATIC_ACTIONS = [
-  {
-    type: 'action',
-    category: 'Gezinme',
-    title: 'Malzeme Kataloğu',
-    subtitle: 'Kırtasiye ve sarf malzemelerini inceleyin',
-    icon: '',
-    handler: () => { window.location.hash = '#/katalog'; }
-  },
-  {
-    type: 'action',
-    category: 'Gezinme',
-    title: 'Sepetime Git',
-    subtitle: 'Eklenen malzemeleri ve talep oluşturma adımını aç',
-    icon: '',
-    handler: () => { window.location.hash = '#/sepet'; }
-  },
-  {
-    type: 'action',
-    category: 'Gezinme',
-    title: 'Taleplerim & Sipariş Durumu',
-    subtitle: 'Onaylanan, hazırlanan ve teslim edilen siparişleriniz',
-    icon: '',
-    handler: () => { window.location.hash = '#/taleplerim'; }
-  },
-  {
-    type: 'action',
-    category: 'Yönetim',
-    title: 'Satın Alma & Gelen Kutusu',
-    subtitle: 'Birimlerden gelen talepleri inceleyin ve onaylayın (Satın Alma)',
-    icon: '',
-    role: 'satin_alma',
-    handler: () => { window.location.hash = '#/satinalma'; }
-  },
-  {
-    type: 'action',
-    category: 'Yönetim',
-    title: 'Depo & Stok Yönetimi',
-    subtitle: 'Stok girişleri, kritik seviyeler ve ürün düzenleme',
-    icon: '',
-    role: 'satin_alma',
-    handler: () => { window.location.hash = '#/yonetim'; }
-  },
-  {
-    type: 'action',
-    category: 'Gezinme',
-    title: 'Kurumsal Rehber & İletişim',
-    subtitle: 'Üniversite akademik ve idari personel rehberi',
-    icon: '',
-    handler: () => { window.location.hash = '#/rehber'; }
-  },
-  {
-    type: 'action',
-    category: 'Yönetim',
-    title: 'Tüketim & Tasarruf Raporları',
-    subtitle: 'Birim bazlı harcama ve istatistik grafikleri',
-    icon: '',
-    role: 'satin_alma',
-    handler: () => { window.location.hash = '#/raporlar'; }
-  }
-];
+function getStaticActions() {
+  const isEn = getLanguage() === 'en';
+  return [
+    {
+      type: 'action',
+      category: isEn ? 'Navigation' : 'Gezinme',
+      title: isEn ? 'Supplies Catalog' : 'Malzeme Kataloğu',
+      subtitle: isEn ? 'Browse stationery and supplies catalog' : 'Kırtasiye ve sarf malzemelerini inceleyin',
+      icon: '',
+      handler: () => { window.location.hash = '#/katalog'; }
+    },
+    {
+      type: 'action',
+      category: isEn ? 'Navigation' : 'Gezinme',
+      title: isEn ? 'Go to My Cart' : 'Sepetime Git',
+      subtitle: isEn ? 'Review cart items and submit requisition' : 'Eklenen malzemeleri ve talep oluşturma adımını aç',
+      icon: '',
+      handler: () => { window.location.hash = '#/sepet'; }
+    },
+    {
+      type: 'action',
+      category: isEn ? 'Navigation' : 'Gezinme',
+      title: isEn ? 'My Requisitions & Order Flow' : 'Taleplerim & Sipariş Durumu',
+      subtitle: isEn ? 'Track approved, preparing and delivered orders' : 'Onaylanan, hazırlanan ve teslim edilen siparişleriniz',
+      icon: '',
+      handler: () => { window.location.hash = '#/taleplerim'; }
+    },
+    {
+      type: 'action',
+      category: isEn ? 'Management' : 'Yönetim',
+      title: isEn ? 'Procurement & Approval Inbox' : 'Satın Alma & Gelen Kutusu',
+      subtitle: isEn ? 'Review and approve department requisitions' : 'Birimlerden gelen talepleri inceleyin ve onaylayın (Satın Alma)',
+      icon: '',
+      role: 'satin_alma',
+      handler: () => { window.location.hash = '#/satinalma'; }
+    },
+    {
+      type: 'action',
+      category: isEn ? 'Management' : 'Yönetim',
+      title: isEn ? 'Warehouse & Inventory Management' : 'Depo & Stok Yönetimi',
+      subtitle: isEn ? 'Stock intake, critical levels and item catalog' : 'Stok girişleri, kritik seviyeler ve ürün düzenleme',
+      icon: '',
+      role: 'satin_alma',
+      handler: () => { window.location.hash = '#/yonetim'; }
+    },
+    {
+      type: 'action',
+      category: isEn ? 'Navigation' : 'Gezinme',
+      title: isEn ? 'Corporate Directory & Contacts' : 'Kurumsal Rehber & İletişim',
+      subtitle: isEn ? 'University academic and administrative directory' : 'Üniversite akademik ve idari personel rehberi',
+      icon: '',
+      handler: () => { window.location.hash = '#/rehber'; }
+    },
+    {
+      type: 'action',
+      category: isEn ? 'Management' : 'Yönetim',
+      title: isEn ? 'Consumption & Analytics Reports' : 'Tüketim & Tasarruf Raporları',
+      subtitle: isEn ? 'Department spending charts and official bulletins' : 'Birim bazlı harcama ve istatistik grafikleri',
+      icon: '',
+      role: 'satin_alma',
+      handler: () => { window.location.hash = '#/raporlar'; }
+    }
+  ];
+}
 
 export function initCommandPalette() {
   window.addEventListener('keydown', (e) => {
@@ -92,14 +97,19 @@ export function toggleCommandPalette() {
 export function openCommandPalette() {
   if (paletteBackdrop) return;
 
+  const isEn = getLanguage() === 'en';
   const backdrop = document.createElement('div');
   backdrop.className = 'spotlight-backdrop';
   backdrop.id = 'spotlightBackdrop';
 
+  const placeholderText = isEn
+    ? 'Search items, orders, personnel, or commands... (e.g. paper, REQ, dean)'
+    : 'Ürün, talep no, personel veya sistem komutu arayın... (örn: fotokopi, TLP, dekanlık)';
+
   backdrop.innerHTML = `
     <div class="spotlight-dialog" role="dialog" aria-modal="true">
       <div class="spotlight-header">
-        <input type="text" class="spotlight-input" id="spotlightInput" placeholder="Ürün, talep no, personel veya sistem komutu arayın... (örn: fotokopi, TLP, dekanlık)" autocomplete="off" spellcheck="false">
+        <input type="text" class="spotlight-input" id="spotlightInput" placeholder="${escapeHtml(placeholderText)}" autocomplete="off" spellcheck="false">
         <span class="spotlight-shortcut-badge">ESC</span>
       </div>
 
@@ -109,12 +119,12 @@ export function openCommandPalette() {
 
       <div class="spotlight-footer">
         <div class="spotlight-hint">
-          <span><kbd>↑</kbd><kbd>↓</kbd> Gezin</span>
-          <span><kbd>↵</kbd> Seç</span>
-          <span><kbd>ESC</kbd> Kapat</span>
+          <span><kbd>↑</kbd><kbd>↓</kbd> ${isEn ? 'Navigate' : 'Gezin'}</span>
+          <span><kbd>↵</kbd> ${isEn ? 'Select' : 'Seç'}</span>
+          <span><kbd>ESC</kbd> ${isEn ? 'Close' : 'Kapat'}</span>
         </div>
         <div class="spotlight-branding">
-          KampüsStok Spotlight
+          CampusStock Spotlight
         </div>
       </div>
     </div>
@@ -155,9 +165,11 @@ async function executeOmniSearch(query) {
 
   const user = state.user;
   const userRole = user?.rol || 'birim';
+  const isEn = getLanguage() === 'en';
+  const staticActions = getStaticActions();
 
   // 1. Static Actions
-  const filteredActions = STATIC_ACTIONS.filter(a => {
+  const filteredActions = staticActions.filter(a => {
     if (a.role && a.role !== userRole) return false;
     if (!query) return true;
     return a.title.toLowerCase().includes(query.toLowerCase()) || 
@@ -168,7 +180,7 @@ async function executeOmniSearch(query) {
     currentResults = filteredActions;
     selectedIndex = 0;
     renderResults(container, [
-      { group: 'Hızlı Eylemler & Sayfalar', items: filteredActions }
+      { group: isEn ? 'Quick Actions & Pages' : 'Hızlı Eylemler & Sayfalar', items: filteredActions }
     ]);
     return;
   }
@@ -176,7 +188,7 @@ async function executeOmniSearch(query) {
   container.innerHTML = `
     <div class="spotlight-loading-row">
       <div class="spinner-sm"></div>
-      <span>Aranıyor...</span>
+      <span>${isEn ? 'Searching...' : 'Aranıyor...'}</span>
     </div>
   `;
 
@@ -197,8 +209,8 @@ async function executeOmniSearch(query) {
     if (urunler.length > 0) {
       const items = urunler.map(u => ({
         type: 'product',
-        title: u.ad,
-        subtitle: `${u.marka || 'Standart'} • ${u.kategoriAdi || ''} • Stok: ${u.stok} ${u.olcuBirimi}`,
+        title: tProduct(u.ad),
+        subtitle: `${u.marka || (isEn ? 'Standard' : 'Standart')} • ${tCategory(u.kategoriAdi) || ''} • ${isEn ? 'Stock' : 'Stok'}: ${u.stok} ${tUnit(u.olcuBirimi)}`,
         image: u.gorselYolu || '/assets/placeholder.svg',
         raw: u,
         handler: () => {
@@ -206,7 +218,7 @@ async function executeOmniSearch(query) {
           openProductLightbox(u, urunler);
         }
       }));
-      groups.push({ group: `Ürünler (${urunler.length})`, items });
+      groups.push({ group: isEn ? `Products (${urunler.length})` : `Ürünler (${urunler.length})`, items });
       currentResults.push(...items);
     }
 
@@ -214,8 +226,8 @@ async function executeOmniSearch(query) {
     if (rehber.length > 0) {
       const items = rehber.map(p => ({
         type: 'personnel',
-        title: `${p.unvan ? p.unvan + ' ' : ''}${p.adSoyad}`,
-        subtitle: `${p.gorev || 'Personel'} • ${p.birimAdi || ''} • Dahili: ${p.dahiliTelefon || '-'} • Oda: ${p.odaNo || '-'}`,
+        title: `${p.unvan ? tTitle(p.unvan) + ' ' : ''}${p.adSoyad}`,
+        subtitle: `${tTitle(p.gorev) || (isEn ? 'Staff' : 'Personel')} • ${tDepartment(p.birimAdi) || ''} • ${isEn ? 'Ext' : 'Dahili'}: ${p.dahiliTelefon || '-'} • ${isEn ? 'Room' : 'Oda'}: ${p.odaNo || '-'}`,
         icon: '',
         raw: p,
         handler: () => {
@@ -223,21 +235,21 @@ async function executeOmniSearch(query) {
           window.location.hash = '#/rehber';
         }
       }));
-      groups.push({ group: `Personel Rehberi (${rehber.length})`, items });
+      groups.push({ group: isEn ? `Corporate Directory (${rehber.length})` : `Personel Rehberi (${rehber.length})`, items });
       currentResults.push(...items);
     }
 
     // Actions Group
     if (filteredActions.length > 0) {
-      groups.push({ group: 'Sistem Kısayolları', items: filteredActions });
+      groups.push({ group: isEn ? 'System Shortcuts' : 'Sistem Kısayolları', items: filteredActions });
       currentResults.push(...filteredActions);
     }
 
     if (currentResults.length === 0) {
       container.innerHTML = `
         <div class="spotlight-empty">
-          <p><strong>"${query}"</strong> ile eşleşen ürün veya işlem bulunamadı.</p>
-          <span style="font-size: 12px; color: var(--text-dim); margin-top: 4px;">Farklı bir kelimeyle aramayı deneyebilirsiniz.</span>
+          <p>${isEn ? `No items or actions found matching "<strong>${escapeHtml(query)}</strong>".` : `<strong>"${escapeHtml(query)}"</strong> ile eşleşen ürün veya işlem bulunamadı.`}</p>
+          <span style="font-size: 12px; color: var(--text-dim); margin-top: 4px;">${isEn ? 'Try searching with a different keyword.' : 'Farklı bir kelimeyle aramayı deneyebilirsiniz.'}</span>
         </div>
       `;
       return;
@@ -247,16 +259,17 @@ async function executeOmniSearch(query) {
     renderResults(container, groups);
 
   } catch (err) {
-    container.innerHTML = `<div class="spotlight-empty"><p>Arama hatası: ${err.message}</p></div>`;
+    container.innerHTML = `<div class="spotlight-empty"><p>${isEn ? 'Search error: ' : 'Arama hatası: '}${escapeHtml(err.message)}</p></div>`;
   }
 }
 
 function renderResults(container, groups) {
+  const isEn = getLanguage() === 'en';
   let globalItemIndex = 0;
   let html = '';
 
   for (const g of groups) {
-    html += `<div class="spotlight-group-title">${g.group}</div>`;
+    html += `<div class="spotlight-group-title">${escapeHtml(g.group)}</div>`;
     for (const item of g.items) {
       const isSelected = globalItemIndex === selectedIndex;
       const indexAttr = globalItemIndex;
@@ -270,15 +283,19 @@ function renderResults(container, groups) {
         thumbHtml = `<div class="spotlight-item-icon" style="font-size: 11px; font-weight: 700; color: #64748B;">•</div>`;
       }
 
+      const actionHintText = item.type === 'product'
+        ? (isEn ? '<span>View / Add ↵</span>' : '<span>İncele / Ekle ↵</span>')
+        : (isEn ? '<span>Open ↵</span>' : '<span>Aç ↵</span>');
+
       html += `
         <div class="spotlight-item ${isSelected ? 'is-selected' : ''}" data-idx="${indexAttr}">
           ${thumbHtml}
           <div class="spotlight-item-info">
-            <div class="spotlight-item-title">${item.title}</div>
-            <div class="spotlight-item-sub">${item.subtitle || ''}</div>
+            <div class="spotlight-item-title">${escapeHtml(item.title)}</div>
+            <div class="spotlight-item-sub">${escapeHtml(item.subtitle || '')}</div>
           </div>
           <div class="spotlight-item-action-hint">
-            ${item.type === 'product' ? '<span>İncele / Ekle ↵</span>' : '<span>Aç ↵</span>'}
+            ${actionHintText}
           </div>
         </div>
       `;
@@ -299,57 +316,53 @@ function renderResults(container, groups) {
 
     el.addEventListener('mouseenter', () => {
       const idx = parseInt(el.dataset.idx, 10);
-      selectedIndex = idx;
-      updateSelectedHighlight();
+      updateSelection(idx, false);
     });
   });
-}
 
-function updateSelectedHighlight() {
-  const container = document.getElementById('spotlightResults');
-  if (!container) return;
-  const items = container.querySelectorAll('.spotlight-item');
-  items.forEach((el, idx) => {
-    if (idx === selectedIndex) {
-      el.classList.add('is-selected');
-      el.scrollIntoView({ block: 'nearest' });
-    } else {
-      el.classList.remove('is-selected');
-    }
-  });
+  ensureSelectionVisible();
 }
 
 function handleKeyNavigation(e) {
-  if (e.key === 'Escape') {
-    closeCommandPalette();
-    return;
-  }
+  if (currentResults.length === 0) return;
 
   if (e.key === 'ArrowDown') {
     e.preventDefault();
-    if (currentResults.length > 0) {
-      selectedIndex = (selectedIndex + 1) % currentResults.length;
-      updateSelectedHighlight();
-    }
-    return;
-  }
-
-  if (e.key === 'ArrowUp') {
+    selectedIndex = (selectedIndex + 1) % currentResults.length;
+    updateSelection(selectedIndex, true);
+  } else if (e.key === 'ArrowUp') {
     e.preventDefault();
-    if (currentResults.length > 0) {
-      selectedIndex = (selectedIndex - 1 + currentResults.length) % currentResults.length;
-      updateSelectedHighlight();
-    }
-    return;
-  }
-
-  if (e.key === 'Enter') {
+    selectedIndex = (selectedIndex - 1 + currentResults.length) % currentResults.length;
+    updateSelection(selectedIndex, true);
+  } else if (e.key === 'Enter') {
     e.preventDefault();
     if (currentResults[selectedIndex]) {
       currentResults[selectedIndex].handler();
     }
-    return;
+  } else if (e.key === 'Escape') {
+    e.preventDefault();
+    closeCommandPalette();
   }
+}
+
+function updateSelection(index, scrollIntoView = false) {
+  selectedIndex = index;
+  const items = document.querySelectorAll('.spotlight-item');
+  items.forEach((item, idx) => {
+    if (idx === index) {
+      item.classList.add('is-selected');
+      if (scrollIntoView) {
+        item.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    } else {
+      item.classList.remove('is-selected');
+    }
+  });
+}
+
+function ensureSelectionVisible() {
+  const selectedEl = document.querySelector('.spotlight-item.is-selected');
+  selectedEl?.scrollIntoView({ block: 'nearest' });
 }
 
 export function closeCommandPalette() {
@@ -357,11 +370,16 @@ export function closeCommandPalette() {
   paletteBackdrop.classList.remove('is-open');
   document.body.style.overflow = '';
   setTimeout(() => {
-    if (paletteBackdrop && paletteBackdrop.parentNode) {
-      paletteBackdrop.parentNode.removeChild(paletteBackdrop);
-    }
+    paletteBackdrop?.remove();
     paletteBackdrop = null;
-  }, 200);
+    selectedIndex = 0;
+    currentResults = [];
+  }, 180);
 }
 
-export default initCommandPalette;
+export default {
+  initCommandPalette,
+  toggleCommandPalette,
+  openCommandPalette,
+  closeCommandPalette
+};

@@ -285,7 +285,7 @@ export async function openVekaletModal(onUpdated) {
     if (val === 'asilsorumlu') {
       radioDevir.checked = true;
       if (wrapZaman) wrapZaman.style.display = 'none';
-      modal.element.querySelector('#modalVekilNedeni').value = 'Kırtasiye ve Depo Baş Sorumlusu Tam Yetkilendirmesi';
+      modal.element.querySelector('#modalVekilNedeni').value = isEn ? 'Stationery & Inventory Head Manager Full Delegation' : 'Kırtasiye ve Depo Baş Sorumlusu Tam Yetkilendirmesi';
       // Ozan Can Şimşek'i seç
       for (let i = 0; i < sel.options.length; i++) {
         if (sel.options[i].text.includes('Ozan')) {
@@ -294,19 +294,19 @@ export async function openVekaletModal(onUpdated) {
         }
       }
       updateCardPreview();
-      toast.info('Şablon uygulandı: Ozan Can Şimşek asıl sorumlu olarak seçildi.');
+      toast.info(isEn ? 'Template applied: Ozan Can Simsek assigned as primary lead.' : 'Şablon uygulandı: Ozan Can Şimşek asıl sorumlu olarak seçildi.');
     } else if (val === 'yillikizin') {
       radioIzin.checked = true;
       if (wrapZaman) wrapZaman.style.display = 'grid';
-      modal.element.querySelector('#modalVekilNedeni').value = 'Yıllık İzin Geçici Görev Devri';
+      modal.element.querySelector('#modalVekilNedeni').value = isEn ? 'Annual Leave Temporary Handover' : 'Yıllık İzin Geçici Görev Devri';
       // Varsayılan bitişi 10 gün sonraya ayarla
       const endDate = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000);
       modal.element.querySelector('#vekaletBitis').value = endDate.toISOString().slice(0, 16);
-      toast.info('Şablon uygulandı: Saatli & Tarihli İzin Vekaleti aktif.');
+      toast.info(isEn ? 'Template applied: Scheduled leave handover activated.' : 'Şablon uygulandı: Saatli & Tarihli İzin Vekaleti aktif.');
     } else if (val === 'depolojistik') {
       radioDevir.checked = true;
       if (wrapZaman) wrapZaman.style.display = 'none';
-      modal.element.querySelector('#modalVekilNedeni').value = 'Çarşamba Dağıtım ve Depo Sorumlusu Görevlendirmesi';
+      modal.element.querySelector('#modalVekilNedeni').value = isEn ? 'Wednesday Logistics & Warehouse Lead Assignment' : 'Çarşamba Dağıtım ve Depo Sorumlusu Görevlendirmesi';
     }
   });
 

@@ -774,14 +774,15 @@ Satın Alma Müdürlüğü
         const btnSil = e.target.closest('.btn-personel-sil');
         if (btnSil) {
           e.stopPropagation();
+          const isEn = getLanguage() === 'en';
           const personId = parseInt(btnSil.dataset.id, 10);
           const personName = btnSil.dataset.name;
           const onay = await confirmModal({
-            title: 'Personel Kaydını Sil',
-            message: `'${personName}' isimli personeli sistemden silmek istediğinize emin misiniz?`,
-            description: 'Personele ait geçmiş talep kaydı bulunmuyorsa veritabanından tamamen kaldırılacaktır.',
-            confirmText: 'Evet, Personeli Sil',
-            cancelText: 'Vazgeç',
+            title: isEn ? 'Delete Staff Member' : 'Personel Kaydını Sil',
+            message: isEn ? `Are you sure you want to delete staff member "${personName}"?` : `'${personName}' isimli personeli sistemden silmek istediğinize emin misiniz?`,
+            description: isEn ? 'If this staff member has no previous requisitions, their record will be permanently deleted from database.' : 'Personele ait geçmiş talep kaydı bulunmuyorsa veritabanından tamamen kaldırılacaktır.',
+            confirmText: isEn ? 'Yes, Delete Staff' : 'Evet, Personeli Sil',
+            cancelText: isEn ? 'Cancel' : 'Vazgeç',
             type: 'danger',
             icon: ''
           });
@@ -789,10 +790,10 @@ Satın Alma Müdürlüğü
 
           try {
             await api.deleteYonetimPersonel(personId);
-            toast.success('Personel başarıyla silindi.');
+            toast.success(isEn ? 'Staff member deleted successfully.' : 'Personel başarıyla silindi.');
             loadTree();
           } catch (err) {
-            toast.error('Personel silinemedi: ' + err.message);
+            toast.error((isEn ? 'Could not delete staff member: ' : 'Personel silinemedi: ') + err.message);
           }
           return;
         }
@@ -1045,23 +1046,24 @@ async function openPersonelModal(personelData, defaultBirimId, onSaved) {
     const eposta = modal.element.querySelector('#modalPersonelEposta').value.trim();
     const birim_id = parseInt(modal.element.querySelector('#modalPersonelBirim').value, 10);
 
+    const isEn = getLanguage() === 'en';
     if (!ad_soyad || !birim_id) {
-      toast.error('Lütfen Ad Soyad ve Birim alanlarını doldurunuz.');
+      toast.error(isEn ? 'Please fill in Full Name and Department.' : 'Lütfen Ad Soyad ve Birim alanlarını doldurunuz.');
       return;
     }
 
     try {
       if (isEdit) {
         await api.updateYonetimPersonel(personelData.id, { birim_id, ad_soyad, unvan, gorev, telefon, eposta });
-        toast.success('Personel başarıyla güncellendi.');
+        toast.success(isEn ? 'Staff member updated successfully.' : 'Personel başarıyla güncellendi.');
       } else {
         await api.addYonetimPersonel({ birim_id, ad_soyad, unvan, gorev, telefon, eposta });
-        toast.success('Yeni personel kaydedildi.');
+        toast.success(isEn ? 'New staff member registered successfully.' : 'Yeni personel kaydedildi.');
       }
       modal.close();
       if (onSaved) onSaved();
     } catch (err) {
-      toast.error('İşlem başarısız: ' + err.message);
+      toast.error((isEn ? 'Operation failed: ' : 'İşlem başarısız: ') + err.message);
     }
   };
 }
@@ -1127,28 +1129,29 @@ async function openBirimModal(birimData, onSaved) {
   modal.element.querySelector('#btnModalBirimIptal').onclick = () => modal.close();
 
   modal.element.querySelector('#btnModalBirimKaydet').onclick = async () => {
+    const isEn = getLanguage() === 'en';
     const ad = modal.element.querySelector('#modalBirimAd').value.trim();
     const tur = modal.element.querySelector('#modalBirimTur').value;
     const ustVal = modal.element.querySelector('#modalBirimUst').value;
     const ust_birim_id = ustVal ? parseInt(ustVal, 10) : null;
 
     if (!ad) {
-      toast.error('Lütfen birim adını giriniz.');
+      toast.error(isEn ? 'Please enter a department name.' : 'Lütfen birim adını giriniz.');
       return;
     }
 
     try {
       if (isEdit) {
         await api.updateBirim(birimData.id, { ad, tur, ust_birim_id });
-        toast.success('Birim güncellendi.');
+        toast.success(isEn ? 'Department updated.' : 'Birim güncellendi.');
       } else {
         await api.addBirim({ ad, tur, ust_birim_id });
-        toast.success('Yeni birim oluşturuldu.');
+        toast.success(isEn ? 'New department defined successfully.' : 'Yeni birim oluşturuldu.');
       }
       modal.close();
       if (onSaved) onSaved();
     } catch (err) {
-      toast.error('İşlem başarısız: ' + err.message);
+      toast.error((isEn ? 'Operation failed: ' : 'İşlem başarısız: ') + err.message);
     }
   };
 }
@@ -1157,6 +1160,7 @@ async function openBirimModal(birimData, onSaved) {
  * Toplu Hesap Açma & Yetkilendirme Modalı
  */
 async function openTopluHesapModal(onComplete) {
+  const isEn = getLanguage() === 'en';
   let birimler = [];
   try {
     const res = await api.getYonetimBirimler();
@@ -1164,12 +1168,14 @@ async function openTopluHesapModal(onComplete) {
   } catch (e) {}
 
   const modal = createModal({
-    title: 'Toplu Kurumsal Hesap ve Yetki Tanımla',
+    title: isEn ? 'Bulk Corporate Account & Authorization Setup' : 'Toplu Kurumsal Hesap ve Yetki Tanımla',
     maxWidth: '560px',
     contentHtml: `
       <div style="padding: 4px 0;">
         <p style="font-size: 13.5px; color: #475569; margin-bottom: 16px; line-height: 1.5;">
-          Üniversite personeline tek tıkla kurumsal portal hesabı açabilir, geçici şifre atayabilir ve kullanıcıların sisteme giriş yapabilmesini sağlayabilirsiniz.
+          ${isEn 
+            ? 'Instantly create portal accounts for institution staff, generate temporary credentials, and enable seamless requisition access.' 
+            : 'Üniversite personeline tek tıkla kurumsal portal hesabı açabilir, geçici şifre atayabilir ve kullanıcıların sisteme giriş yapabilmesini sağlayabilirsiniz.'}
         </p>
 
         <div class="form-group" style="margin-bottom: 14px;">
@@ -1202,12 +1208,14 @@ async function openTopluHesapModal(onComplete) {
         </div>
 
         <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 8px; padding: 12px; font-size: 12px; color: #1e40af; line-height: 1.4; margin-bottom: 16px;">
-          ℹ️ Oluşturulan hesapların kullanıcı adı personelin kurumsal e-posta adresi (<code>@kampus.edu.tr</code>) olacaktır. İlk girişlerinde sistem kendilerinden teslimat bina/oda ve yeni kalıcı şifre belirlemelerini isteyecektir.
+          ${isEn 
+            ? 'ℹ️ The username for created accounts will be the corporate email (<code>@kampus.edu.tr</code>). Upon first sign-in, the system will prompt the user to configure room/building location and a permanent password.' 
+            : 'ℹ️ Oluşturulan hesapların kullanıcı adı personelin kurumsal e-posta adresi (<code>@kampus.edu.tr</code>) olacaktır. İlk girişlerinde sistem kendilerinden teslimat bina/oda ve yeni kalıcı şifre belirlemelerini isteyecektir.'}
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 10px;">
-          <button id="btnModalTopluIptal" class="btn btn-secondary">Vazgeç</button>
-          <button id="btnModalTopluCalistir" class="btn btn-primary" style="background: #2563eb;">Hesapları Oluştur</button>
+          <button id="btnModalTopluIptal" class="btn btn-secondary">${isEn ? 'Cancel' : 'Vazgeç'}</button>
+          <button id="btnModalTopluCalistir" class="btn btn-primary" style="background: #2563eb;">${isEn ? 'Create Accounts' : 'Hesapları Oluştur'}</button>
         </div>
       </div>
     `
@@ -1217,13 +1225,14 @@ async function openTopluHesapModal(onComplete) {
   modal.element.querySelector('#btnModalTopluIptal').onclick = () => modal.close();
 
   modal.element.querySelector('#btnModalTopluCalistir').onclick = async () => {
+    const isEn = getLanguage() === 'en';
     const kapsam = modal.element.querySelector('#modalTopluKapsam').value;
     const ustYonetimHaric = modal.element.querySelector('#modalTopluUstYonetimHaric').checked;
     const sadeceHesapsizlar = modal.element.querySelector('#modalTopluSadeceHesapsizlar').checked;
     const btnCalistir = modal.element.querySelector('#btnModalTopluCalistir');
 
     btnCalistir.disabled = true;
-    btnCalistir.textContent = 'Hesaplar Tanımlanıyor...';
+    btnCalistir.textContent = isEn ? 'Provisioning Accounts...' : 'Hesaplar Tanımlanıyor...';
 
     try {
       const payload = {
@@ -1241,26 +1250,28 @@ async function openTopluHesapModal(onComplete) {
       modal.close();
 
       createModal({
-        title: 'Toplu Hesap Tanımlama Tamamlandı',
+        title: isEn ? 'Bulk Account Provisioning Completed' : 'Toplu Hesap Tanımlama Tamamlandı',
         content: `
           <div style="padding: 10px 0;">
             <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 10px; padding: 16px; margin-bottom: 14px;">
-              <div style="font-weight: 700; color: #065f46; font-size: 15px; margin-bottom: 6px;">İşlem Başarıyla Gerçekleşti</div>
-              <div style="font-size: 13px; color: #047857;">${res.mesaj || 'Personel hesapları başarıyla oluşturuldu.'}</div>
+              <div style="font-weight: 700; color: #065f46; font-size: 15px; margin-bottom: 6px;">${isEn ? 'Operation Successful' : 'İşlem Başarıyla Gerçekleşti'}</div>
+              <div style="font-size: 13px; color: #047857;">${res.mesaj || (isEn ? 'Staff accounts created successfully.' : 'Personel hesapları başarıyla oluşturuldu.')}</div>
             </div>
             <p style="font-size: 13px; color: #475569; line-height: 1.5;">
-              Kurumsal rehber & yetkilendirme listesinde kullanıcıların hesap durumları güncellenmiştir. Dilediğiniz personele tek tıkla <strong>[Şifre ve Outlook]</strong> butonuna basarak giriş bilgilerini Outlook üzerinden doğrudan iletebilirsiniz.
+              ${isEn 
+                ? 'Account status indicators updated in Directory & Permissions. You can now click <strong>[Password & Outlook]</strong> on any person to forward their login credentials directly via Outlook.' 
+                : 'Kurumsal rehber & yetkilendirme listesinde kullanıcıların hesap durumları güncellenmiştir. Dilediğiniz personele tek tıkla <strong>[Şifre ve Outlook]</strong> butonuna basarak giriş bilgilerini Outlook üzerinden doğrudan iletebilirsiniz.'}
             </p>
           </div>
         `,
-        buttons: [{ text: 'Tamam', class: 'btn-primary', onClick: (m) => m.close() }]
+        buttons: [{ text: isEn ? 'Done' : 'Tamam', class: 'btn-primary', onClick: (m) => m.close() }]
       });
 
       if (onComplete) onComplete();
     } catch (err) {
-      toast.error('İşlem başarısız: ' + err.message);
+      toast.error((isEn ? 'Operation failed: ' : 'İşlem başarısız: ') + err.message);
       btnCalistir.disabled = false;
-      btnCalistir.textContent = 'Hesapları Oluştur';
+      btnCalistir.textContent = isEn ? 'Create Accounts' : 'Hesapları Oluştur';
     }
   };
 }
@@ -1269,40 +1280,42 @@ async function openTopluHesapModal(onComplete) {
  * Excel ile Toplu Personel İçe Aktarma Modalı
  */
 function openExcelAktarModal(onSuccess) {
+  const isEn = getLanguage() === 'en';
   const modal = createModal({
-    title: 'Excel ile Toplu Personel ve Birim İçe Aktar',
+    title: isEn ? 'Bulk Import Personnel & Departments via Excel' : 'Excel ile Toplu Personel ve Birim İçe Aktar',
     maxWidth: '560px',
     content: `
       <div style="font-size: 13.5px; color: #334155; line-height: 1.6;">
         <p style="margin: 0 0 16px;">
-          Kurumunuzdaki personeli ve birimleri tek tıkla Excel dosyasından içe aktarabilirsiniz. 
-          Sistem, Excel'deki birimler henüz kayıtlı değilse otomatik oluşturur ve personelleri ilgili birimlere bağlar.
+          ${isEn 
+            ? 'Import corporate staff and departments instantly from an Excel spreadsheet. If departments are not registered, the system creates them automatically.' 
+            : 'Kurumunuzdaki personeli ve birimleri tek tıkla Excel dosyasından içe aktarabilirsiniz. Sistem, Excel\'deki birimler henüz kayıtlı değilse otomatik oluşturur ve personelleri ilgili birimlere bağlar.'}
         </p>
 
         <div style="margin-bottom: 20px; padding: 12px 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
           <div>
-            <strong style="color: #166534; font-size: 13px;">Hazır Şablon</strong>
-            <div style="font-size: 12px; color: #15803d;">Sütun başlıklarını ve örnek satırları içeren dosya.</div>
+            <strong style="color: #166534; font-size: 13px;">${isEn ? 'Ready-Made Template' : 'Hazır Şablon'}</strong>
+            <div style="font-size: 12px; color: #15803d;">${isEn ? 'Spreadsheet file containing column headers and sample rows.' : 'Sütun başlıklarını ve örnek satırları içeren dosya.'}</div>
           </div>
           <a href="/api/yonetim/personel/ornek-sablon" class="btn btn-sm btn-outline" style="border-color: #16a34a; color: #166534; font-weight: 600; text-decoration: none;" download="kampusstok_personel_sablonu.xlsx">
-            Şablonu İndir (.xlsx)
+            ${isEn ? 'Download Template (.xlsx)' : 'Şablonu İndir (.xlsx)'}
           </a>
         </div>
 
         <div style="margin-bottom: 20px;">
-          <label style="display: block; font-weight: 600; margin-bottom: 6px; color: #0f172a;">Excel / CSV Dosyası Seçin (.xlsx, .csv)</label>
+          <label style="display: block; font-weight: 600; margin-bottom: 6px; color: #0f172a;">${isEn ? 'Select Excel / CSV File (.xlsx, .csv)' : 'Excel / CSV Dosyası Seçin (.xlsx, .csv)'}</label>
           <input type="file" id="inputExcelFile" accept=".xlsx, .xls, .csv" style="display: block; width: 100%; padding: 12px; border: 2px dashed #cbd5e1; border-radius: 8px; background: #f8fafc; cursor: pointer;">
-          <div id="fileSelectionInfo" style="font-size: 12px; color: #64748b; margin-top: 6px;">Maksimum dosya boyutu: 10 MB.</div>
+          <div id="fileSelectionInfo" style="font-size: 12px; color: #64748b; margin-top: 6px;">${isEn ? 'Maximum file size: 10 MB.' : 'Maksimum dosya boyutu: 10 MB.'}</div>
         </div>
 
         <div id="excelImportProgress" style="display: none; padding: 12px; background: #eff6ff; border-radius: 8px; border: 1px solid #bfdbfe; font-size: 13px; color: #1e40af; text-align: center;">
-          ⏳ Excel dosyası okunuyor ve veritabanına aktarılıyor, lütfen bekleyin...
+          ${isEn ? '⏳ Reading Excel file and importing into database, please wait...' : '⏳ Excel dosyası okunuyor ve veritabanına aktarılıyor, lütfen bekleyin...'}
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0;">
-          <button id="btnModalExcelIptal" class="btn btn-secondary">Vazgeç</button>
+          <button id="btnModalExcelIptal" class="btn btn-secondary">${isEn ? 'Cancel' : 'Vazgeç'}</button>
           <button id="btnModalExcelBaslat" class="btn btn-primary" style="background: #10B981; border-color: #10B981;">
-            İçe Aktarmayı Başlat
+            ${isEn ? 'Start Import' : 'İçe Aktarmayı Başlat'}
           </button>
         </div>
       </div>
@@ -1318,7 +1331,7 @@ function openExcelAktarModal(onSuccess) {
 
   btnBaslat.onclick = async () => {
     if (!fileInput.files || fileInput.files.length === 0) {
-      toast.warning('Lütfen bir Excel (.xlsx) veya CSV dosyası seçiniz.');
+      toast.warning(isEn ? 'Please select an Excel (.xlsx) or CSV file.' : 'Lütfen bir Excel (.xlsx) veya CSV dosyası seçiniz.');
       return;
     }
 
@@ -1338,34 +1351,34 @@ function openExcelAktarModal(onSuccess) {
         if (res.basarili) {
           const ozet = res.ozet || {};
           createModal({
-            title: 'İçe Aktarma Başarılı',
+            title: isEn ? 'Import Successful' : 'İçe Aktarma Başarılı',
             maxWidth: '480px',
             content: `
               <div style="font-size: 13.5px; line-height: 1.6; color: #334155;">
-                <p><strong>${ozet.toplamSatir || 0}</strong> satır başarıyla işlendi:</p>
+                <p><strong>${ozet.toplamSatir || 0}</strong> ${isEn ? 'rows successfully processed:' : 'satır başarıyla işlendi:'}</p>
                 <ul style="padding-left: 20px; margin: 12px 0;">
-                  <li><strong style="color: #10B981;">+${ozet.eklenenPersonel || 0}</strong> yeni personel eklendi.</li>
-                  <li><strong>${ozet.guncellenenPersonel || 0}</strong> mevcut personel güncellendi.</li>
-                  <li><strong style="color: #3B82F6;">+${ozet.eklenenBirim || 0}</strong> yeni birim oluşturuldu.</li>
+                  <li><strong style="color: #10B981;">+${ozet.eklenenPersonel || 0}</strong> ${isEn ? 'new staff members added.' : 'yeni personel eklendi.'}</li>
+                  <li><strong>${ozet.guncellenenPersonel || 0}</strong> ${isEn ? 'existing staff updated.' : 'mevcut personel güncellendi.'}</li>
+                  <li><strong style="color: #3B82F6;">+${ozet.eklenenBirim || 0}</strong> ${isEn ? 'new departments defined.' : 'yeni birim oluşturuldu.'}</li>
                 </ul>
                 ${(ozet.hatalar && ozet.hatalar.length > 0) ? `
                   <div style="margin-top: 12px; padding: 10px; background: #fff1f2; border: 1px solid #fecdd3; border-radius: 6px; font-size: 12px; color: #9f1239; max-height: 120px; overflow-y: auto;">
-                    <strong>Atlanan / Hatalı Satırlar (${ozet.hatalar.length}):</strong><br>
+                    <strong>${isEn ? 'Skipped / Error Rows' : 'Atlanan / Hatalı Satırlar'} (${ozet.hatalar.length}):</strong><br>
                     ${ozet.hatalar.map(h => `• ${escapeHtml(h)}`).join('<br>')}
                   </div>
                 ` : ''}
               </div>
             `,
-            buttons: [{ text: 'Tamam', class: 'btn-primary', onClick: (m) => m.close() }]
+            buttons: [{ text: isEn ? 'Done' : 'Tamam', class: 'btn-primary', onClick: (m) => m.close() }]
           });
 
-          toast.success(res.mesaj || 'Personel listesi başarıyla güncellendi.');
+          toast.success(res.mesaj || (isEn ? 'Personnel directory updated successfully.' : 'Personel listesi başarıyla güncellendi.'));
           if (typeof onSuccess === 'function') onSuccess();
         } else {
-          toast.error(res.mesaj || 'İçe aktarma sırasında bir hata oluştu.');
+          toast.error(res.mesaj || (isEn ? 'An error occurred during import.' : 'İçe aktarma sırasında bir hata oluştu.'));
         }
       } catch (err) {
-        toast.error(err.message || 'Dosya işlenirken sunucu hatası oluştu.');
+        toast.error(err.message || (isEn ? 'Server error processing file.' : 'Dosya işlenirken sunucu hatası oluştu.'));
       } finally {
         btnBaslat.disabled = false;
         btnIptal.disabled = false;
@@ -1374,9 +1387,11 @@ function openExcelAktarModal(onSuccess) {
     };
 
     reader.onerror = () => {
-      toast.error('Dosya okunamadı.');
+      toast.error(isEn ? 'File could not be read.' : 'Dosya okunamadı.');
       btnBaslat.disabled = false;
       btnIptal.disabled = false;
+      progressBox.style.display = 'none';
+    };
       progressBox.style.display = 'none';
     };
 

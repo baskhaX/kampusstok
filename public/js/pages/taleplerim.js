@@ -179,36 +179,39 @@ async function loadTaleplerimList(appContainer, durum = '') {
 }
 
 function promptTeslimAl(talepId, talepNo, onSuccess) {
+  const isEn = getLanguage() === 'en';
   const confirmModal = createModal({
-    title: `Teslim Alma Teyidi • ${talepNo}`,
+    title: isEn ? `Confirm Delivery • ${talepNo}` : `Teslim Alma Teyidi • ${talepNo}`,
     maxWidth: '520px',
     contentHtml: `
       <div style="padding: 10px 0;">
         <div style="display: flex; align-items: flex-start; gap: 14px; margin-bottom: 16px;">
           <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(16, 185, 129, 0.15); color: #059669; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; flex-shrink: 0;">
-            TESLİM
+            ${isEn ? 'RCVD' : 'TESLİM'}
           </div>
           <div>
             <h4 style="font-size: 15px; font-weight: 700; color: #0F172A; margin-bottom: 4px;">
-              Malzemeleri Teslim Aldınız mı?
+              ${isEn ? 'Have you received the supplies?' : 'Malzemeleri Teslim Aldınız mı?'}
             </h4>
             <p style="font-size: 13px; color: #475569; line-height: 1.5; margin: 0;">
-              <strong>${talepNo}</strong> numaralı talebinizdeki kırtasiye ve sarf malzemelerini eksiksiz ve sağlam olarak teslim aldığınızı onaylıyor musunuz?
+              ${isEn 
+                ? `Do you confirm that you have received all stationery and supplies for requisition <strong>${talepNo}</strong> in good condition?`
+                : `<strong>${talepNo}</strong> numaralı talebinizdeki kırtasiye ve sarf malzemelerini eksiksiz ve sağlam olarak teslim aldığınızı onaylıyor musunuz?`}
             </p>
           </div>
         </div>
 
         <div style="margin-bottom: 18px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 12px;">
           <label style="font-size: 12px; font-weight: 600; color: #475569; display: block; margin-bottom: 6px;">
-            Varsa Teslim Alma Notunuz (Opsiyonel):
+            ${isEn ? 'Delivery Notes (Optional):' : 'Varsa Teslim Alma Notunuz (Opsiyonel):'}
           </label>
-          <input type="text" id="inputTeslimNot" class="form-input" placeholder="Örn: 2 koli eksiksiz teslim alındı." style="width: 100%; font-size: 13px; padding: 8px 12px; background: #fff; border: 1px solid #CBD5E1; border-radius: 6px;">
+          <input type="text" id="inputTeslimNot" class="form-input" placeholder="${isEn ? 'e.g. 2 boxes received in good condition.' : 'Örn: 2 koli eksiksiz teslim alındı.'}" style="width: 100%; font-size: 13px; padding: 8px 12px; background: #fff; border: 1px solid #CBD5E1; border-radius: 6px;">
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 10px;">
-          <button class="btn btn-secondary btn-sm" id="btnIptalTeslim">Vazgeç</button>
+          <button class="btn btn-secondary btn-sm" id="btnIptalTeslim">${isEn ? 'Cancel' : 'Vazgeç'}</button>
           <button class="btn btn-sm" id="btnOnaylaTeslim" style="background: #059669; color: #fff; border: none; font-weight: 700; padding: 7px 16px; border-radius: 6px; box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25);">
-            ✓ Evet, Teslim Aldım
+            ${isEn ? '✓ Confirm Receipt' : '✓ Evet, Teslim Aldım'}
           </button>
         </div>
       </div>
@@ -221,11 +224,11 @@ function promptTeslimAl(talepId, talepNo, onSuccess) {
     try {
       const not = el.querySelector('#inputTeslimNot').value.trim();
       const res = await api.talepTeslimAl(talepId, { not });
-      toast.success(res.mesaj || 'Malzemeler teslim alındı olarak onaylandı.');
+      toast.success(isEn ? (res.mesaj || 'Materials confirmed as delivered.') : (res.mesaj || 'Malzemeler teslim alındı olarak onaylandı.'));
       confirmModal.close();
       if (onSuccess) onSuccess();
     } catch (err) {
-      toast.error('Onaylama hatası: ' + err.message);
+      toast.error((isEn ? 'Confirmation error: ' : 'Onaylama hatası: ') + err.message);
     }
   });
 }

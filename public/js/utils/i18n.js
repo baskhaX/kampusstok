@@ -260,7 +260,10 @@ const DICTIONARIES = {
       procurementOffice: 'Satın Alma Müdürlüğü',
       departmentUser: 'Birim Kullanıcısı',
       systemArchitect: 'Sistem Tasarımcısı',
-      actingOfficer: 'Vekil'
+      actingOfficer: 'Vekil',
+      pageLoadError: 'Sayfa Yüklenemedi',
+      unknownError: 'Bilinmeyen bir hata oluştu.',
+      returnHome: 'Ana Sayfaya Dön'
     },
     yonetim: {
       title: 'Depo & Malzeme Yönetimi',
@@ -583,7 +586,7 @@ const DICTIONARIES = {
       soundOn: 'Sound On',
       soundOff: 'Sound Muted',
       soundTitle: 'Toggle notification chime sound',
-      langTitle: 'Change Language / Dil Değiştir',
+      langTitle: 'Switch Language',
       switchRequester: 'Switch Requester',
       dutyDelegation: 'Duty Delegation & Acting Officer',
       dutyDelegationSub: 'Procurement Approval Desk',
@@ -794,7 +797,10 @@ const DICTIONARIES = {
       procurementOffice: 'Procurement Directorate',
       departmentUser: 'Department User',
       systemArchitect: 'System Architect',
-      actingOfficer: 'Acting Officer'
+      actingOfficer: 'Acting Officer',
+      pageLoadError: 'Page Could Not Be Loaded',
+      unknownError: 'An unexpected error occurred.',
+      returnHome: 'Return to Home'
     },
     yonetim: {
       title: 'Warehouse & Inventory Management',

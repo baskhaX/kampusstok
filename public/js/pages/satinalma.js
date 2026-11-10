@@ -547,16 +547,17 @@ function renderAtilMalzemeKuyruk(contentArea, list, search, appContainer) {
   contentArea.querySelectorAll('.btn-atil-teslim-al').forEach(btn => {
     btn.addEventListener('click', async () => {
       const id = parseInt(btn.dataset.id, 10);
+      const isEn = getLanguage() === 'en';
       btn.disabled = true;
-      btn.textContent = 'İşleniyor...';
+      btn.textContent = isEn ? 'Processing...' : 'İşleniyor...';
       try {
         await api.teslimAlAtilMalzeme(id);
-        toast.success('Malzeme depoya başarıyla alındı ve birime +20 Yeşil Puan kazandırıldı!');
+        toast.success(isEn ? 'Surplus material recovered to warehouse and +20 Green Points added to department!' : 'Malzeme depoya başarıyla alındı ve birime +20 Yeşil Puan kazandırıldı!');
         loadGelenTalepler(appContainer);
       } catch (err) {
-        toast.error(err.message || 'İşlem başarısız');
+        toast.error(err.message || (isEn ? 'Operation failed' : 'İşlem başarısız'));
         btn.disabled = false;
-        btn.textContent = 'Depoya Teslim Al (+20 P)';
+        btn.textContent = isEn ? 'Receive to Warehouse (+20 P)' : 'Depoya Teslim Al (+20 P)';
       }
     });
   });
@@ -659,34 +660,36 @@ function renderOduncEkipmanKuyruk(contentArea, list, search, appContainer) {
 
   contentArea.querySelectorAll('.btn-ekipman-teslim-et').forEach(btn => {
     btn.addEventListener('click', async () => {
+      const isEn = getLanguage() === 'en';
       const id = parseInt(btn.dataset.id, 10);
       btn.disabled = true;
-      btn.textContent = 'İşleniyor...';
+      btn.textContent = isEn ? 'Processing...' : 'İşleniyor...';
       try {
         await api.teslimEtEkipman(id);
-        toast.success('Ekipman birime teslim edildi olarak güncellendi.');
+        toast.success(isEn ? 'Equipment marked as delivered to department.' : 'Ekipman birime teslim edildi olarak güncellendi.');
         loadGelenTalepler(appContainer);
       } catch (err) {
-        toast.error(err.message || 'İşlem başarısız');
+        toast.error(err.message || (isEn ? 'Operation failed' : 'İşlem başarısız'));
         btn.disabled = false;
-        btn.textContent = 'Birime Teslim Edildi';
+        btn.textContent = isEn ? 'Delivered to Department' : 'Birime Teslim Edildi';
       }
     });
   });
 
   contentArea.querySelectorAll('.btn-ekipman-iade-al').forEach(btn => {
     btn.addEventListener('click', async () => {
+      const isEn = getLanguage() === 'en';
       const id = parseInt(btn.dataset.id, 10);
       btn.disabled = true;
-      btn.textContent = 'İşleniyor...';
+      btn.textContent = isEn ? 'Processing...' : 'İşleniyor...';
       try {
         await api.iadeAlEkipman(id);
-        toast.success('Ekipman depoya teslim alındı ve birime +5 Yeşil Puan kazandırıldı!');
+        toast.success(isEn ? 'Equipment received back to warehouse and +5 Green Points added to department!' : 'Ekipman depoya teslim alındı ve birime +5 Yeşil Puan kazandırıldı!');
         loadGelenTalepler(appContainer);
       } catch (err) {
-        toast.error(err.message || 'İşlem başarısız');
+        toast.error(err.message || (isEn ? 'Operation failed' : 'İşlem başarısız'));
         btn.disabled = false;
-        btn.textContent = 'Depoya İade Alındı (+5 P)';
+        btn.textContent = isEn ? 'Returned to Warehouse (+5 P)' : 'Depoya İade Alındı (+5 P)';
       }
     });
   });
@@ -831,12 +834,13 @@ function renderTreeList(container, talepler, appContainer) {
 
   container.querySelectorAll('.btn-talep-teslim-et').forEach(btn => {
     btn.addEventListener('click', async () => {
+      const isEn = getLanguage() === 'en';
       try {
         await api.post(`/api/satinalma/talepler/${btn.dataset.id}/teslim-et`);
-        toast.success('Talep teslim edildi olarak güncellendi.');
+        toast.success(isEn ? 'Requisition marked as delivered.' : 'Talep teslim edildi olarak güncellendi.');
         loadGelenTalepler(appContainer);
       } catch (err) {
-        toast.error('Teslimat hatası: ' + err.message);
+        toast.error((isEn ? 'Delivery error: ' : 'Teslimat hatası: ') + err.message);
       }
     });
   });
@@ -852,40 +856,45 @@ function renderTreeList(container, talepler, appContainer) {
  * Toplu Teslim Etme İşlemi (Görev 3)
  */
 async function handleTopluTeslim(appContainer) {
+  const isEn = getLanguage() === 'en';
   try {
     const allRes = await api.getGelenTalepler({ limit: 500 });
     const hepsi = allRes.talepler || [];
     const teslimatBekleyenler = hepsi.filter(t => t.durum === 'onaylandi' || t.durum === 'revize_onaylandi');
 
     if (teslimatBekleyenler.length === 0) {
-      toast.info('Teslim edilecek onaylı talep bulunmamaktadır.');
+      toast.info(isEn ? 'No approved requisitions waiting for delivery.' : 'Teslim edilecek onaylı talep bulunmamaktadır.');
       return;
     }
 
     const modal = createModal({
-      title: 'Toplu Teslimat Onayı',
+      title: isEn ? 'Bulk Delivery Confirmation' : 'Toplu Teslimat Onayı',
       contentHtml: `
         <div style="padding: 6px 0;">
           <p style="font-size: 14.5px; color: #0F172A; line-height: 1.5; margin-bottom: 16px;">
-            İlk Çarşamba günü dağıtımı planlanmış olan toplam <strong>${teslimatBekleyenler.length} adet onaylı talebi</strong> toplu olarak <strong>"Teslim Edildi"</strong> durumuna getirmek üzeresiniz.
+            ${isEn 
+              ? `You are about to mark a total of <strong>${teslimatBekleyenler.length} approved requisition(s)</strong> scheduled for Wednesday dispatch as <strong>"Delivered"</strong>.` 
+              : `İlk Çarşamba günü dağıtımı planlanmış olan toplam <strong>${teslimatBekleyenler.length} adet onaylı talebi</strong> toplu olarak <strong>"Teslim Edildi"</strong> durumuna getirmek üzeresiniz.`}
           </p>
 
           <div style="background: rgba(248, 250, 252, 0.85); border: 1.2px solid rgba(226, 232, 240, 0.95); border-radius: 16px; padding: 12px 18px; margin-bottom: 16px; font-size: 12.5px; max-height: 170px; overflow-y: auto;">
             ${teslimatBekleyenler.map(t => `
               <div style="display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid rgba(226, 232, 240, 0.7);">
-                <span style="font-weight: 600; color: #0F172A;">${t.talep_no} • ${t.birim_adi}</span>
-                <span style="color: var(--text-dim);">${t.personel_adi} (${t.kalem_sayisi || 0} Kalem)</span>
+                <span style="font-weight: 600; color: #0F172A;">${t.talep_no} • ${tDepartment(t.birim_adi)}</span>
+                <span style="color: var(--text-dim);">${t.personel_adi} (${t.kalem_sayisi || 0} ${isEn ? 'Items' : 'Kalem'})</span>
               </div>
             `).join('')}
           </div>
 
           <p style="font-size: 12.5px; color: var(--text-dim); margin-bottom: 20px;">
-            Bu işlem onaylandığında, malzemelerin birim sorumlularına eksiksiz teslim edildiği sisteme işlenecektir.
+            ${isEn 
+              ? 'Once confirmed, all selected supplies will be registered as delivered to departmental coordinators.' 
+              : 'Bu işlem onaylandığında, malzemelerin birim sorumlularına eksiksiz teslim edildiği sisteme işlenecektir.'}
           </p>
 
           <div style="display: flex; justify-content: flex-end; gap: 10px;">
-            <button id="btnIptalToplu" class="btn btn-secondary">Vazgeç</button>
-            <button id="btnOnaylaToplu" class="btn btn-primary">Evet, Tümünü Teslim Edildi Yap</button>
+            <button id="btnIptalToplu" class="btn btn-secondary">${isEn ? 'Cancel' : 'Vazgeç'}</button>
+            <button id="btnOnaylaToplu" class="btn btn-primary">${isEn ? 'Yes, Mark All as Delivered' : 'Evet, Tümünü Teslim Edildi Yap'}</button>
           </div>
         </div>
       `
@@ -898,15 +907,15 @@ async function handleTopluTeslim(appContainer) {
         const res = await api.post('/api/satinalma/talepler/toplu-teslim-et', {
           talep_idleri: teslimatBekleyenler.map(t => t.id)
         });
-        toast.success(res.mesaj || 'Tüm onaylı talepler teslim edildi olarak güncellendi.');
+        toast.success(isEn ? 'All approved requisitions successfully marked as delivered.' : (res.mesaj || 'Tüm onaylı talepler teslim edildi olarak güncellendi.'));
         modal.close();
         loadGelenTalepler(appContainer);
       } catch (err) {
-        toast.error('Toplu teslimat hatası: ' + err.message);
+        toast.error((isEn ? 'Bulk delivery error: ' : 'Toplu teslimat hatası: ') + err.message);
       }
     };
   } catch (err) {
-    toast.error('Talep listesi alınamadı: ' + err.message);
+    toast.error((isEn ? 'Could not load requisition list: ' : 'Talep listesi alınamadı: ') + err.message);
   }
 }
 
@@ -932,8 +941,11 @@ async function openTalepIncelemeModal(talepId, onClosed) {
     if (raw) vekilInfo = JSON.parse(raw);
   } catch (e) {}
 
+  const isEn = getLanguage() === 'en';
   const modal = createModal({
-    title: isPending ? `Talep Değerlendirme • ${talep.talep_no}` : `Talep Süreç Takibi & İnceleme • ${talep.talep_no}`,
+    title: isPending 
+      ? (isEn ? `Requisition Review • ${talep.talep_no}` : `Talep Değerlendirme • ${talep.talep_no}`)
+      : (isEn ? `Requisition Progress & Details • ${talep.talep_no}` : `Talep Süreç Takibi & İnceleme • ${talep.talep_no}`),
     maxWidth: isPending ? '840px' : '880px',
     contentHtml: !isPending ? `
       <div>
@@ -942,11 +954,11 @@ async function openTalepIncelemeModal(talepId, onClosed) {
           <div>
             ${talep.durum === 'onaylandi' || talep.durum === 'revize_onaylandi' || talep.durum === 'teslim_edildi' ? `
               <button class="btn btn-secondary btn-sm" id="btnModalYazdir" data-id="${talep.id}">
-                Malzeme Teslim Fişi Yazdır
+                ${isEn ? 'Print Supplies Delivery Receipt' : 'Malzeme Teslim Fişi Yazdır'}
               </button>
             ` : ''}
           </div>
-          <button class="btn btn-secondary" id="btnModalKapat">Kapat</button>
+          <button class="btn btn-secondary" id="btnModalKapat">${isEn ? 'Close' : 'Kapat'}</button>
         </div>
       </div>
     ` : `
@@ -1153,7 +1165,7 @@ async function openTalepIncelemeModal(talepId, onClosed) {
       if (gerekceEl && txt) {
         gerekceEl.value = txt;
         gerekceEl.focus();
-        toast.info('Öneri metni karar gerekçesine aktarıldı.');
+        toast.info(isEn ? 'Suggested text inserted into decision rationale.' : 'Öneri metni karar gerekçesine aktarıldı.');
       }
     });
   });
@@ -1174,11 +1186,11 @@ async function openTalepIncelemeModal(talepId, onClosed) {
         vekil_personel_id: vekilInfo?.id || null,
         vekil_adi: vekilInfo?.adSoyad || null
       });
-      toast.success('Talep onaylandı ve stoktan düşüldü.');
+      toast.success(isEn ? 'Requisition approved and stock deducted successfully.' : 'Talep onaylandı ve stoktan düşüldü.');
       modal.close();
       onClosed();
     } catch (err) {
-      toast.error('İşlem başarısız: ' + err.message);
+      toast.error((isEn ? 'Operation failed: ' : 'İşlem başarısız: ') + err.message);
     }
   });
 
@@ -1186,7 +1198,7 @@ async function openTalepIncelemeModal(talepId, onClosed) {
   modal.element.querySelector('#btnKararRevize').addEventListener('click', async () => {
     let gerekce = modal.element.querySelector('#kararGerekcesi').value.trim();
     if (!gerekce) {
-      toast.error('Revize onayı için açıklama/gerekçe belirtilmesi zorunludur.');
+      toast.error(isEn ? 'A decision rationale note is required for revised approval.' : 'Revize onayı için açıklama/gerekçe belirtilmesi zorunludur.');
       return;
     }
     if (vekilInfo && vekilInfo.adSoyad) {
@@ -1202,11 +1214,11 @@ async function openTalepIncelemeModal(talepId, onClosed) {
         vekil_personel_id: vekilInfo?.id || null,
         vekil_adi: vekilInfo?.adSoyad || null
       });
-      toast.success('Talep revize edilerek onaylandı.');
+      toast.success(isEn ? 'Requisition approved with revision.' : 'Talep revize edilerek onaylandı.');
       modal.close();
       onClosed();
     } catch (err) {
-      toast.error('İşlem başarısız: ' + err.message);
+      toast.error((isEn ? 'Operation failed: ' : 'İşlem başarısız: ') + err.message);
     }
   });
 
@@ -1214,7 +1226,7 @@ async function openTalepIncelemeModal(talepId, onClosed) {
   modal.element.querySelector('#btnKararReddet').addEventListener('click', async () => {
     let gerekce = modal.element.querySelector('#kararGerekcesi').value.trim();
     if (!gerekce) {
-      toast.error('Talebi reddetmek için lütfen karar gerekçesi alanını doldurunuz.');
+      toast.error(isEn ? 'Please state a rationale note before rejecting this requisition.' : 'Talebi reddetmek için lütfen karar gerekçesi alanını doldurunuz.');
       return;
     }
     if (vekilInfo && vekilInfo.adSoyad) {

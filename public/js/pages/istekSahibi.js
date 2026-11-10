@@ -126,8 +126,9 @@ export async function renderIstekSahibi(appContainer) {
     const personel_id = parseInt(select.value, 10);
     const eposta = inputEposta.value.trim();
 
+    const isEn = getLanguage() === 'en';
     if (!personel_id) {
-      toast.error('Lütfen bir personel seçiniz.');
+      toast.error(isEn ? 'Please select a staff member.' : 'Lütfen bir personel seçiniz.');
       return;
     }
 
@@ -137,7 +138,7 @@ export async function renderIstekSahibi(appContainer) {
         ...state.user,
         seciliPersonel: res.seciliPersonel
       });
-      toast.success(`İstek sahibi: ${res.seciliPersonel.adSoyad}`);
+      toast.success(isEn ? `Requester: ${res.seciliPersonel.adSoyad}` : `İstek sahibi: ${res.seciliPersonel.adSoyad}`);
       location.hash = '#/katalog';
     } catch (err) {
       toast.error(err.message);

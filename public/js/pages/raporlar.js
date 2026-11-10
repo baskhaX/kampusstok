@@ -265,9 +265,10 @@ export async function renderRaporlar(appContainer) {
       document.body.appendChild(a);
       a.click();
       a.remove();
-      toast.success('Excel raporu başarıyla indirildi.');
+      const isEn = getLanguage() === 'en';
+      toast.success(isEn ? 'Excel report downloaded successfully.' : 'Excel raporu başarıyla indirildi.');
     } catch (err) {
-      toast.error('Excel indirilemedi: ' + err.message);
+      toast.error((getLanguage() === 'en' ? 'Could not download Excel: ' : 'Excel indirilemedi: ') + err.message);
     }
   });
 

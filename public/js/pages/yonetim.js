@@ -274,12 +274,13 @@ async function handleScannedBarcode(barcode, container) {
     openBarkodHizliStokModal(urun, container);
   } else {
     playBarcodeBeep(false);
+    const isEn = getLanguage() === 'en';
     const ekleOnay = await confirmModal({
-      title: 'Tanımsız Barkod Okundu',
-      message: `"${barcode}" barkod numarasına sahip bir ürün depoda bulunamadı.`,
-      description: 'Bu barkod ile yeni bir kırtasiye ürünü tanımlamak ister misiniz?',
-      confirmText: 'Yeni Ürün Olarak Tanımla',
-      cancelText: 'Kapat',
+      title: isEn ? 'Unrecognized Barcode Scanned' : 'Tanımsız Barkod Okundu',
+      message: isEn ? `No item with barcode "${barcode}" was found in the warehouse.` : `"${barcode}" barkod numarasına sahip bir ürün depoda bulunamadı.`,
+      description: isEn ? 'Would you like to define a new stationery item with this barcode?' : 'Bu barkod ile yeni bir kırtasiye ürünü tanımlamak ister misiniz?',
+      confirmText: isEn ? 'Define as New Item' : 'Yeni Ürün Olarak Tanımla',
+      cancelText: isEn ? 'Close' : 'Kapat',
       type: 'info',
       icon: ''
     });
@@ -360,9 +361,10 @@ function openBarkodHizliStokModal(urun, container) {
 
   // Manuel Stok Kaydet
   modal.element.querySelector('#btnModalManuelStokKaydet').addEventListener('click', async () => {
+    const isEn = getLanguage() === 'en';
     const val = parseInt(txtStok.value, 10);
     if (isNaN(val) || val < 0) {
-      toast.error('Geçerli bir stok miktarı giriniz.');
+      toast.error(isEn ? 'Please enter a valid stock quantity.' : 'Geçerli bir stok miktarı giriniz.');
       return;
     }
     await stokKaydet(val);
@@ -458,9 +460,10 @@ function openBarkodTaraModal(container) {
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
+    const isEn = getLanguage() === 'en';
     const val = input.value.trim();
     if (!val) {
-      toast.error('Lütfen bir barkod giriniz veya okutunuz.');
+      toast.error(isEn ? 'Please enter or scan a barcode.' : 'Lütfen bir barkod giriniz veya okutunuz.');
       return;
     }
     modal.close();
@@ -1088,17 +1091,22 @@ async function renderUrunlerTab(container, targetUrunId = null) {
       container.querySelector('#btnTopluStokUygula')?.addEventListener('click', async () => {
         if (seciliUrunler.size === 0) return;
         const yeniStokVal = parseInt(container.querySelector('#topluStokDeger').value, 10);
+        const isEn = getLanguage() === 'en';
         if (isNaN(yeniStokVal) || yeniStokVal < 0) {
-          toast.error('Geçerli bir stok miktarı giriniz.');
+          toast.error(isEn ? 'Please enter a valid stock quantity.' : 'Geçerli bir stok miktarı giriniz.');
           return;
         }
 
         const onay = await confirmModal({
-          title: 'Toplu Stok Güncelleme',
-          message: `Seçilen ${seciliUrunler.size} ürünün depo stoğu ${yeniStokVal} olarak güncellenecektir. Onaylıyor musunuz?`,
-          description: 'Tüm seçili ürünlerin stok miktarları eşitlenecek ve hareketler denetim loguna kaydedilecektir.',
-          confirmText: 'Stoğu Güncelle',
-          cancelText: 'Vazgeç',
+          title: isEn ? 'Batch Stock Adjustment' : 'Toplu Stok Güncelleme',
+          message: isEn 
+            ? `Stock for ${seciliUrunler.size} selected item(s) will be set to ${yeniStokVal}. Do you confirm?` 
+            : `Seçilen ${seciliUrunler.size} ürünün depo stoğu ${yeniStokVal} olarak güncellenecektir. Onaylıyor musunuz?`,
+          description: isEn 
+            ? 'Stock balances for all selected items will be updated and movements logged in the audit ledger.' 
+            : 'Tüm seçili ürünlerin stok miktarları eşitlenecek ve hareketler denetim loguna kaydedilecektir.',
+          confirmText: isEn ? 'Update Stock' : 'Stoğu Güncelle',
+          cancelText: isEn ? 'Cancel' : 'Vazgeç',
           type: 'warning',
           icon: ''
         });
@@ -1315,7 +1323,7 @@ async function openUrunFormModal(urun = null, onSaved) {
     if (!file) return;
 
     if (file.size > 2 * 1024 * 1024) {
-      toast.error('Görsel boyutu en fazla 2 MB olabilir.');
+      toast.error(isEn ? 'Image size cannot exceed 2 MB.' : 'Görsel boyutu en fazla 2 MB olabilir.');
       dosyaSecici.value = '';
       return;
     }
@@ -1329,7 +1337,7 @@ async function openUrunFormModal(urun = null, onSaved) {
       // Sunucuya base64 olarak yükle
       yuklemeDurum.style.display = 'inline-block';
       yuklemeDurum.style.color = '#2563eb';
-      yuklemeDurum.textContent = '⏳ Yükleniyor...';
+      yuklemeDurum.textContent = isEn ? '⏳ Uploading...' : '⏳ Yükleniyor...';
       btnBilgisayardanSec.disabled = true;
 
       try {
@@ -1344,13 +1352,13 @@ async function openUrunFormModal(urun = null, onSaved) {
           gorselOnizlemeImg.src = res.gorselYolu;
           btnGorselKaldir.style.display = 'inline-flex';
           yuklemeDurum.style.color = '#16a34a';
-          yuklemeDurum.textContent = '✓ Yüklendi';
-          toast.success('Görsel başarıyla yüklendi.');
+          yuklemeDurum.textContent = isEn ? '✓ Uploaded' : '✓ Yüklendi';
+          toast.success(isEn ? 'Image uploaded successfully.' : 'Görsel başarıyla yüklendi.');
         }
       } catch (err) {
         yuklemeDurum.style.color = '#dc2626';
-        yuklemeDurum.textContent = 'Yükleme hatası';
-        toast.error('Görsel sunucuya yüklenemedi: ' + err.message);
+        yuklemeDurum.textContent = isEn ? 'Upload error' : 'Yükleme hatası';
+        toast.error((isEn ? 'Could not upload image to server: ' : 'Görsel sunucuya yüklenemedi: ') + err.message);
       } finally {
         btnBilgisayardanSec.disabled = false;
         setTimeout(() => {
@@ -1369,7 +1377,7 @@ async function openUrunFormModal(urun = null, onSaved) {
     btnGorselKaldir.style.display = 'none';
     dosyaSecici.value = '';
     yuklemeDurum.style.display = 'none';
-    toast.info('Görsel kaldırıldı.');
+    toast.info(isEn ? 'Image removed.' : 'Görsel kaldırıldı.');
   });
 
   urunGorselInput.addEventListener('input', () => {
@@ -1469,14 +1477,14 @@ async function openUrunFormModal(urun = null, onSaved) {
     try {
       if (isEdit) {
         const res = await api.updateUrun(urun.id, payload);
-        toast.success('Ürün bilgileri ve stoğu güncellendi.');
+        toast.success(isEn ? 'Item details and stock balances updated.' : 'Ürün bilgileri ve stoğu güncellendi.');
         modal.close();
         if (typeof onSaved === 'function') {
           onSaved(res?.urun || { ...urun, ...payload, id: urun.id });
         }
       } else {
         const res = await api.addUrun(payload);
-        toast.success('Yeni ürün başarıyla eklendi.');
+        toast.success(isEn ? 'New stationery item added successfully.' : 'Yeni ürün başarıyla eklendi.');
         modal.close();
         if (typeof onSaved === 'function') {
           onSaved(res?.urun || payload);
@@ -1646,9 +1654,10 @@ async function renderStokTab(container) {
 
   // Barkod Ara Butonu ve Enter ile Arama
   const doBarkodSearch = () => {
+    const isEn = getLanguage() === 'en';
     const code = txtBarkod.value.trim();
     if (!code) {
-      toast.error('Lütfen bir barkod giriniz veya okutunuz.');
+      toast.error(isEn ? 'Please enter or scan a barcode.' : 'Lütfen bir barkod giriniz veya okutunuz.');
       return;
     }
     handleScannedBarcodeInStokTab(code, container);
@@ -1727,14 +1736,15 @@ async function renderStokTab(container) {
     const miktar = parseInt(form.querySelector('#stokMiktar').value, 10);
     const aciklama = form.querySelector('#stokAciklama').value.trim();
 
+    const isEn = getLanguage() === 'en';
     if (!urun_id) {
-      toast.error('Lütfen bir ürün seçiniz veya barkodunu okutunuz.');
+      toast.error(isEn ? 'Please select an item or scan its barcode.' : 'Lütfen bir ürün seçiniz veya barkodunu okutunuz.');
       return;
     }
 
     try {
       await api.stokHareketi({ urun_id, tur, miktar, aciklama });
-      toast.success('Stok hareketi başarıyla işlendi.');
+      toast.success(isEn ? 'Stock movement processed successfully.' : 'Stok hareketi başarıyla işlendi.');
       form.reset();
       updateSeciliUrunPreview(null);
       await loadHareketler();
@@ -2094,22 +2104,27 @@ async function renderBirimlerTab(container) {
       btn.addEventListener('click', async () => {
         const id = parseInt(btn.dataset.id, 10);
         const ad = btn.dataset.ad;
+        const isEn = getLanguage() === 'en';
         const onay = await confirmModal({
-          title: 'Birimi Sil',
-          message: `"${ad}" birimini ve bağlı hesaplarını silmek istediğinize emin misiniz?`,
-          description: 'Geçmiş siparişler varsa veri bütünlüğü korunarak güvenle arşivlenecek ve ilişkili hesap pasife alınacaktır.',
-          confirmText: 'Evet, Birimi Sil',
-          cancelText: 'Vazgeç',
+          title: isEn ? 'Delete Department' : 'Birimi Sil',
+          message: isEn 
+            ? `Are you sure you want to delete department "${escapeHtml(tDepartment(ad))}" and associated logins?` 
+            : `"${ad}" birimini ve bağlı hesaplarını silmek istediğinize emin misiniz?`,
+          description: isEn 
+            ? 'If requisition history exists, records are safely archived to protect audit integrity and credentials deactivated.' 
+            : 'Geçmiş siparişler varsa veri bütünlüğü korunarak güvenle arşivlenecek ve ilişkili hesap pasife alınacaktır.',
+          confirmText: isEn ? 'Yes, Delete Department' : 'Evet, Birimi Sil',
+          cancelText: isEn ? 'Cancel' : 'Vazgeç',
           type: 'danger',
           icon: ''
         });
         if (!onay) return;
         try {
           const res = await api.deleteBirim(id);
-          toast.success(res.mesaj || 'Birim başarıyla silindi.');
+          toast.success(isEn ? 'Department deleted successfully.' : (res.mesaj || 'Birim başarıyla silindi.'));
           await renderBirimlerTab(container);
         } catch (err) {
-          toast.error('Birim silinemedi: ' + err.message);
+          toast.error((isEn ? 'Could not delete department: ' : 'Birim silinemedi: ') + err.message);
         }
       });
     });
@@ -2272,24 +2287,29 @@ async function loadPersoneller(container, birimler, getBirimKategori) {
 
   // Toplu Hesap Açma ve E-posta Gönderme
   btnHesapAc.addEventListener('click', async () => {
+    const isEn = getLanguage() === 'en';
     if (seciliPersoneller.size === 0) {
-      toast.error('Lütfen hesap açılacak en az bir personel seçiniz.');
+      toast.error(isEn ? 'Please select at least one staff member to create an account.' : 'Lütfen hesap açılacak en az bir personel seçiniz.');
       return;
     }
 
     const onay = await confirmModal({
-      title: 'Toplu Hesap Açılışı ve E-Posta Gönderimi',
-      message: `Seçilen ${seciliPersoneller.size} personel için kurumsal giriş hesabı oluşturulacak ve tek kullanımlık geçici şifreleri kurumsal e-postalarına gönderilecektir.`,
-      description: 'Hesabı açılan personel ilk oturum açtığında yeni şifre belirleyecek, teslimat yapılacak bina ve oda numarasını sisteme kaydedecektir.',
-      confirmText: 'Hesapları Aç & Şifreleri Gönder',
-      cancelText: 'Vazgeç',
+      title: isEn ? 'Bulk Account Provisioning & Email Dispatch' : 'Toplu Hesap Açılışı ve E-Posta Gönderimi',
+      message: isEn 
+        ? `Corporate login accounts will be generated for ${seciliPersoneller.size} selected staff members and temporary passwords dispatched to their institutional emails.` 
+        : `Seçilen ${seciliPersoneller.size} personel için kurumsal giriş hesabı oluşturulacak ve tek kullanımlık geçici şifreleri kurumsal e-postalarına gönderilecektir.`,
+      description: isEn 
+        ? 'Upon their first sign-in, staff members will set a permanent password and register delivery room/building.' 
+        : 'Hesabı açılan personel ilk oturum açtığında yeni şifre belirleyecek, teslimat yapılacak bina ve oda numarasını sisteme kaydedecektir.',
+      confirmText: isEn ? 'Create Accounts & Dispatch Passwords' : 'Hesapları Aç & Şifreleri Gönder',
+      cancelText: isEn ? 'Cancel' : 'Vazgeç',
       type: 'primary',
       icon: ''
     });
     if (!onay) return;
 
     btnHesapAc.disabled = true;
-    btnHesapAc.textContent = 'Hesaplar Açılıyor...';
+    btnHesapAc.textContent = isEn ? 'Creating Accounts...' : 'Hesaplar Açılıyor...';
 
     try {
       const res = await api.olusturPersonelHesaplari({
@@ -2298,13 +2318,13 @@ async function loadPersoneller(container, birimler, getBirimKategori) {
         ust_yonetim_haric: chkUstYonetim.checked
       });
 
-      toast.success(res.mesaj || `${res.olusturulanlar?.length || seciliPersoneller.size} personele hesap açıldı ve e-postaları kuyruğa alındı.`);
+      toast.success(res.mesaj || (isEn ? `Accounts created for ${res.olusturulanlar?.length || seciliPersoneller.size} staff members and notification emails queued.` : `${res.olusturulanlar?.length || seciliPersoneller.size} personele hesap açıldı ve e-postaları kuyruğa alındı.`));
       seciliPersoneller.clear();
       await renderBirimlerTab(container);
     } catch (err) {
-      toast.error('Hesap açma işlemi başarısız: ' + err.message);
+      toast.error((isEn ? 'Account creation failed: ' : 'Hesap açma işlemi başarısız: ') + err.message);
       btnHesapAc.disabled = false;
-      btnHesapAc.textContent = 'Seçilenlere Hesap Aç & Şifre E-postası Gönder';
+      btnHesapAc.textContent = isEn ? 'Create Accounts & Send Password Emails' : 'Seçilenlere Hesap Aç & Şifre E-postası Gönder';
     }
   });
 
@@ -2334,30 +2354,30 @@ async function openBirimFormModal(birim = null, onSaved) {
     contentHtml: `
       <form id="birimForm" style="display: flex; flex-direction: column; gap: 14px;">
         <div>
-          <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Birim Adı <span style="color: red;">*</span></label>
-          <input type="text" id="birimAd" required value="${birim?.ad || ''}" placeholder="Örn: Hukuk Fakültesi Dekanlığı">
+          <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">${isEn ? 'Department Name' : 'Birim Adı'} <span style="color: red;">*</span></label>
+          <input type="text" id="birimAd" required value="${birim?.ad || ''}" placeholder="${isEn ? 'e.g. Faculty of Law Dean Office' : 'Örn: Hukuk Fakültesi Dekanlığı'}">
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div>
-            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Birim Türü <span style="color: red;">*</span></label>
+            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">${isEn ? 'Department Type' : 'Birim Türü'} <span style="color: red;">*</span></label>
             <select id="birimTur" required>
-              <option value="idari_birim" ${birim?.tur === 'idari_birim' ? 'selected' : ''}>İdari Birim / Müdürlük</option>
-              <option value="dekanlik" ${birim?.tur === 'dekanlik' ? 'selected' : ''}>Fakülte Dekanlığı</option>
-              <option value="bolum" ${birim?.tur === 'bolum' ? 'selected' : ''}>Bölüm</option>
+              <option value="idari_birim" ${birim?.tur === 'idari_birim' ? 'selected' : ''}>${isEn ? 'Administrative Directorate' : 'İdari Birim / Müdürlük'}</option>
+              <option value="dekanlik" ${birim?.tur === 'dekanlik' ? 'selected' : ''}>${isEn ? 'Faculty Dean Office' : 'Fakülte Dekanlığı'}</option>
+              <option value="bolum" ${birim?.tur === 'bolum' ? 'selected' : ''}>${isEn ? 'Academic Department / Unit' : 'Bölüm'}</option>
             </select>
           </div>
           <div>
-            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Üst Birim</label>
+            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">${isEn ? 'Parent Department' : 'Üst Birim'}</label>
             <select id="birimUstId">
-              <option value="">Yok (Bağımsız / En Üst)</option>
-              <optgroup label="İdari Birimler">
-                ${idariUst.map(ub => `<option value="${ub.id}" ${birim?.ust_birim_id === ub.id ? 'selected' : ''}>${ub.ad}</option>`).join('')}
+              <option value="">${isEn ? 'None (Independent / Top Level)' : 'Yok (Bağımsız / En Üst)'}</option>
+              <optgroup label="${isEn ? 'Administrative Units' : 'İdari Birimler'}">
+                ${idariUst.map(ub => `<option value="${ub.id}" ${birim?.ust_birim_id === ub.id ? 'selected' : ''}>${escapeHtml(tDepartment(ub.ad))}</option>`).join('')}
               </optgroup>
-              <optgroup label="Akademik Birimler (Fakülteler ve Enstitüler)">
-                ${akadUst.map(ub => `<option value="${ub.id}" ${birim?.ust_birim_id === ub.id ? 'selected' : ''}>${ub.ad}</option>`).join('')}
+              <optgroup label="${isEn ? 'Academic Units (Faculties & Institutes)' : 'Akademik Birimler (Fakülteler ve Enstitüler)'}">
+                ${akadUst.map(ub => `<option value="${ub.id}" ${birim?.ust_birim_id === ub.id ? 'selected' : ''}>${escapeHtml(tDepartment(ub.ad))}</option>`).join('')}
               </optgroup>
-              <optgroup label="Uygulama ve Araştırma Merkezleri">
-                ${merkezUst.map(ub => `<option value="${ub.id}" ${birim?.ust_birim_id === ub.id ? 'selected' : ''}>${ub.ad}</option>`).join('')}
+              <optgroup label="${isEn ? 'Application & Research Centers' : 'Uygulama ve Araştırma Merkezleri'}">
+                ${merkezUst.map(ub => `<option value="${ub.id}" ${birim?.ust_birim_id === ub.id ? 'selected' : ''}>${escapeHtml(tDepartment(ub.ad))}</option>`).join('')}
               </optgroup>
             </select>
           </div>
@@ -2365,14 +2385,14 @@ async function openBirimFormModal(birim = null, onSaved) {
 
         ${!isEdit ? `
           <div style="border-top: 1px solid var(--color-border); padding-top: 12px;">
-            <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 8px;">Birim Ortak Giriş Hesabı (Opsiyonel)</h4>
+            <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 8px;">${isEn ? 'Department Shared Account (Optional)' : 'Birim Ortak Giriş Hesabı (Opsiyonel)'}</h4>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
               <div>
-                <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Kullanıcı Adı</label>
-                <input type="text" id="birimKullanici" placeholder="Örn: hukuk">
+                <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">${isEn ? 'Username' : 'Kullanıcı Adı'}</label>
+                <input type="text" id="birimKullanici" placeholder="${isEn ? 'e.g. law' : 'Örn: hukuk'}">
               </div>
               <div>
-                <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">İlk Şifre</label>
+                <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">${isEn ? 'Initial Password' : 'İlk Şifre'}</label>
                 <input type="password" id="birimSifre" placeholder="••••••••">
               </div>
             </div>
@@ -2406,10 +2426,10 @@ async function openBirimFormModal(birim = null, onSaved) {
     try {
       if (isEdit) {
         await api.updateBirim(birim.id, payload);
-        toast.success('Birim bilgileri güncellendi.');
+        toast.success(isEn ? 'Department details updated.' : 'Birim bilgileri güncellendi.');
       } else {
         await api.addBirim(payload);
-        toast.success('Yeni birim başarıyla oluşturuldu.');
+        toast.success(isEn ? 'New department created successfully.' : 'Yeni birim başarıyla oluşturuldu.');
       }
       modal.close();
       if (onSaved) onSaved();
@@ -2421,25 +2441,27 @@ async function openBirimFormModal(birim = null, onSaved) {
 
 // Şifre Sıfırlama Modalı (Prompt yerine sleek modal)
 function openSifreSifirlaModal(birimId, birimAd) {
+  const isEn = getLanguage() === 'en';
+  const displayBirim = tDepartment(birimAd);
   const modal = createModal({
-    title: `Şifre Sıfırla: ${birimAd}`,
+    title: isEn ? `Reset Password: ${displayBirim}` : `Şifre Sıfırla: ${birimAd}`,
     maxWidth: '440px',
     contentHtml: `
       <form id="sifirlaForm" style="display: flex; flex-direction: column; gap: 14px;">
         <p style="font-size: 13px; color: var(--color-muted-foreground);">
-          <strong>${birimAd}</strong> biriminin giriş şifresini sıfırlamak için yeni şifreyi giriniz.
+          ${isEn ? `Enter a new password to reset the login credentials for <strong>${escapeHtml(displayBirim)}</strong>.` : `<strong>${escapeHtml(birimAd)}</strong> biriminin giriş şifresini sıfırlamak için yeni şifreyi giriniz.`}
         </p>
         <div>
-          <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Yeni Şifre</label>
-          <input type="password" id="yeniSifre1" required minlength="6" placeholder="En az 6 karakter">
+          <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">${isEn ? 'New Password' : 'Yeni Şifre'}</label>
+          <input type="password" id="yeniSifre1" required minlength="6" placeholder="${isEn ? 'At least 6 characters' : 'En az 6 karakter'}">
         </div>
         <div>
-          <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Yeni Şifre (Tekrar)</label>
-          <input type="password" id="yeniSifre2" required minlength="6" placeholder="Yeni şifreyi tekrar yazın">
+          <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">${isEn ? 'New Password (Confirm)' : 'Yeni Şifre (Tekrar)'}</label>
+          <input type="password" id="yeniSifre2" required minlength="6" placeholder="${isEn ? 'Re-type new password' : 'Yeni şifreyi tekrar yazın'}">
         </div>
         <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;">
-          <button type="button" class="btn btn-outline" id="btnSifirlaIptal">İptal</button>
-          <button type="submit" class="btn btn-primary">Şifreyi Sıfırla</button>
+          <button type="button" class="btn btn-outline" id="btnSifirlaIptal">${t('common.cancel', 'İptal')}</button>
+          <button type="submit" class="btn btn-primary">${isEn ? 'Reset Password' : 'Şifreyi Sıfırla'}</button>
         </div>
       </form>
     `
@@ -2454,13 +2476,13 @@ function openSifreSifirlaModal(birimId, birimAd) {
     const s2 = form.querySelector('#yeniSifre2').value;
 
     if (s1 !== s2) {
-      toast.error('Şifreler eşleşmiyor!');
+      toast.error(isEn ? 'Passwords do not match!' : 'Şifreler eşleşmiyor!');
       return;
     }
 
     try {
       const res = await api.sifirlaBirimSifre(birimId, s1);
-      toast.success(res.mesaj || 'Şifre başarıyla sıfırlandı.');
+      toast.success(isEn ? 'Password reset successfully.' : (res.mesaj || 'Şifre başarıyla sıfırlandı.'));
       modal.close();
     } catch (err) {
       toast.error(err.message);
@@ -2660,18 +2682,19 @@ function openKategoriFormModal(kategori = null, tumKategoriler = [], onSaved) {
     const isAlt = katTur.value === 'alt';
     const ust_kategori_id = isAlt && katUstId.value ? parseInt(katUstId.value, 10) : null;
 
+    const isEn = getLanguage() === 'en';
     if (isAlt && !ust_kategori_id) {
-      toast.error('Lütfen bağlı olacağı ana kategoriyi seçiniz.');
+      toast.error(isEn ? 'Please select the parent category.' : 'Lütfen bağlı olacağı ana kategoriyi seçiniz.');
       return;
     }
 
     try {
       if (isEdit) {
         await api.updateKategori(kategori.id, { ad, ust_kategori_id, sira });
-        toast.success('Kategori güncellendi.');
+        toast.success(isEn ? 'Category updated.' : 'Kategori güncellendi.');
       } else {
         await api.addKategori({ ad, ust_kategori_id, sira });
-        toast.success('Yeni kategori oluşturuldu.');
+        toast.success(isEn ? 'New category created successfully.' : 'Yeni kategori oluşturuldu.');
       }
       modal.close();
       if (onSaved) onSaved();
@@ -2990,29 +3013,32 @@ async function renderYedeklerTab(container) {
 
   // Tbody Event Delegation (Geri Yükle ve Sil)
   tbody.addEventListener('click', async (e) => {
+    const isEn = getLanguage() === 'en';
     const btnRestore = e.target.closest('.btn-geri-yukle');
     if (btnRestore) {
       const dosya = btnRestore.dataset.dosya;
       const onay = await confirmModal({
-        title: 'Veritabanını Geri Yükle',
-        message: `DİKKAT: Canlı veritabanı "${dosya}" yedeğindeki durumuna geri döndürülecektir.\n\nİşlem öncesinde o anki aktif veritabanınızın acil durum ön-yedeği (safety_pre_restore_...) otomatik olarak alınacaktır.\n\nGeri yüklemeyi onaylıyor musunuz?`,
-        confirmText: 'Evet, Geri Yükle',
-        cancelText: 'Vazgeç',
+        title: isEn ? 'Restore Database Backup' : 'Veritabanını Geri Yükle',
+        message: isEn 
+          ? `WARNING: The live production database will be rolled back to snapshot "${dosya}".\n\nA safety pre-restore backup (safety_pre_restore_...) will be created automatically before restoring.\n\nDo you confirm this restore?`
+          : `DİKKAT: Canlı veritabanı "${dosya}" yedeğindeki durumuna geri döndürülecektir.\n\nİşlem öncesinde o anki aktif veritabanınızın acil durum ön-yedeği (safety_pre_restore_...) otomatik olarak alınacaktır.\n\nGeri yüklemeyi onaylıyor musunuz?`,
+        confirmText: isEn ? 'Yes, Restore' : 'Evet, Geri Yükle',
+        cancelText: isEn ? 'Cancel' : 'Vazgeç',
         type: 'danger'
       });
       if (!onay) return;
 
       btnRestore.disabled = true;
-      btnRestore.textContent = 'Geri Yükleniyor...';
+      btnRestore.textContent = isEn ? 'Restoring...' : 'Geri Yükleniyor...';
       try {
         const res = await api.geriYukleYedek(dosya);
-        toast.success(res.mesaj);
+        toast.success(isEn ? 'Database successfully restored from backup snapshot.' : (res.mesaj || 'Veritabanı başarıyla geri yüklendi.'));
         await loadYedekler();
       } catch (err) {
         toast.error(err.message);
       } finally {
         btnRestore.disabled = false;
-        btnRestore.textContent = 'Geri Yükle';
+        btnRestore.textContent = isEn ? 'Restore' : 'Geri Yükle';
       }
       return;
     }
@@ -3021,10 +3047,12 @@ async function renderYedeklerTab(container) {
     if (btnDelete) {
       const dosya = btnDelete.dataset.dosya;
       const onay = await confirmModal({
-        title: 'Yedek Dosyasını Sil',
-        message: `"${dosya}" isimli yedek dosyasını kalıcı olarak silmek istediğinize emin misiniz?`,
-        confirmText: 'Yedeği Sil',
-        cancelText: 'Vazgeç',
+        title: isEn ? 'Delete Backup Archive' : 'Yedek Dosyasını Sil',
+        message: isEn 
+          ? `Are you sure you want to permanently delete backup archive "${dosya}"?`
+          : `"${dosya}" isimli yedek dosyasını kalıcı olarak silmek istediğinize emin misiniz?`,
+        confirmText: isEn ? 'Delete Backup' : 'Yedeği Sil',
+        cancelText: isEn ? 'Cancel' : 'Vazgeç',
         type: 'danger'
       });
       if (!onay) return;
@@ -3032,7 +3060,7 @@ async function renderYedeklerTab(container) {
       btnDelete.disabled = true;
       try {
         await api.silYedek(dosya);
-        toast.info('Yedek dosyası silindi.');
+        toast.info(isEn ? 'Backup archive deleted.' : 'Yedek dosyası silindi.');
         await loadYedekler();
       } catch (err) {
         toast.error(err.message);
@@ -3042,17 +3070,18 @@ async function renderYedeklerTab(container) {
 
   // Manuel Sıcak Yedek Al Butonu
   btnAl?.addEventListener('click', async () => {
+    const isEn = getLanguage() === 'en';
     btnAl.disabled = true;
-    btnAl.innerHTML = '<span>⏳</span> Yedek Alınıyor...';
+    btnAl.innerHTML = isEn ? '<span>⏳</span> Taking Backup...' : '<span>⏳</span> Yedek Alınıyor...';
     try {
       const res = await api.alYedek();
-      toast.success(`Yedek başarıyla alındı: ${res.dosya}`);
+      toast.success(isEn ? `Backup created successfully: ${res.dosya}` : `Yedek başarıyla alındı: ${res.dosya}`);
       await loadYedekler();
     } catch (err) {
-      toast.error('Yedek alınamadı: ' + err.message);
+      toast.error((isEn ? 'Could not create backup: ' : 'Yedek alınamadı: ') + err.message);
     } finally {
       btnAl.disabled = false;
-      btnAl.innerHTML = 'Şimdi Sıcak Yedek Al';
+      btnAl.innerHTML = t('yonetim.takeBackupNow', 'Şimdi Sıcak Yedek Al');
     }
   });
 

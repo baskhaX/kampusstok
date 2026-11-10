@@ -83,129 +83,131 @@ function updateGlobalHeader(hash, user) {
 }
 
 export async function navigate() {
-  const navContainer = document.getElementById('navbarContainer');
-  const appContainer = document.getElementById('appContent');
-  let hash = window.location.hash || '';
+  try {
+    const navContainer = document.getElementById('navbarContainer');
+    const appContainer = document.getElementById('appContent');
+    let hash = window.location.hash || '';
 
-  // Hızlı Teslimat (Mobil QR Kod) Sayfası - Kimlik zorunluluğu olmadan açılır
-  if (hash.startsWith('#/hizli-teslim/')) {
-    updateGlobalHeader('#/hizli-teslim/', null);
-    const talepNo = decodeURIComponent(hash.replace('#/hizli-teslim/', '').split('?')[0]);
-    document.body.classList.add('is-login');
-    const mobileToggleBtn = document.getElementById('btnMobileNavToggle');
-    if (mobileToggleBtn) mobileToggleBtn.style.display = 'none';
-    const mainPane = document.getElementById('mainContentPane');
-    if (mainPane) mainPane.classList.add('full-width');
-    if (navContainer) navContainer.innerHTML = '';
-    renderHizliTeslim(appContainer, talepNo);
-    document.body.classList.remove('auth-gate-loading');
-    return;
-  }
-
-  // Giriş durumunu sunucudan kontrol et
-  if (!state.user && hash !== '#/giris') {
-    try {
-      const res = await api.getMe();
-      state.setUser(res.kullanici);
-    } catch {
-      state.setUser(null);
-      window.location.hash = '#/giris';
+    // Hızlı Teslimat (Mobil QR Kod) Sayfası - Kimlik zorunluluğu olmadan açılır
+    if (hash.startsWith('#/hizli-teslim/')) {
+      updateGlobalHeader('#/hizli-teslim/', null);
+      const talepNo = decodeURIComponent(hash.replace('#/hizli-teslim/', '').split('?')[0]);
+      document.body.classList.add('is-login');
+      const mobileToggleBtn = document.getElementById('btnMobileNavToggle');
+      if (mobileToggleBtn) mobileToggleBtn.style.display = 'none';
+      const mainPane = document.getElementById('mainContentPane');
+      if (mainPane) mainPane.classList.add('full-width');
+      if (navContainer) navContainer.innerHTML = '';
+      renderHizliTeslim(appContainer, talepNo);
       return;
     }
-  }
 
-  // Kullanıcı yoksa sadece giriş sayfası açılır
-  if (!state.user) {
-    updateGlobalHeader('#/giris', null);
-    document.body.classList.add('is-login');
-    renderNavbar(navContainer);
-    renderGiris(appContainer);
-    document.body.classList.remove('auth-gate-loading');
-    return;
-  }
-
-  document.body.classList.remove('is-login');
-
-  const user = state.user;
-
-  // İlk Giriş & Teslimat Bilgileri Onboarding Kontrolü
-  if (user && (user.sifreDegistirmeli || (user.hesapPersonelId && !user.binaAdi))) {
-    showOnboardingModal(user, true);
-  }
-
-  // Varsayılan sayfa yönlendirmesi
-  if (!hash || hash === '#/' || hash === '#/giris') {
-    if (user.rol === 'satin_alma') {
-      window.location.hash = '#/satinalma';
-      return;
-    } else {
-      if (!user.seciliPersonel && !user.hesapPersonelId) {
-        window.location.hash = '#/istek-sahibi';
+    // Giriş durumunu sunucudan kontrol et
+    if (!state.user && hash !== '#/giris') {
+      try {
+        const res = await api.getMe();
+        state.setUser(res.kullanici);
+      } catch {
+        state.setUser(null);
+        window.location.hash = '#/giris';
         return;
       }
+    }
+
+    // Kullanıcı yoksa sadece giriş sayfası açılır
+    if (!state.user) {
+      updateGlobalHeader('#/giris', null);
+      document.body.classList.add('is-login');
+      renderNavbar(navContainer);
+      renderGiris(appContainer);
+      return;
+    }
+
+    document.body.classList.remove('is-login');
+
+    const user = state.user;
+
+    // İlk Giriş & Teslimat Bilgileri Onboarding Kontrolü
+    if (user && (user.sifreDegistirmeli || (user.hesapPersonelId && !user.binaAdi))) {
+      showOnboardingModal(user, true);
+    }
+
+    // Varsayılan sayfa yönlendirmesi
+    if (!hash || hash === '#/' || hash === '#/giris') {
+      if (user.rol === 'satin_alma') {
+        window.location.hash = '#/satinalma';
+        return;
+      } else {
+        if (!user.seciliPersonel && !user.hesapPersonelId) {
+          window.location.hash = '#/istek-sahibi';
+          return;
+        }
+        window.location.hash = '#/katalog';
+        return;
+      }
+    }
+
+    // Bireysel personel hesabı olan kullanıcılar istek sahibi seçimine gitmez, doğrudan kataloğa yönlendirilir
+    if (user.rol === 'birim' && user.hesapPersonelId && hash === '#/istek-sahibi') {
       window.location.hash = '#/katalog';
       return;
     }
-  }
 
-  // Bireysel personel hesabı olan kullanıcılar istek sahibi seçimine gitmez, doğrudan kataloğa yönlendirilir
-  if (user.rol === 'birim' && user.hesapPersonelId && hash === '#/istek-sahibi') {
-    window.location.hash = '#/katalog';
-    return;
-  }
+    // İstek sahibi zorunluluğu kontrolü (Sadece genel/ortak birim hesapları için)
+    if (user.rol === 'birim' && !user.seciliPersonel && !user.hesapPersonelId && hash !== '#/istek-sahibi') {
+      window.location.hash = '#/istek-sahibi';
+      return;
+    }
 
-  // İstek sahibi zorunluluğu kontrolü (Sadece genel/ortak birim hesapları için)
-  if (user.rol === 'birim' && !user.seciliPersonel && !user.hesapPersonelId && hash !== '#/istek-sahibi') {
-    window.location.hash = '#/istek-sahibi';
-    return;
-  }
+    const baseHash = hash.split('?')[0];
 
-  const baseHash = hash.split('?')[0];
+    // Rol yetki kontrolü
+    if (user.rol === 'birim' && (baseHash === '#/satinalma' || baseHash === '#/yonetim' || baseHash === '#/yetkilendirme' || baseHash === '#/loglar' || baseHash === '#/rehber' || baseHash === '#/raporlar')) {
+      window.location.hash = '#/katalog';
+      return;
+    }
 
-  // Rol yetki kontrolü
-  if (user.rol === 'birim' && (baseHash === '#/satinalma' || baseHash === '#/yonetim' || baseHash === '#/yetkilendirme' || baseHash === '#/loglar' || baseHash === '#/rehber' || baseHash === '#/raporlar')) {
-    window.location.hash = '#/katalog';
-    return;
-  }
+    if (user.rol === 'satin_alma' && (baseHash === '#/katalog' || baseHash === '#/sepet' || baseHash === '#/istek-sahibi')) {
+      window.location.hash = '#/satinalma';
+      return;
+    }
 
-  if (user.rol === 'satin_alma' && (baseHash === '#/katalog' || baseHash === '#/sepet' || baseHash === '#/istek-sahibi')) {
-    window.location.hash = '#/satinalma';
-    return;
-  }
+    // Sepet drawer'ını başlat ve sepet sayısını güncelle
+    if (user.rol === 'birim') {
+      renderSepetDrawer();
+      api.getSepet().then(res => {
+        state.setCartCount(res.sepet?.toplamKalem || 0);
+      }).catch(() => {});
+    }
 
-  // Sepet drawer'ını başlat ve sepet sayısını güncelle
-  if (user.rol === 'birim') {
-    renderSepetDrawer();
-    api.getSepet().then(res => {
-      state.setCartCount(res.sepet?.toplamKalem || 0);
-    }).catch(() => {});
-  }
+    // Global üst başlık ve işlem çubuğunu güncelle
+    updateGlobalHeader(hash, user);
 
-  // Global üst başlık ve işlem çubuğunu güncelle
-  updateGlobalHeader(hash, user);
+    // Sayfayı render et
+    renderNavbar(navContainer);
 
-  // Sayfayı render et
-  renderNavbar(navContainer);
+    const pageRenderer = routes[baseHash] || (user.rol === 'satin_alma' ? renderSatinalma : renderKatalog);
 
-  const pageRenderer = routes[baseHash] || (user.rol === 'satin_alma' ? renderSatinalma : renderKatalog);
-
-  try {
-    appContainer.classList.remove('apple-page-transition');
-    appContainer.innerHTML = '';
-    await pageRenderer(appContainer);
-    renderGlobalFooter(appContainer);
-    // DOM reflow tetikleyerek Apple sayfa geçiş animasyonunu pürüzsüz başlat
-    void appContainer.offsetWidth;
-    appContainer.classList.add('apple-page-transition');
-  } catch (err) {
-    console.error('Page rendering error:', err);
-    appContainer.innerHTML = `
-      <div style="padding: 40px; text-align: center; color: #DC2626;">
-        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Sayfa Yüklenemedi</h3>
-        <p style="font-size: 13px; color: #64748B;">${err.message || 'Bilinmeyen bir hata oluştu.'}</p>
-        <button onclick="window.location.hash='#/'" class="btn btn-primary" style="margin-top: 16px;">Ana Sayfaya Dön</button>
-      </div>
-    `;
+    try {
+      appContainer.classList.remove('apple-page-transition');
+      appContainer.innerHTML = '';
+      await pageRenderer(appContainer);
+      renderGlobalFooter(appContainer);
+      // DOM reflow tetikleyerek Apple sayfa geçiş animasyonunu pürüzsüz başlat
+      void appContainer.offsetWidth;
+      appContainer.classList.add('apple-page-transition');
+    } catch (err) {
+      console.error('Page rendering error:', err);
+      appContainer.innerHTML = `
+        <div style="padding: 40px; text-align: center; color: #DC2626;">
+          <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">${t('common.pageLoadError', 'Sayfa Yüklenemedi')}</h3>
+          <p style="font-size: 13px; color: #64748B;">${err.message || t('common.unknownError', 'Bilinmeyen bir hata oluştu.')}</p>
+          <button onclick="window.location.hash='#/'" class="btn btn-primary" style="margin-top: 16px;">${t('common.returnHome', 'Ana Sayfaya Dön')}</button>
+        </div>
+      `;
+    }
+  } catch (outerErr) {
+    console.error('Routing critical error:', outerErr);
   } finally {
     document.body.classList.remove('auth-gate-loading');
   }

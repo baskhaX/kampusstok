@@ -83,12 +83,15 @@ export async function renderSepet(appContainer) {
 
 function openOptOzetModal(degisiklikler) {
   if (!degisiklikler || degisiklikler.length === 0) return;
+  const isEn = getLanguage() === 'en';
   const modal = createModal({
-    title: 'Miktar Optimizasyon Özeti',
+    title: isEn ? 'Quantity Optimization Summary' : 'Miktar Optimizasyon Özeti',
     maxWidth: '580px',
     content: `
       <div style="font-size: 13.5px; color: #475569; margin-bottom: 14px; line-height: 1.5;">
-        Haftalık rutin sarf ihtiyacı ve kurum kaynaklarını verimli kullanma prensipleri doğrultusunda sepetinizdeki <strong>${degisiklikler.length} kalemin</strong> miktarı optimize edildi:
+        ${isEn 
+          ? `In accordance with weekly routine consumption needs and institutional efficiency principles, quantities for <strong>${degisiklikler.length} item(s)</strong> in your cart were optimized:`
+          : `Haftalık rutin sarf ihtiyacı ve kurum kaynaklarını verimli kullanma prensipleri doğrultusunda sepetinizdeki <strong>${degisiklikler.length} kalemin</strong> miktarı optimize edildi:`}
       </div>
 
       <div style="max-height: 280px; overflow-y: auto; border: 1.2px solid #E2E8F0; border-radius: 10px; margin-bottom: 14px;">
@@ -310,10 +313,11 @@ async function loadFullSepet(appContainer) {
           }
         }
 
+        const isEn = getLanguage() === 'en';
         if (degisenler.length === 0) {
           window._nudgeApplied = true;
           window._nudgeDegisiklikler = [];
-          toast.info('Tüm ürünleriniz zaten 1 adettir; tasarruf taahhüdünüz kaydedildi (+10 Yeşil Puan).');
+          toast.info(isEn ? 'All items in your cart are already at 1 unit; your savings commitment was recorded (+10 Green Points).' : 'Tüm ürünleriniz zaten 1 adettir; tasarruf taahhüdünüz kaydedildi (+10 Yeşil Puan).');
           await loadFullSepet(appContainer);
           return;
         }
@@ -324,13 +328,13 @@ async function loadFullSepet(appContainer) {
           }
           window._nudgeApplied = true;
           window._nudgeDegisiklikler = degisenler;
-          toast.success(`${degisenler.length} kalemin miktarı optimize edildi (+10 Yeşil Puan eklenecektir).`);
+          toast.success(isEn ? `${degisenler.length} item quantities were optimized (+10 Green Points will be awarded).` : `${degisenler.length} kalemin miktarı optimize edildi (+10 Yeşil Puan eklenecektir).`);
           await loadFullSepet(appContainer);
           openOptOzetModal(degisenler);
         } catch (err) {
-          toast.error('Optimizasyon sırasında hata: ' + err.message);
+          toast.error((isEn ? 'Error during optimization: ' : 'Optimizasyon sırasında hata: ') + err.message);
           btnNudge.disabled = false;
-          btnNudge.textContent = 'Miktarları Optimize Et (-%30) & +10 Puan Kazan';
+          btnNudge.textContent = isEn ? 'Optimize Quantities (-30%) & Earn +10 Pts' : 'Miktarları Optimize Et (-%30) & +10 Puan Kazan';
         }
       });
     }
@@ -338,11 +342,12 @@ async function loadFullSepet(appContainer) {
     const btnTaahhut = listContainer.querySelector('#btnNudgeTaahhut');
     if (btnTaahhut) {
       btnTaahhut.addEventListener('click', async () => {
+        const isEn = getLanguage() === 'en';
         btnTaahhut.disabled = true;
-        btnTaahhut.textContent = 'Kaydediliyor...';
+        btnTaahhut.textContent = isEn ? 'Saving...' : 'Kaydediliyor...';
         window._nudgeApplied = true;
         window._nudgeDegisiklikler = [];
-        toast.success('Tasarruf taahhüdünüz onaylandı! Talebiniz iletildiğinde biriminize +10 Yeşil Puan eklenecektir.');
+        toast.success(isEn ? 'Savings commitment confirmed! +10 Green Points will be added to your department when requisition is submitted.' : 'Tasarruf taahhüdünüz onaylandı! Talebiniz iletildiğinde biriminize +10 Yeşil Puan eklenecektir.');
         await loadFullSepet(appContainer);
       });
     }
@@ -350,8 +355,9 @@ async function loadFullSepet(appContainer) {
     const btnGeriAl = listContainer.querySelector('#btnNudgeGeriAl');
     if (btnGeriAl) {
       btnGeriAl.addEventListener('click', async () => {
+        const isEn = getLanguage() === 'en';
         btnGeriAl.disabled = true;
-        btnGeriAl.textContent = 'Geri Alınıyor...';
+        btnGeriAl.textContent = isEn ? 'Reverting...' : 'Geri Alınıyor...';
         try {
           if (window._nudgeDegisiklikler && window._nudgeDegisiklikler.length > 0) {
             for (const d of window._nudgeDegisiklikler) {
@@ -360,10 +366,10 @@ async function loadFullSepet(appContainer) {
           }
           window._nudgeApplied = false;
           window._nudgeDegisiklikler = null;
-          toast.info('Optimizasyon geri alındı, eski miktarlar yüklendi.');
+          toast.info(isEn ? 'Optimization reverted, previous quantities restored.' : 'Optimizasyon geri alındı, eski miktarlar yüklendi.');
           await loadFullSepet(appContainer);
         } catch (err) {
-          toast.error('Geri alma hatası: ' + err.message);
+          toast.error((isEn ? 'Revert error: ' : 'Geri alma hatası: ') + err.message);
         }
       });
     }
@@ -396,19 +402,21 @@ async function loadFullSepet(appContainer) {
 
     listContainer.querySelectorAll('.btn-table-del').forEach(btn => {
       btn.addEventListener('click', async () => {
+        const isEn = getLanguage() === 'en';
         const id = parseInt(btn.dataset.id, 10);
         await api.sepettenSil(id);
-        toast.info('Ürün kaldırıldı.');
+        toast.info(isEn ? 'Item removed from cart.' : 'Ürün kaldırıldı.');
         await loadFullSepet(appContainer);
       });
     });
 
     btnTemizle.addEventListener('click', async () => {
+      const isEn = getLanguage() === 'en';
       const onay = await confirmModal({
-        title: 'Sepeti Temizle',
-        message: 'Sepetteki tüm ürünleri sepetten çıkarmak istediğinize emin misiniz?',
-        confirmText: 'Sepeti Boşalt',
-        cancelText: 'Vazgeç',
+        title: isEn ? 'Clear Cart' : 'Sepeti Temizle',
+        message: isEn ? 'Are you sure you want to remove all items from your cart?' : 'Sepetteki tüm ürünleri sepetten çıkarmak istediğinize emin misiniz?',
+        confirmText: isEn ? 'Empty Cart' : 'Sepeti Boşalt',
+        cancelText: isEn ? 'Cancel' : 'Vazgeç',
         type: 'danger'
       });
       if (!onay) return;
@@ -416,7 +424,7 @@ async function loadFullSepet(appContainer) {
       await api.sepetiTemizle();
       window._nudgeApplied = false;
       window._nudgeDegisiklikler = null;
-      toast.info('Sepet temizlendi.');
+      toast.info(isEn ? 'Cart cleared.' : 'Sepet temizlendi.');
       await loadFullSepet(appContainer);
     });
 
