@@ -1698,8 +1698,8 @@ async function renderStokTab(container) {
           </td>
           <td>${turBadge}</td>
           <td><strong style="color: ${h.tur === 'cikis' ? 'var(--color-destructive)' : '#16A34A'};">${h.tur === 'cikis' ? '-' : '+'}${h.miktar} ${tUnit(h.olcu_birimi)}</strong></td>
-          <td style="font-size: 12.5px;">${escapeHtml(h.aciklama || '-')}</td>
-          <td style="font-size: 12px;">${escapeHtml(h.yapan_kullanici || 'Sistem')}</td>
+          <td style="font-size: 12.5px;">${escapeHtml(formatLogDetail(h.aciklama || '-'))}</td>
+          <td style="font-size: 12px;">${escapeHtml(tUser(h.yapan_kullanici || 'Sistem'))}</td>
         </tr>
       `;
     }).join('');
@@ -2748,13 +2748,13 @@ async function renderDenetimLoglariTab(container) {
         </select>
         <select id="logIslemFiltre" style="height: 36px; padding: 4px 10px; border-radius: 8px;">
           <option value="">${t('loglar.optAllActions', 'Tüm İşlem Türleri')}</option>
-          <option value="GIRIS">GIRIS</option>
-          <option value="SIFREMI_UNUTTUM">SIFREMI_UNUTTUM</option>
-          <option value="SIFRE_VE_ADRES_GUNCELLEME">SIFRE_VE_ADRES_GUNCELLEME</option>
-          <option value="TOPLU_STOK_GUNCELLEME">TOPLU_STOK_GUNCELLEME</option>
-          <option value="TOPLU_HESAP_ACMA">TOPLU_HESAP_ACMA</option>
-          <option value="BIRIM_DURUM_DEGISTIRILDI">BIRIM_DURUM_DEGISTIRILDI</option>
-          <option value="BIRIM_SILINDI">BIRIM_SILINDI</option>
+          <option value="GIRIS">${tActionType('GIRIS')}</option>
+          <option value="SIFREMI_UNUTTUM">${tActionType('SIFREMI_UNUTTUM')}</option>
+          <option value="SIFRE_VE_ADRES_GUNCELLEME">${tActionType('SIFRE_VE_ADRES_GUNCELLEME')}</option>
+          <option value="TOPLU_STOK_GUNCELLEME">${tActionType('TOPLU_STOK_GUNCELLEME')}</option>
+          <option value="TOPLU_HESAP_ACMA">${tActionType('TOPLU_HESAP_ACMA')}</option>
+          <option value="BIRIM_DURUM_DEGISTIRILDI">${tActionType('BIRIM_DURUM_DEGISTIRILDI')}</option>
+          <option value="BIRIM_SILINDI">${tActionType('BIRIM_SILINDI')}</option>
         </select>
         <button id="btnYenileLoglar" class="btn btn-outline btn-sm">${t('loglar.refresh', 'Yenile')}</button>
       </div>
@@ -2785,7 +2785,7 @@ async function renderDenetimLoglariTab(container) {
   const yenileBtn = container.querySelector('#btnYenileLoglar');
 
   const loadLogs = async () => {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 25px;">Yükleniyor...</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 25px;">${t('common.loading', 'Yükleniyor...')}</td></tr>`;
     try {
       const islem = filtreSelect.value || undefined;
       const grup = grupSelect.value;
@@ -2801,7 +2801,7 @@ async function renderDenetimLoglariTab(container) {
       const loglar = res.loglar || [];
 
       if (loglar.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--color-muted-foreground);">Kayıtlı denetim logu bulunamadı.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--color-muted-foreground);">${t('loglar.noLogsFound', 'Kayıtlı denetim logu bulunamadı.')}</td></tr>`;
         return;
       }
 
@@ -2811,7 +2811,7 @@ async function renderDenetimLoglariTab(container) {
         else if (l.islem_turu === 'SIFREMI_UNUTTUM') badgeClass = 'badge-warning';
         else if (l.islem_turu === 'TOPLU_STOK_GUNCELLEME') badgeClass = 'badge-accent';
         else if (l.islem_turu === 'TOPLU_HESAP_ACMA') badgeClass = 'badge-primary';
-        else if (l.islem_turu.includes('SILINDI')) badgeClass = 'badge-danger';
+        else if (l.islem_turu.includes('SILINDI') || l.islem_turu.includes('SILME')) badgeClass = 'badge-danger';
 
         const roleText = tRole(l.rol);
         const actionLabel = tActionType(l.islem_turu);

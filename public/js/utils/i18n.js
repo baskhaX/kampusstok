@@ -398,6 +398,7 @@ const DICTIONARIES = {
       optAllActions: 'Tüm İşlem Türleri',
       optDeptActions: 'Birim Hareketleri',
       refresh: 'Yenile',
+      noLogsFound: 'Kayıtlı denetim logu bulunamadı.',
       noSunumYet: 'Henüz Sunum Açılmadı',
       noSunumYetSub: 'Canlı link tıklandığında anlık buraya düşecektir.',
       noTestYet: 'Henüz Test Girişi Yok',
@@ -917,6 +918,7 @@ const DICTIONARIES = {
       optAllActions: 'All Event Types',
       optDeptActions: 'Department Actions',
       refresh: 'Refresh',
+      noLogsFound: 'No audit logs recorded yet.',
       noSunumYet: 'No Presentations Viewed Yet',
       noSunumYetSub: 'Real-time telemetry will appear when the live link is clicked.',
       noTestYet: 'No Test Logins Yet',
@@ -1363,22 +1365,43 @@ export const ACTION_TYPE_MAP = {
   'STOK_HAREKET': { en: 'Stock Movement', tr: 'Stok Hareketi' },
   'STOK_GIRIS': { en: 'Stock Receipt', tr: 'Stok Girişi' },
   'STOK_GUNCELLE': { en: 'Stock Update', tr: 'Stok Güncelleme' },
+  'STOK_DUZELTME': { en: 'Stock Adjustment', tr: 'Stok Düzeltme' },
   'SIFREMI_UNUTTUM': { en: 'Password Reset Request', tr: 'Şifremi Unuttum Talebi' },
+  'SIFREMI_UNUTTUM_TOKEN': { en: 'Password Reset Link Generated', tr: 'Şifre Sıfırlama Bağlantısı' },
+  'SIFRE_SIFIRLA': { en: 'Admin Password Reset', tr: 'Yönetici Şifre Sıfırlama' },
+  'SIFRE_SIFIRLAMA_TAMAMLANDI': { en: 'Password Reset Completed', tr: 'Şifre Sıfırlama Tamamlandı' },
   'SIFRE_GUNCELLEME': { en: 'Password Changed', tr: 'Şifre Güncelleme' },
   'SIFRE_VE_ADRES_GUNCELLEME': { en: 'Credentials & Address Updated', tr: 'Şifre ve Adres Güncelleme' },
   'TOPLU_STOK_GUNCELLEME': { en: 'Bulk Inventory Update', tr: 'Toplu Stok Güncelleme' },
   'TOPLU_HESAP_ACMA': { en: 'Bulk Account Creation', tr: 'Toplu Hesap Açma' },
   'BIRIM_DURUM_DEGISTIRILDI': { en: 'Department Status Toggled', tr: 'Birim Durumu Değiştirildi' },
+  'BIRIM_DURUM_GUNCELLEME': { en: 'Department Status Toggled', tr: 'Birim Durum Güncelleme' },
   'BIRIM_SILINDI': { en: 'Department Deleted', tr: 'Birim Silindi' },
+  'BIRIM_SILME': { en: 'Department Deletion', tr: 'Birim Silme' },
   'BIRIM_EKLENDI': { en: 'Department Created', tr: 'Birim Eklendi' },
   'BIRIM_GUNCELLENDI': { en: 'Department Updated', tr: 'Birim Güncellendi' },
   'PERSONEL_EKLENDI': { en: 'Staff Added', tr: 'Personel Eklendi' },
   'PERSONEL_GUNCELLENDI': { en: 'Staff Updated', tr: 'Personel Güncellendi' },
   'PERSONEL_SILINDI': { en: 'Staff Removed', tr: 'Personel Silindi' },
+  'EXCEL_PERSONEL_ICE_AKTAR': { en: 'Bulk Staff Excel Import', tr: 'Excel Personel İçe Aktarımı' },
+  'KATEGORI_SILME': { en: 'Category Deletion', tr: 'Kategori Silme' },
+  'KATEGORI_EKLENDI': { en: 'Category Created', tr: 'Kategori Eklendi' },
+  'KATEGORI_GUNCELLENDI': { en: 'Category Updated', tr: 'Kategori Güncellendi' },
+  'TESLIMAT_KULLANICI_TEYIT': { en: 'Delivery Confirmation Receipt', tr: 'Teslimat Kullanıcı Teyidi' },
+  'HIZLI_TESLIM_QR': { en: 'Express QR Delivery', tr: 'Hızlı Teslim QR' },
+  'ATIL_MALZEME_BILDIRILDI': { en: 'Surplus Supply Declared', tr: 'Atıl Malzeme Bildirimi' },
+  'ATIL_MALZEME_TESLIM_ALINDI': { en: 'Surplus Supply Received', tr: 'Atıl Malzeme Depoya Alındı' },
+  'ODUNC_REZERVASYON': { en: 'Equipment Reserved', tr: 'Ekipman Rezervasyonu' },
+  'ODUNC_TESLIM': { en: 'Equipment Dispatched', tr: 'Ekipman Teslim Edildi' },
+  'ODUNC_IADE': { en: 'Equipment Returned', tr: 'Ekipman İade Alındı' },
   'YEDEK_ALINDI': { en: 'System Backup Created', tr: 'Sistem Yedeği Alındı' },
   'YEDEK_GERI_YUKLENDI': { en: 'System Restored from Backup', tr: 'Yedekten Geri Yüklendi' },
+  'YEDEK_SILINDI': { en: 'Backup Archive Deleted', tr: 'Yedek Silindi' },
   'VEKALET_VERILDI': { en: 'Delegation Assigned', tr: 'Yetki Devri Verildi' },
-  'VEKALET_SONLANDI': { en: 'Delegation Ended', tr: 'Yetki Devri Sona Erdi' }
+  'VEKALET_SONLANDI': { en: 'Delegation Ended', tr: 'Yetki Devri Sona Erdi' },
+  'GOREV_DEVRI_SONLANDIRILDI': { en: 'Delegation Terminated', tr: 'Görev Devri Sonlandırıldı' },
+  'HATALI_SIFRE': { en: 'Invalid Password Attempt', tr: 'Hatalı Şifre Denemesi' },
+  'KRITIK_ESIK_GUNCELLE': { en: 'Critical Threshold Updated', tr: 'Kritik Eşik Güncellendi' }
 };
 
 export function tRole(role) {
@@ -1400,12 +1423,15 @@ export function tUser(username) {
   const lang = currentLang === 'en' ? 'en' : 'tr';
   if (username === 'ziyaretci') return lang === 'en' ? 'visitor' : 'ziyaretci';
   if (username === 'yapici') return lang === 'en' ? 'architect' : 'yapici';
+  if (username === 'Sistem' || username === 'sistem') return lang === 'en' ? 'System' : 'Sistem';
   return username;
 }
 
 export function formatLogDetail(text) {
   if (!text) return '-';
   if (currentLang !== 'en') return text;
+
+  // Exact or partial matches for technical/audit messages
   if (text.includes('Kullanıcı sisteme başarıyla giriş yaptı.')) {
     return 'User logged in to the system successfully.';
   }
@@ -1423,6 +1449,12 @@ export function formatLogDetail(text) {
   if (text.includes('Şifre ve teslimat adresi güncellendi')) {
     return 'Password and delivery address successfully updated.';
   }
+  if (text.includes('Kullanıcı şifresini ve teslimat adresini')) {
+    return text.replace('Kullanıcı şifresini ve teslimat adresini', 'User updated password and delivery address')
+               .replace('Bina:', 'Building:')
+               .replace('Oda:', 'Room:')
+               .replace('güncelledi.', 'successfully.');
+  }
   if (text.includes('Yeni kırtasiye talebi oluşturuldu')) {
     return 'New stationery requisition submitted.';
   }
@@ -1431,6 +1463,94 @@ export function formatLogDetail(text) {
   }
   if (text.includes('Talep teslim edildi')) {
     return 'Requisition delivery confirmed.';
+  }
+  if (text.includes('revize onayı')) {
+    return text.replace('Talep #', 'Requisition #').replace(' revize onayı', ' approved with revision');
+  }
+  if (text.includes(' onayı')) {
+    return text.replace('Talep #', 'Requisition #').replace(' onayı', ' approval');
+  }
+  if (text.includes('Talep onayından stok düşüşü')) {
+    return 'Stock deduction from approved requisition.';
+  }
+  if (text.includes('teslim aldığını panelinden onayladı')) {
+    return text.replace('Kullanıcı', 'User')
+               .replace('numaralı talebin malzemelerini teslim aldığını panelinden onayladı.', 'confirmed receipt of items in requisition via portal.');
+  }
+  if (text.includes('Depo stok girişi')) {
+    return 'Warehouse stock intake';
+  }
+  if (text.includes('Depo çıkışı')) {
+    return 'Warehouse stock dispatch';
+  }
+  if (text.includes('Ürün ilk açılış stoğu')) {
+    return 'Initial product inventory opening balance';
+  }
+  if (text.includes('Stok düzeltmesi')) {
+    return text.replace('Stok düzeltmesi', 'Stock adjustment');
+  }
+  if (text.includes('ürünün stoğu tek tıkla güncellendi')) {
+    return text.replace('ürünün stoğu tek tıkla güncellendi.', 'product(s) stock updated in batch.');
+  }
+  if (text.includes('personele kullanıcı hesabı tanımlandı')) {
+    return text.replace('personele kullanıcı hesabı tanımlandı ve bilgilendirme e-postası kuyruğa eklendi.', 'staff account(s) provisioned and notification email(s) queued.');
+  }
+  if (text.includes('atıl malzemeleri depoya kazandırıldı')) {
+    return text.replace('atıl malzemeleri depoya kazandırıldı. Birime +20 Yeşil Puan tanımlandı.', 'surplus items recovered to warehouse. +20 Green Points awarded.');
+  }
+  if (text.includes('Birim silme işlemi:')) {
+    return text.replace('Birim silme işlemi:', 'Department deleted:');
+  }
+  if (text.includes('Birim Aktif yapıldı:')) {
+    return text.replace('Birim Aktif yapıldı:', 'Department set to Active:');
+  }
+  if (text.includes('Birim Pasife alındı (kapatıldı):')) {
+    return text.replace('Birim Pasife alındı (kapatıldı):', 'Department set to Inactive (disabled):');
+  }
+  if (text.includes('Kategori silme işlemi:')) {
+    return text.replace('Kategori silme işlemi:', 'Category deleted:');
+  }
+  if (text.includes('Excel ile toplu personel aktarımı')) {
+    return 'Batch personnel imported via Excel file.';
+  }
+  if (text.includes('Geçici şifre ile giriş yapıldı')) {
+    return 'Signed in using temporary one-time password.';
+  }
+  if (text.includes('Hatalı şifre denemesi')) {
+    return 'Invalid password authentication attempt.';
+  }
+  if (text.includes('Kritik stok eşiği güncellendi')) {
+    return 'Critical stock threshold updated.';
+  }
+  if (text.includes('Sistem yedeği oluşturuldu') || text.includes('Yedek alındı')) {
+    return 'System database snapshot successfully generated.';
+  }
+  if (text.includes('Yedekten geri yüklendi')) {
+    return 'Database restored from backup snapshot.';
+  }
+  if (text.includes('Yedek dosyası silindi')) {
+    return 'Backup archive deleted.';
+  }
+  if (text.includes('Hızlı teslimat QR okutuldu') || text.includes('Hızlı teslim QR')) {
+    return 'Requisition verified & dispatched via Quick QR scan.';
+  }
+  if (text.includes('Ödünç ekipman rezerve edildi')) {
+    return 'Shared campus equipment reserved.';
+  }
+  if (text.includes('Ödünç ekipman teslim edildi')) {
+    return 'Shared campus equipment checked out.';
+  }
+  if (text.includes('Ödünç ekipman iade alındı')) {
+    return 'Shared campus equipment returned to warehouse.';
+  }
+  if (text.includes('Yetki devri oluşturuldu')) {
+    return 'Authority delegation proxy granted.';
+  }
+  if (text.includes('Yetki devri sonlandırıldı') || text.includes('Görev devri sonlandırıldı')) {
+    return 'Authority delegation terminated.';
+  }
+  if (text === 'Toplu Stok Güncellemesi') {
+    return 'Batch Inventory Update';
   }
   return text;
 }
