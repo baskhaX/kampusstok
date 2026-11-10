@@ -228,6 +228,8 @@ const DICTIONARIES = {
       save: 'Kaydet',
       confirm: 'Onayla',
       delete: 'Sil',
+      edit: 'Düzenle',
+      ext: 'Dahili',
       search: 'Ara',
       loading: 'Yükleniyor...',
       error: 'Hata',
@@ -745,6 +747,8 @@ const DICTIONARIES = {
       save: 'Save',
       confirm: 'Confirm',
       delete: 'Delete',
+      edit: 'Edit',
+      ext: 'Ext',
       search: 'Search',
       loading: 'Loading...',
       error: 'Error',
@@ -1164,6 +1168,7 @@ if (typeof window !== 'undefined') {
   window.__tCategory = tCategory;
   window.__tProduct = tProduct;
   window.__tDepartment = tDepartment;
+  window.__tTitle = tTitle;
   window.__tUnit = tUnit;
   window.__tBuilding = tBuilding;
   window.__tMonth = tMonth;
@@ -1175,6 +1180,7 @@ if (typeof window !== 'undefined') {
     tCategory,
     tProduct,
     tDepartment,
+    tTitle,
     tUnit,
     tBuilding,
     tMonth,
@@ -1251,6 +1257,40 @@ export const DEPARTMENT_MAP = {
   'Bilgi İşlem Müdürlüğü': { en: 'IT Directorate', tr: 'Bilgi İşlem Müdürlüğü' },
   'Kütüphane ve Dokümantasyon Müdürlüğü': { en: 'Library & Documentation Directorate', tr: 'Kütüphane ve Dokümantasyon Müdürlüğü' },
   'Satın Alma Müdürlüğü': { en: 'Procurement Directorate', tr: 'Satın Alma Müdürlüğü' }
+};
+
+export const TITLE_MAP = {
+  'Sistem Yöneticisi': { en: 'System Administrator', tr: 'Sistem Yöneticisi' },
+  'Daire Başkanı': { en: 'Department Head', tr: 'Daire Başkanı' },
+  'Şube Müdürü': { en: 'Branch Manager', tr: 'Şube Müdürü' },
+  'Müdür': { en: 'Director', tr: 'Müdür' },
+  'Müdür Yardımcısı': { en: 'Deputy Director', tr: 'Müdür Yardımcısı' },
+  'Şef': { en: 'Supervisor / Chief', tr: 'Şef' },
+  'Memur': { en: 'Officer', tr: 'Memur' },
+  'Bilgisayar İşletmeni': { en: 'Computer Specialist', tr: 'Bilgisayar İşletmeni' },
+  'Tekniker': { en: 'Technician', tr: 'Tekniker' },
+  'Teknisyen': { en: 'Technician', tr: 'Teknisyen' },
+  'Uzman': { en: 'Specialist', tr: 'Uzman' },
+  'Sekreter': { en: 'Secretary', tr: 'Sekreter' },
+  'Bölüm Başkanı': { en: 'Department Chair', tr: 'Bölüm Başkanı' },
+  'Bölüm Sekreteri': { en: 'Department Secretary', tr: 'Bölüm Sekreteri' },
+  'Fakülte Sekreteri': { en: 'Faculty Secretary', tr: 'Fakülte Sekreteri' },
+  'Dekan': { en: 'Dean', tr: 'Dekan' },
+  'Dekan Yardımcısı': { en: 'Vice Dean', tr: 'Dekan Yardımcısı' },
+  'Rektör': { en: 'Rector / President', tr: 'Rektör' },
+  'Rektör Danışmanı': { en: 'Advisor to the Rector', tr: 'Rektör Danışmanı' },
+  'Rektör Yardımcısı': { en: 'Vice Rector', tr: 'Rektör Yardımcısı' },
+  'Genel Sekreter': { en: 'Secretary General', tr: 'Genel Sekreter' },
+  'Genel Sekreter Yrd.': { en: 'Deputy Secretary General', tr: 'Genel Sekreter Yrd.' },
+  'Satın Alma Sorumlusu': { en: 'Procurement Officer', tr: 'Satın Alma Sorumlusu' },
+  'Kütüphane Daire Bşk.': { en: 'Head of Library Services', tr: 'Kütüphane Daire Bşk.' },
+  'Prof. Dr.': { en: 'Prof. Dr.', tr: 'Prof. Dr.' },
+  'Doç. Dr.': { en: 'Assoc. Prof. Dr.', tr: 'Doç. Dr.' },
+  'Dr. Öğr. Üyesi': { en: 'Asst. Prof. Dr.', tr: 'Dr. Öğr. Üyesi' },
+  'Öğretim Üyesi': { en: 'Faculty Member / Professor', tr: 'Öğretim Üyesi' },
+  'Öğr. Gör.': { en: 'Lecturer', tr: 'Öğr. Gör.' },
+  'Arş. Gör.': { en: 'Research Assistant', tr: 'Arş. Gör.' },
+  'Araştırma Görevlisi': { en: 'Research Assistant', tr: 'Araştırma Görevlisi' }
 };
 
 export const UNIT_MAP = {
@@ -1425,6 +1465,17 @@ export function tActionType(type) {
   return (ACTION_TYPE_MAP[type] && ACTION_TYPE_MAP[type][lang]) || type;
 }
 
+export function tTitle(title) {
+  if (!title) return '';
+  const lang = currentLang === 'en' ? 'en' : 'tr';
+  if (lang === 'tr') return title;
+  const trimmed = String(title).trim();
+  if (TITLE_MAP[trimmed] && TITLE_MAP[trimmed][lang]) {
+    return TITLE_MAP[trimmed][lang];
+  }
+  return title;
+}
+
 export default {
   initI18n,
   getLanguage,
@@ -1434,6 +1485,7 @@ export default {
   tCategory,
   tProduct,
   tDepartment,
+  tTitle,
   tUnit,
   tBuilding,
   tMonth,

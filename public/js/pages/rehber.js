@@ -2,7 +2,7 @@
 import api from '../api.js';
 import toast from '../components/toast.js';
 import createModal, { confirmModal } from '../components/modal.js';
-import { t, getLanguage, tDepartment, tBuilding } from '../utils/i18n.js';
+import { t, getLanguage, tDepartment, tTitle, tBuilding } from '../utils/i18n.js';
 
 function escapeHtml(str) {
   if (str === null || str === undefined) return '';
@@ -331,10 +331,10 @@ Satın Alma Müdürlüğü
               ${cleanName}
             </div>
             <div class="tree-desc" style="font-size: 12px; color: var(--text-dim); margin-top: 2px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-              ${p.unvan ? `<span class="badge badge-neutral" style="font-size: 11px; font-weight: 700; color: #0284C7; background: rgba(2, 132, 199, 0.12); padding: 1px 8px; border-radius: 9999px;">${p.unvan}</span>` : ''}
-              ${p.gorev ? `<span class="badge badge-neutral" style="font-size: 11px; padding: 1px 8px; border-radius: 9999px;">${p.gorev}</span>` : ''}
-              ${p.eposta ? `<span>${p.eposta}</span>` : ''}
-              ${p.telefon ? `<span style="margin-left: 6px;">• ${t('common.ext', 'Dahili')}: <strong>${p.telefon}</strong></span>` : ''}
+              ${p.unvan ? `<span class="badge badge-neutral" style="font-size: 11px; font-weight: 700; color: #0284C7; background: rgba(2, 132, 199, 0.12); padding: 1px 8px; border-radius: 9999px;">${escapeHtml(tTitle(p.unvan))}</span>` : ''}
+              ${p.gorev ? `<span class="badge badge-neutral" style="font-size: 11px; padding: 1px 8px; border-radius: 9999px;">${escapeHtml(tTitle(p.gorev))}</span>` : ''}
+              ${p.eposta ? `<span>${escapeHtml(p.eposta)}</span>` : ''}
+              ${p.telefon ? `<span style="margin-left: 6px;">• ${t('common.ext', 'Dahili')}: <strong>${escapeHtml(p.telefon)}</strong></span>` : ''}
               ${p.hesap_id ? `<span class="badge" style="font-size: 11px; font-weight: 600; color: #059669; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 1px 8px; border-radius: 9999px;" title="Kullanıcı adı: ${escapeHtml(p.hesap_kullanici_adi || p.eposta)}">${t('rehber.hasAccount', 'Giriş Hesabı Var')}: ${escapeHtml(p.hesap_kullanici_adi || p.eposta)}</span>` : `<span class="badge" style="font-size: 11px; font-weight: 500; color: #64748B; background: rgba(100, 116, 139, 0.1); border: 1px solid rgba(148, 163, 184, 0.25); padding: 1px 8px; border-radius: 9999px;">${t('rehber.noAccount', 'Hesap Yok')}</span>`}
             </div>
           </div>
@@ -441,8 +441,8 @@ Satın Alma Müdürlüğü
                           ${escapeHtml(tDepartment(p.birim_adi))}
                         </div>
                         <div style="font-size: 11.5px; color: var(--text-dim); margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center;">
-                          ${p.unvan ? `<span class="badge badge-neutral" style="font-size: 10.5px; font-weight: 700; color: #0284C7; background: rgba(2, 132, 199, 0.12); padding: 1px 7px;">${escapeHtml(p.unvan)}</span>` : ''}
-                          ${p.gorev ? `<span class="badge badge-neutral" style="font-size: 10.5px; padding: 1px 7px;">${escapeHtml(p.gorev)}</span>` : ''}
+                          ${p.unvan ? `<span class="badge badge-neutral" style="font-size: 10.5px; font-weight: 700; color: #0284C7; background: rgba(2, 132, 199, 0.12); padding: 1px 7px;">${escapeHtml(tTitle(p.unvan))}</span>` : ''}
+                          ${p.gorev ? `<span class="badge badge-neutral" style="font-size: 10.5px; padding: 1px 7px;">${escapeHtml(tTitle(p.gorev))}</span>` : ''}
                           ${p.hesap_id ? `<span class="badge" style="font-size: 10.5px; font-weight: 600; color: #059669; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 1px 7px; border-radius: 9999px;">${t('rehber.hasAccount', 'Giriş Hesabı Var')}</span>` : `<span class="badge" style="font-size: 10.5px; font-weight: 500; color: #64748B; background: rgba(100, 116, 139, 0.1); border: 1px solid rgba(148, 163, 184, 0.25); padding: 1px 7px; border-radius: 9999px;">${t('rehber.noAccount', 'Hesap Yok')}</span>`}
                         </div>
                         <div style="font-size: 12px; color: #475569; margin-top: 6px; display: flex; flex-direction: column; gap: 2px;">
@@ -857,7 +857,10 @@ Satın Alma Müdürlüğü
             } else {
               openUnitIds.add(targetId);
             }
-            if (toggleBtn) toggleBtn.textContent = isOpen ? 'Genişlet' : 'Daralt';
+            if (toggleBtn) {
+              const isEn = getLanguage() === 'en';
+              toggleBtn.textContent = isOpen ? (isEn ? 'Expand' : 'Genişlet') : (isEn ? 'Collapse' : 'Daralt');
+            }
           }
           return;
         }
@@ -901,7 +904,8 @@ Satın Alma Müdürlüğü
       allExpanded = !allExpanded;
       const textEl = appContainer.querySelector('#btnTreeToggleText');
       if (textEl) {
-        textEl.textContent = allExpanded ? 'Tümünü Daralt' : 'Tümünü Genişlet';
+        const isEn = getLanguage() === 'en';
+        textEl.textContent = allExpanded ? (isEn ? 'Collapse All' : 'Tümünü Daralt') : (isEn ? 'Expand All' : 'Tümünü Genişlet');
       }
       renderTreeList(searchInput?.value || '');
     });
@@ -956,17 +960,17 @@ async function openPersonelModal(personelData, defaultBirimId, onSaved) {
   const cleanName = isEdit ? cleanAdSoyad(personelData.ad_soyad) : '';
 
   const modal = createModal({
-    title: isEdit ? `Personel Düzenle • ${cleanName}` : 'Yeni Personel Ekle',
+    title: isEdit ? (getLanguage() === 'en' ? `Edit Staff • ${cleanName}` : `Personel Düzenle • ${cleanName}`) : (getLanguage() === 'en' ? 'Add New Staff' : 'Yeni Personel Ekle'),
     contentHtml: `
       <div style="padding: 4px 0;">
         <div class="form-group" style="margin-bottom: 14px;">
           <label style="font-size: 12.5px; font-weight: 600; color: #0F172A; display: block; margin-bottom: 6px;">
-            Bağlı Olduğu Birim *
+            ${getLanguage() === 'en' ? 'Associated Department *' : 'Bağlı Olduğu Birim *'}
           </label>
           <select id="modalPersonelBirim" style="width: 100%; padding: 10px 14px; font-size: 13.5px; border-radius: 12px;">
             ${birimler.map(b => `
               <option value="${b.id}" ${(isEdit ? personelData.birim_id === b.id : defaultBirimId === b.id) ? 'selected' : ''}>
-                ${b.ad} (${b.tur || 'Birim'})
+                ${escapeHtml(tDepartment(b.ad))} (${b.tur || 'Birim'})
               </option>
             `).join('')}
           </select>
@@ -975,28 +979,28 @@ async function openPersonelModal(personelData, defaultBirimId, onSaved) {
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
           <div class="form-group">
             <label style="font-size: 12.5px; font-weight: 600; color: #0F172A; display: block; margin-bottom: 6px;">
-              Ad Soyad *
+              ${getLanguage() === 'en' ? 'Full Name *' : 'Ad Soyad *'}
             </label>
-            <input type="text" id="modalPersonelAd" placeholder="Örn: Selin Arslan" value="${cleanName}" style="width: 100%;">
+            <input type="text" id="modalPersonelAd" placeholder="${getLanguage() === 'en' ? 'e.g. John Doe' : 'Örn: Selin Arslan'}" value="${cleanName}" style="width: 100%;">
           </div>
           <div class="form-group">
             <label style="font-size: 12.5px; font-weight: 600; color: #0F172A; display: block; margin-bottom: 6px;">
-              Akademik / İdari Ünvan
+              ${getLanguage() === 'en' ? 'Academic / Administrative Title' : 'Akademik / İdari Ünvan'}
             </label>
-            <input type="text" id="modalPersonelUnvan" placeholder="Örn: Prof. Dr., Doç. Dr., Dr. Öğr. Üyesi" value="${personelData?.unvan || ''}" style="width: 100%;">
+            <input type="text" id="modalPersonelUnvan" placeholder="${getLanguage() === 'en' ? 'e.g. Prof. Dr., Assoc. Prof. Dr.' : 'Örn: Prof. Dr., Doç. Dr., Dr. Öğr. Üyesi'}" value="${personelData?.unvan || ''}" style="width: 100%;">
           </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
           <div class="form-group">
             <label style="font-size: 12.5px; font-weight: 600; color: #0F172A; display: block; margin-bottom: 6px;">
-              Görev / Pozisyon
+              ${getLanguage() === 'en' ? 'Position / Role' : 'Görev / Pozisyon'}
             </label>
-            <input type="text" id="modalPersonelGorev" placeholder="Örn: Dekan, Bölüm Başkanı, Uzman" value="${personelData?.gorev || ''}" style="width: 100%;">
+            <input type="text" id="modalPersonelGorev" placeholder="${getLanguage() === 'en' ? 'e.g. Dean, Department Chair, Specialist' : 'Örn: Dekan, Bölüm Başkanı, Uzman'}" value="${personelData?.gorev || ''}" style="width: 100%;">
           </div>
           <div class="form-group">
             <label style="font-size: 12.5px; font-weight: 600; color: #0F172A; display: block; margin-bottom: 6px;">
-              Dahili Telefon
+              ${getLanguage() === 'en' ? 'Extension Phone' : 'Dahili Telefon'}
             </label>
             <input type="text" id="modalPersonelTelefon" placeholder="Örn: 4070" value="${personelData?.telefon || ''}" style="width: 100%;">
           </div>
@@ -1004,14 +1008,14 @@ async function openPersonelModal(personelData, defaultBirimId, onSaved) {
 
         <div class="form-group" style="margin-bottom: 20px;">
           <label style="font-size: 12.5px; font-weight: 600; color: #0F172A; display: block; margin-bottom: 6px;">
-            Kurumsal E-posta
+            ${getLanguage() === 'en' ? 'Institutional Email' : 'Kurumsal E-posta'}
           </label>
           <input type="email" id="modalPersonelEposta" placeholder="Örn: sarslan@kampus.edu.tr" value="${personelData?.eposta || ''}" style="width: 100%;">
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 10px;">
-          <button id="btnModalPersonelIptal" class="btn btn-secondary">Vazgeç</button>
-          <button id="btnModalPersonelKaydet" class="btn btn-primary">${isEdit ? 'Güncelle' : 'Kaydet'}</button>
+          <button id="btnModalPersonelIptal" class="btn btn-secondary">${t('common.cancel', 'Vazgeç')}</button>
+          <button id="btnModalPersonelKaydet" class="btn btn-primary">${isEdit ? (getLanguage() === 'en' ? 'Update' : 'Güncelle') : t('common.save', 'Kaydet')}</button>
         </div>
       </div>
     `
@@ -1062,36 +1066,36 @@ async function openBirimModal(birimData, onSaved) {
   const isEdit = Boolean(birimData && birimData.id);
 
   const modal = createModal({
-    title: isEdit ? `Birim Düzenle • ${birimData.ad}` : 'Yeni Birim / Fakülte / Bölüm Ekle',
+    title: isEdit ? (getLanguage() === 'en' ? `Edit Department • ${tDepartment(birimData.ad)}` : `Birim Düzenle • ${birimData.ad}`) : (getLanguage() === 'en' ? 'Add New Department / Faculty' : 'Yeni Birim / Fakülte / Bölüm Ekle'),
     contentHtml: `
       <div style="padding: 4px 0;">
         <div class="form-group" style="margin-bottom: 14px;">
           <label style="font-size: 12.5px; font-weight: 600; color: #0F172A; display: block; margin-bottom: 6px;">
-            Birim Adı *
+            ${getLanguage() === 'en' ? 'Department Name *' : 'Birim Adı *'}
           </label>
-          <input type="text" id="modalBirimAd" placeholder="Örn: Bilgisayar Mühendisliği Bölümü" value="${birimData?.ad || ''}" style="width: 100%;">
+          <input type="text" id="modalBirimAd" placeholder="${getLanguage() === 'en' ? 'e.g. Department of Computer Engineering' : 'Örn: Bilgisayar Mühendisliği Bölümü'}" value="${birimData?.ad || ''}" style="width: 100%;">
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
           <div class="form-group">
             <label style="font-size: 12.5px; font-weight: 600; color: #0F172A; display: block; margin-bottom: 6px;">
-              Birim Türü
+              ${getLanguage() === 'en' ? 'Department Type' : 'Birim Türü'}
             </label>
             <select id="modalBirimTur" style="width: 100%; padding: 10px 14px; font-size: 13.5px; border-radius: 12px;">
-              <option value="idari_birim" ${birimData?.tur === 'idari_birim' ? 'selected' : ''}>İdari Birim / Müdürlük</option>
-              <option value="dekanlik" ${birimData?.tur === 'dekanlik' ? 'selected' : ''}>Fakülte Dekanlığı</option>
-              <option value="bolum" ${birimData?.tur === 'bolum' ? 'selected' : ''}>Akademik Bölüm</option>
+              <option value="idari_birim" ${birimData?.tur === 'idari_birim' ? 'selected' : ''}>${getLanguage() === 'en' ? 'Administrative Directorate' : 'İdari Birim / Müdürlük'}</option>
+              <option value="dekanlik" ${birimData?.tur === 'dekanlik' ? 'selected' : ''}>${getLanguage() === 'en' ? "Faculty Dean's Office" : 'Fakülte Dekanlığı'}</option>
+              <option value="bolum" ${birimData?.tur === 'bolum' ? 'selected' : ''}>${getLanguage() === 'en' ? 'Academic Department' : 'Akademik Bölüm'}</option>
             </select>
           </div>
           <div class="form-group">
             <label style="font-size: 12.5px; font-weight: 600; color: #0F172A; display: block; margin-bottom: 6px;">
-              Üst Birim (Hiyerarşi)
+              ${getLanguage() === 'en' ? 'Parent Department (Hierarchy)' : 'Üst Birim (Hiyerarşi)'}
             </label>
             <select id="modalBirimUst" style="width: 100%; padding: 10px 14px; font-size: 13.5px; border-radius: 12px;">
-              <option value="">-- Kök Birim (En Üst Düzey) --</option>
+              <option value="">${getLanguage() === 'en' ? '-- Root Unit (Top Level) --' : '-- Kök Birim (En Üst Düzey) --'}</option>
               ${birimler.filter(b => !birimData || b.id !== birimData.id).map(b => `
                 <option value="${b.id}" ${birimData?.ust_birim_id === b.id ? 'selected' : ''}>
-                  ${b.ad}
+                  ${escapeHtml(tDepartment(b.ad))}
                 </option>
               `).join('')}
             </select>
@@ -1099,8 +1103,8 @@ async function openBirimModal(birimData, onSaved) {
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 10px;">
-          <button id="btnModalBirimIptal" class="btn btn-secondary">Vazgeç</button>
-          <button id="btnModalBirimKaydet" class="btn btn-primary">${isEdit ? 'Güncelle' : 'Kaydet'}</button>
+          <button id="btnModalBirimIptal" class="btn btn-secondary">${t('common.cancel', 'Vazgeç')}</button>
+          <button id="btnModalBirimKaydet" class="btn btn-primary">${isEdit ? (getLanguage() === 'en' ? 'Update' : 'Güncelle') : t('common.save', 'Kaydet')}</button>
         </div>
       </div>
     `

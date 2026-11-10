@@ -23,7 +23,7 @@ if (typeof globalThis.localStorage === 'undefined') {
   };
 }
 
-import { initI18n, getLanguage, setLanguage, getSupportedLanguages, t, tCategory, tProduct, tDepartment, tUnit, tBuilding, tMonth, tActionType, tRole, tUser, formatLogDetail } from '../public/js/utils/i18n.js';
+import { initI18n, getLanguage, setLanguage, getSupportedLanguages, t, tCategory, tProduct, tDepartment, tTitle, tUnit, tBuilding, tMonth, tActionType, tRole, tUser, formatLogDetail } from '../public/js/utils/i18n.js';
 
 test('KampüsStok Çoklu Dil (i18n) Motoru Testleri', async (tSuite) => {
   localStorage.clear();
@@ -111,6 +111,10 @@ test('KampüsStok Çoklu Dil (i18n) Motoru Testleri', async (tSuite) => {
     assert.equal(tCategory('Kağıt ve Defter Grubu'), 'Kağıt ve Defter Grubu');
     assert.equal(tProduct('A4 Fotokopi Kağıdı 80 gr (500 Yaprak)'), 'A4 Fotokopi Kağıdı 80 gr (500 Yaprak)');
     assert.equal(tDepartment('Bilgi İşlem Müdürlüğü'), 'Bilgi İşlem Müdürlüğü');
+    assert.equal(tTitle('Sistem Yöneticisi'), 'Sistem Yöneticisi');
+    assert.equal(tTitle('Daire Başkanı'), 'Daire Başkanı');
+    assert.equal(t('common.edit'), 'Düzenle');
+    assert.equal(t('common.ext'), 'Dahili');
     assert.equal(tUnit('adet'), 'adet');
     assert.equal(tUnit('kutu'), 'kutu');
     assert.equal(tBuilding('Mühendislik Binası'), 'Mühendislik Binası');
@@ -123,6 +127,12 @@ test('KampüsStok Çoklu Dil (i18n) Motoru Testleri', async (tSuite) => {
     assert.equal(tProduct('A4 Fotokopi Kağıdı 80 gr (500 Yaprak)'), 'A4 Copy Paper 80 gsm (500 Sheets)');
     assert.equal(tDepartment('Bilgi İşlem Müdürlüğü'), 'IT Directorate');
     assert.equal(tDepartment('Genel Sekreterlik'), 'General Secretariat');
+    assert.equal(tTitle('Sistem Yöneticisi'), 'System Administrator');
+    assert.equal(tTitle('Daire Başkanı'), 'Department Head');
+    assert.equal(tTitle('Bölüm Başkanı'), 'Department Chair');
+    assert.equal(tTitle('Genel Sekreter'), 'Secretary General');
+    assert.equal(t('common.edit'), 'Edit');
+    assert.equal(t('common.ext'), 'Ext');
     assert.equal(tUnit('adet'), 'pcs');
     assert.equal(tUnit('kutu'), 'box');
     assert.equal(tUnit('paket'), 'pack');
