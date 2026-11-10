@@ -50,8 +50,16 @@
     </div>
   </div>
 
+  <script>
+    // Fail-safe: Asla beyaz/şeffaf ekranda takılı kalmaması için güvenlik zamanlayıcısı
+    setTimeout(function() {
+      if (document.body.classList.contains('auth-gate-loading')) {
+        document.body.classList.remove('auth-gate-loading');
+      }
+    }, 1200);
+  </script>
   <script type="module">
-    import { initRouter } from '/js/router.js?v=20261110_header_fix';
+    import { initRouter } from '/js/router.js?v=20261111_v1';
 
     initRouter();
   </script>

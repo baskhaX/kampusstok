@@ -160,13 +160,15 @@ export async function navigate() {
     return;
   }
 
+  const baseHash = hash.split('?')[0];
+
   // Rol yetki kontrolü
-  if (user.rol === 'birim' && (hash === '#/satinalma' || hash === '#/yonetim' || hash === '#/yetkilendirme' || hash === '#/loglar' || hash === '#/rehber' || hash === '#/raporlar')) {
+  if (user.rol === 'birim' && (baseHash === '#/satinalma' || baseHash === '#/yonetim' || baseHash === '#/yetkilendirme' || baseHash === '#/loglar' || baseHash === '#/rehber' || baseHash === '#/raporlar')) {
     window.location.hash = '#/katalog';
     return;
   }
 
-  if (user.rol === 'satin_alma' && (hash === '#/katalog' || hash === '#/sepet' || hash === '#/istek-sahibi')) {
+  if (user.rol === 'satin_alma' && (baseHash === '#/katalog' || baseHash === '#/sepet' || baseHash === '#/istek-sahibi')) {
     window.location.hash = '#/satinalma';
     return;
   }
@@ -185,17 +187,28 @@ export async function navigate() {
   // Sayfayı render et
   renderNavbar(navContainer);
 
-  const baseHash = hash.split('?')[0];
   const pageRenderer = routes[baseHash] || (user.rol === 'satin_alma' ? renderSatinalma : renderKatalog);
 
-  appContainer.classList.remove('apple-page-transition');
-  appContainer.innerHTML = '';
-  await pageRenderer(appContainer);
-  renderGlobalFooter(appContainer);
-  // DOM reflow tetikleyerek Apple sayfa geçiş animasyonunu pürüzsüz başlat
-  void appContainer.offsetWidth;
-  appContainer.classList.add('apple-page-transition');
-  document.body.classList.remove('auth-gate-loading');
+  try {
+    appContainer.classList.remove('apple-page-transition');
+    appContainer.innerHTML = '';
+    await pageRenderer(appContainer);
+    renderGlobalFooter(appContainer);
+    // DOM reflow tetikleyerek Apple sayfa geçiş animasyonunu pürüzsüz başlat
+    void appContainer.offsetWidth;
+    appContainer.classList.add('apple-page-transition');
+  } catch (err) {
+    console.error('Page rendering error:', err);
+    appContainer.innerHTML = `
+      <div style="padding: 40px; text-align: center; color: #DC2626;">
+        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Sayfa Yüklenemedi</h3>
+        <p style="font-size: 13px; color: #64748B;">${err.message || 'Bilinmeyen bir hata oluştu.'}</p>
+        <button onclick="window.location.hash='#/'" class="btn btn-primary" style="margin-top: 16px;">Ana Sayfaya Dön</button>
+      </div>
+    `;
+  } finally {
+    document.body.classList.remove('auth-gate-loading');
+  }
 }
 
 export function initRouter() {
