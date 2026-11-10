@@ -23,7 +23,7 @@ if (typeof globalThis.localStorage === 'undefined') {
   };
 }
 
-import { initI18n, getLanguage, setLanguage, getSupportedLanguages, t, tCategory, tProduct, tDepartment, tUnit, tBuilding, tMonth, tActionType } from '../public/js/utils/i18n.js';
+import { initI18n, getLanguage, setLanguage, getSupportedLanguages, t, tCategory, tProduct, tDepartment, tUnit, tBuilding, tMonth, tActionType, tRole, tUser, formatLogDetail } from '../public/js/utils/i18n.js';
 
 test('KampüsStok Çoklu Dil (i18n) Motoru Testleri', async (tSuite) => {
   localStorage.clear();
@@ -130,5 +130,11 @@ test('KampüsStok Çoklu Dil (i18n) Motoru Testleri', async (tSuite) => {
     assert.equal(tMonth(11), 'November');
     assert.equal(tActionType('GIRIS'), 'User Login');
     assert.equal(tActionType('SUNUM_INCELEME'), 'Presentation Review');
+    assert.equal(tRole('sunum'), 'Presentation Mode');
+    assert.equal(tUser('ziyaretci'), 'visitor');
+    assert.equal(formatLogDetail('Kullanıcı sisteme başarıyla giriş yaptı.'), 'User logged in to the system successfully.');
+    assert.equal(formatLogDetail('Sunum Açıldı ve İnceleniyor'), 'Presentation Opened & Under Review');
+    assert.equal(t('yonetim.allUnits'), 'All Departments');
+    assert.equal(t('yonetim.backupTabTitle'), 'System & Database Backups');
   });
 });

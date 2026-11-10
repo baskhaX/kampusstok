@@ -2,7 +2,7 @@
 import api from '../api.js';
 import toast from '../components/toast.js';
 import createModal, { confirmModal } from '../components/modal.js';
-import { t, getLanguage } from '../utils/i18n.js';
+import { t, getLanguage, tDepartment, tBuilding } from '../utils/i18n.js';
 
 function escapeHtml(str) {
   if (str === null || str === undefined) return '';
@@ -334,18 +334,18 @@ Satın Alma Müdürlüğü
               ${p.unvan ? `<span class="badge badge-neutral" style="font-size: 11px; font-weight: 700; color: #0284C7; background: rgba(2, 132, 199, 0.12); padding: 1px 8px; border-radius: 9999px;">${p.unvan}</span>` : ''}
               ${p.gorev ? `<span class="badge badge-neutral" style="font-size: 11px; padding: 1px 8px; border-radius: 9999px;">${p.gorev}</span>` : ''}
               ${p.eposta ? `<span>${p.eposta}</span>` : ''}
-              ${p.telefon ? `<span style="margin-left: 6px;">• Dahili: <strong>${p.telefon}</strong></span>` : ''}
-              ${p.hesap_id ? `<span class="badge" style="font-size: 11px; font-weight: 600; color: #059669; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 1px 8px; border-radius: 9999px;" title="Kullanıcı adı: ${escapeHtml(p.hesap_kullanici_adi || p.eposta)}">Hesap: ${escapeHtml(p.hesap_kullanici_adi || p.eposta)}</span>` : `<span class="badge" style="font-size: 11px; font-weight: 500; color: #64748B; background: rgba(100, 116, 139, 0.1); border: 1px solid rgba(148, 163, 184, 0.25); padding: 1px 8px; border-radius: 9999px;">Hesap Yok</span>`}
+              ${p.telefon ? `<span style="margin-left: 6px;">• ${t('common.ext', 'Dahili')}: <strong>${p.telefon}</strong></span>` : ''}
+              ${p.hesap_id ? `<span class="badge" style="font-size: 11px; font-weight: 600; color: #059669; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 1px 8px; border-radius: 9999px;" title="Kullanıcı adı: ${escapeHtml(p.hesap_kullanici_adi || p.eposta)}">${t('rehber.hasAccount', 'Giriş Hesabı Var')}: ${escapeHtml(p.hesap_kullanici_adi || p.eposta)}</span>` : `<span class="badge" style="font-size: 11px; font-weight: 500; color: #64748B; background: rgba(100, 116, 139, 0.1); border: 1px solid rgba(148, 163, 184, 0.25); padding: 1px 8px; border-radius: 9999px;">${t('rehber.noAccount', 'Hesap Yok')}</span>`}
             </div>
           </div>
         </div>
         <div class="tree-meta">
           <div class="tree-actions" style="display: flex; gap: 6px;">
             <button class="btn btn-outline btn-sm btn-personel-sifre-outlook" data-id="${p.id}" data-name="${cleanName}" data-email="${p.eposta || ''}" style="font-size: 11px; padding: 4px 8px; color: #2563eb; border-color: #93c5fd; background: rgba(239, 246, 255, 0.7); display: inline-flex; align-items: center; gap: 4px;" title="Şifreyi sıfırla ve Outlook ile bildirim gönder">
-              Şifre ve Outlook
+              ${t('rehber.pwdOutlook', 'Şifre ve Outlook')}
             </button>
-            <button class="btn btn-secondary btn-sm btn-personel-duzenle" data-id="${p.id}" style="font-size: 12px; padding: 4px 10px;">Düzenle</button>
-            <button class="btn btn-secondary btn-sm btn-personel-sil" data-id="${p.id}" data-name="${cleanName}" style="font-size: 12px; padding: 4px 10px; color: #DC2626;">Sil</button>
+            <button class="btn btn-secondary btn-sm btn-personel-duzenle" data-id="${p.id}" style="font-size: 12px; padding: 4px 10px;">${t('common.edit', 'Düzenle')}</button>
+            <button class="btn btn-secondary btn-sm btn-personel-sil" data-id="${p.id}" data-name="${cleanName}" style="font-size: 12px; padding: 4px 10px; color: #DC2626;">${t('common.delete', 'Sil')}</button>
           </div>
         </div>
       </div>
@@ -438,27 +438,27 @@ Satın Alma Müdürlüğü
                           ${cleanName}
                         </div>
                         <div style="font-size: 12px; color: #2563eb; font-weight: 700; margin-top: 2px;">
-                          ${escapeHtml(p.birim_adi)}
+                          ${escapeHtml(tDepartment(p.birim_adi))}
                         </div>
                         <div style="font-size: 11.5px; color: var(--text-dim); margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center;">
                           ${p.unvan ? `<span class="badge badge-neutral" style="font-size: 10.5px; font-weight: 700; color: #0284C7; background: rgba(2, 132, 199, 0.12); padding: 1px 7px;">${escapeHtml(p.unvan)}</span>` : ''}
                           ${p.gorev ? `<span class="badge badge-neutral" style="font-size: 10.5px; padding: 1px 7px;">${escapeHtml(p.gorev)}</span>` : ''}
-                          ${p.hesap_id ? `<span class="badge" style="font-size: 10.5px; font-weight: 600; color: #059669; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 1px 7px; border-radius: 9999px;">Giriş Hesabı Var</span>` : `<span class="badge" style="font-size: 10.5px; font-weight: 500; color: #64748B; background: rgba(100, 116, 139, 0.1); border: 1px solid rgba(148, 163, 184, 0.25); padding: 1px 7px; border-radius: 9999px;">Hesap Yok</span>`}
+                          ${p.hesap_id ? `<span class="badge" style="font-size: 10.5px; font-weight: 600; color: #059669; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 1px 7px; border-radius: 9999px;">${t('rehber.hasAccount', 'Giriş Hesabı Var')}</span>` : `<span class="badge" style="font-size: 10.5px; font-weight: 500; color: #64748B; background: rgba(100, 116, 139, 0.1); border: 1px solid rgba(148, 163, 184, 0.25); padding: 1px 7px; border-radius: 9999px;">${t('rehber.noAccount', 'Hesap Yok')}</span>`}
                         </div>
                         <div style="font-size: 12px; color: #475569; margin-top: 6px; display: flex; flex-direction: column; gap: 2px;">
                           ${p.eposta ? `<span>${escapeHtml(p.eposta)}</span>` : ''}
-                          ${p.telefon ? `<span>Dahili: <strong>${escapeHtml(p.telefon)}</strong></span>` : ''}
-                          ${(p.bina_adi || p.oda_no) ? `<span>${escapeHtml([p.bina_adi, p.oda_no ? 'Oda: ' + p.oda_no : ''].filter(Boolean).join(' • '))}</span>` : ''}
+                          ${p.telefon ? `<span>${t('common.ext', 'Dahili')}: <strong>${escapeHtml(p.telefon)}</strong></span>` : ''}
+                          ${(p.bina_adi || p.oda_no) ? `<span>${escapeHtml([p.bina_adi ? tBuilding(p.bina_adi) : '', p.oda_no ? t('common.room', 'Oda') + ' ' + p.oda_no : ''].filter(Boolean).join(' • '))}</span>` : ''}
                         </div>
                       </div>
                     </div>
 
                     <div style="display: flex; justify-content: flex-end; gap: 6px; border-top: 1px solid #f1f5f9; padding-top: 10px;">
                       <button class="btn btn-outline btn-sm btn-personel-sifre-outlook" data-id="${p.id}" data-name="${cleanName}" data-email="${p.eposta || ''}" style="font-size: 11px; padding: 4px 8px; color: #2563eb; border-color: #93c5fd; background: rgba(239, 246, 255, 0.7); display: inline-flex; align-items: center; gap: 4px;" title="Şifreyi sıfırla ve Outlook ile bildirim gönder">
-                        Şifre ve Outlook
+                        ${t('rehber.pwdOutlook', 'Şifre ve Outlook')}
                       </button>
-                      <button class="btn btn-secondary btn-sm btn-personel-duzenle" data-id="${p.id}" style="font-size: 11px; padding: 4px 8px;">Düzenle</button>
-                      <button class="btn btn-secondary btn-sm btn-personel-sil" data-id="${p.id}" data-name="${cleanName}" style="font-size: 11px; padding: 4px 8px; color: #DC2626;">Sil</button>
+                      <button class="btn btn-secondary btn-sm btn-personel-duzenle" data-id="${p.id}" style="font-size: 11px; padding: 4px 8px;">${t('common.edit', 'Düzenle')}</button>
+                      <button class="btn btn-secondary btn-sm btn-personel-sil" data-id="${p.id}" data-name="${cleanName}" style="font-size: 11px; padding: 4px 8px; color: #DC2626;">${t('common.delete', 'Sil')}</button>
                     </div>
                   </div>
                 `;
@@ -520,30 +520,30 @@ Satın Alma Müdürlüğü
               </div>
               <div class="tree-content">
                 <div class="tree-title" style="font-size: 15px; font-weight: 700; color: #0F172A;">
-                  ${root.ad}
+                  ${escapeHtml(tDepartment(root.ad))}
                 </div>
                 <div class="tree-desc" style="font-size: 12px; color: var(--text-dim); margin-top: 2px;">
-                  ${rootTotal} Kayıtlı Personel • ${root.altBirimler?.length || 0} Bağlı Birim
+                  ${rootTotal} ${getLanguage() === 'en' ? 'Staff' : 'Kayıtlı Personel'} • ${root.altBirimler?.length || 0} ${getLanguage() === 'en' ? 'Sub-units' : 'Bağlı Birim'}
                 </div>
               </div>
             </div>
             <div class="tree-meta" style="display: flex; align-items: center; gap: 8px;">
-              <div class="unit-toggle-control btn-unit-durum-toggle" data-birim-id="${root.id}" data-birim-ad="${escapeHtml(root.ad)}" data-aktif="${root.aktif ? '1' : '0'}" style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px 10px; border-radius: 9999px; background: rgba(241, 245, 249, 0.7); border: 1px solid rgba(203, 213, 225, 0.6); user-select: none;" title="${root.aktif ? 'Kırtasiye talebine açık (kapatmak için switch\'i kaydırın)' : 'Kırtasiye talebine kapalı (açmak için switch\'i kaydırın)'}">
+              <div class="unit-toggle-control btn-unit-durum-toggle" data-birim-id="${root.id}" data-birim-ad="${escapeHtml(root.ad)}" data-aktif="${root.aktif ? '1' : '0'}" style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px 10px; border-radius: 9999px; background: rgba(241, 245, 249, 0.7); border: 1px solid rgba(203, 213, 225, 0.6); user-select: none;">
                 <div class="mini-settings-switch is-success ${root.aktif ? 'is-on' : 'is-off'}">
                   <div class="mini-switch-handle"></div>
                 </div>
                 <span style="font-size: 11.5px; font-weight: 700; color: ${root.aktif ? '#047857' : '#64748B'};">
-                  ${root.aktif ? 'Talebe Açık' : 'Talebe Kapalı'}
+                  ${root.aktif ? (getLanguage() === 'en' ? 'Active' : 'Talebe Açık') : (getLanguage() === 'en' ? 'Closed' : 'Talebe Kapalı')}
                 </span>
               </div>
               <button class="btn btn-secondary btn-sm btn-birim-duzenle" data-birim-id="${root.id}" style="font-size: 12px; padding: 4px 10px;">
-                Düzenle
+                ${t('common.edit', 'Düzenle')}
               </button>
               <button class="btn btn-secondary btn-sm btn-tree-kisi-ekle" data-birim-id="${root.id}" style="font-size: 12px; padding: 4px 10px;">
-                + Kişi Ekle
+                ${getLanguage() === 'en' ? '+ Add Staff' : '+ Kişi Ekle'}
               </button>
               <button class="btn btn-secondary btn-sm btn-toggle-unit" data-target="unit-children-${root.id}" style="font-size: 12px; padding: 4px 10px;">
-                ${isRootExpanded ? 'Daralt' : 'Genişlet'}
+                ${isRootExpanded ? (getLanguage() === 'en' ? 'Collapse' : 'Daralt') : (getLanguage() === 'en' ? 'Expand' : 'Genişlet')}
               </button>
             </div>
           </div>
@@ -598,30 +598,30 @@ Satın Alma Müdürlüğü
               </div>
               <div class="tree-content">
                 <div class="tree-title" style="font-weight: 700; font-size: 13.5px; color: #0F172A;">
-                  ${sub.ad}
+                  ${escapeHtml(tDepartment(sub.ad))}
                 </div>
                 <div class="tree-desc" style="font-size: 12px; color: var(--text-dim); margin-top: 2px;">
-                  ${subTotal} Personel ${subSubUnits.length > 0 ? `• ${subSubUnits.length} Bölüm` : ''}
+                  ${subTotal} ${getLanguage() === 'en' ? 'Staff' : 'Personel'} ${subSubUnits.length > 0 ? `• ${subSubUnits.length} ${getLanguage() === 'en' ? 'Departments' : 'Bölüm'}` : ''}
                 </div>
               </div>
             </div>
             <div class="tree-meta" style="display: flex; gap: 8px; align-items: center;">
-              <div class="unit-toggle-control btn-unit-durum-toggle" data-birim-id="${sub.id}" data-birim-ad="${escapeHtml(sub.ad)}" data-aktif="${sub.aktif ? '1' : '0'}" style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px 10px; border-radius: 9999px; background: rgba(241, 245, 249, 0.7); border: 1px solid rgba(203, 213, 225, 0.6); user-select: none;" title="${sub.aktif ? 'Kırtasiye talebine açık (kapatmak için switch\'i kaydırın)' : 'Kırtasiye talebine kapalı (açmak için switch\'i kaydırın)'}">
+              <div class="unit-toggle-control btn-unit-durum-toggle" data-birim-id="${sub.id}" data-birim-ad="${escapeHtml(sub.ad)}" data-aktif="${sub.aktif ? '1' : '0'}" style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px 10px; border-radius: 9999px; background: rgba(241, 245, 249, 0.7); border: 1px solid rgba(203, 213, 225, 0.6); user-select: none;">
                 <div class="mini-settings-switch is-success ${sub.aktif ? 'is-on' : 'is-off'}">
                   <div class="mini-switch-handle"></div>
                 </div>
                 <span style="font-size: 11px; font-weight: 700; color: ${sub.aktif ? '#047857' : '#64748B'};">
-                  ${sub.aktif ? 'Talebe Açık' : 'Talebe Kapalı'}
+                  ${sub.aktif ? (getLanguage() === 'en' ? 'Active' : 'Talebe Açık') : (getLanguage() === 'en' ? 'Closed' : 'Talebe Kapalı')}
                 </span>
               </div>
               <button class="btn btn-secondary btn-sm btn-birim-duzenle" data-birim-id="${sub.id}" style="font-size: 12px; padding: 4px 10px;">
-                Düzenle
+                ${t('common.edit', 'Düzenle')}
               </button>
               <button class="btn btn-secondary btn-sm btn-tree-kisi-ekle" data-birim-id="${sub.id}" style="font-size: 12px; padding: 4px 10px;">
-                + Kişi Ekle
+                ${getLanguage() === 'en' ? '+ Add Staff' : '+ Kişi Ekle'}
               </button>
               <button class="btn btn-secondary btn-sm btn-toggle-unit" data-target="sub-children-${sub.id}" style="font-size: 12px; padding: 4px 10px;">
-                ${isSubExpanded ? 'Daralt' : 'Genişlet'}
+                ${isSubExpanded ? (getLanguage() === 'en' ? 'Collapse' : 'Daralt') : (getLanguage() === 'en' ? 'Expand' : 'Genişlet')}
               </button>
             </div>
           </div>
@@ -659,30 +659,30 @@ Satın Alma Müdürlüğü
                 </div>
                 <div class="tree-content">
                   <div class="tree-title" style="font-weight: 600; font-size: 13px; color: #0F172A;">
-                    ${dept.ad}
+                    ${escapeHtml(tDepartment(dept.ad))}
                   </div>
                   <div class="tree-desc" style="font-size: 11.5px; color: var(--text-dim); margin-top: 2px;">
-                    ${deptTotal} Kayıtlı Personel
+                    ${deptTotal} ${getLanguage() === 'en' ? 'Staff' : 'Kayıtlı Personel'}
                   </div>
                 </div>
               </div>
               <div class="tree-meta" style="display: flex; gap: 8px; align-items: center;">
-                <div class="unit-toggle-control btn-unit-durum-toggle" data-birim-id="${dept.id}" data-birim-ad="${escapeHtml(dept.ad)}" data-aktif="${dept.aktif ? '1' : '0'}" style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; padding: 3px 8px; border-radius: 9999px; background: rgba(241, 245, 249, 0.7); border: 1px solid rgba(203, 213, 225, 0.6); user-select: none;" title="${dept.aktif ? 'Kırtasiye talebine açık (kapatmak için switch\'i kaydırın)' : 'Kırtasiye talebine kapalı (açmak için switch\'i kaydırın)'}">
+                <div class="unit-toggle-control btn-unit-durum-toggle" data-birim-id="${dept.id}" data-birim-ad="${escapeHtml(dept.ad)}" data-aktif="${dept.aktif ? '1' : '0'}" style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; padding: 3px 8px; border-radius: 9999px; background: rgba(241, 245, 249, 0.7); border: 1px solid rgba(203, 213, 225, 0.6); user-select: none;">
                   <div class="mini-settings-switch is-success ${dept.aktif ? 'is-on' : 'is-off'}" style="transform: scale(0.9); transform-origin: center;">
                     <div class="mini-switch-handle"></div>
                   </div>
                   <span style="font-size: 10.5px; font-weight: 700; color: ${dept.aktif ? '#047857' : '#64748B'};">
-                    ${dept.aktif ? 'Açık' : 'Kapalı'}
+                    ${dept.aktif ? (getLanguage() === 'en' ? 'Active' : 'Açık') : (getLanguage() === 'en' ? 'Closed' : 'Kapalı')}
                   </span>
                 </div>
                 <button class="btn btn-secondary btn-sm btn-birim-duzenle" data-birim-id="${dept.id}" style="font-size: 11px; padding: 3px 8px;">
-                  Düzenle
+                  ${t('common.edit', 'Düzenle')}
                 </button>
                 <button class="btn btn-secondary btn-sm btn-tree-kisi-ekle" data-birim-id="${dept.id}" style="font-size: 11.5px; padding: 3px 8px;">
-                  + Kişi Ekle
+                  ${getLanguage() === 'en' ? '+ Add Staff' : '+ Kişi Ekle'}
                 </button>
                 <button class="btn btn-secondary btn-sm btn-toggle-unit" data-target="dept-children-${dept.id}" style="font-size: 11.5px; padding: 3px 8px;">
-                  ${isDeptExpanded ? 'Daralt' : 'Genişlet'}
+                  ${isDeptExpanded ? (getLanguage() === 'en' ? 'Collapse' : 'Daralt') : (getLanguage() === 'en' ? 'Expand' : 'Genişlet')}
                 </button>
               </div>
             </div>

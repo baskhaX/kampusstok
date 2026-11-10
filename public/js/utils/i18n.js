@@ -320,7 +320,61 @@ const DICTIONARIES = {
       scanModalSub: 'Barkod Okuyucu Tabanca ile Okutun',
       scanModalDesc: 'Barkod okuyucu tabancayı doğrudan bu pencere açıkken tetiğe basarak kullanabilirsiniz veya 13 haneli barkodu yazabilirsiniz.',
       barcodeLabel: 'Barkod Numarası (EAN-13):',
-      queryBarcodeBtn: 'Barkodu Bul ve Getir'
+      queryBarcodeBtn: 'Barkodu Bul ve Getir',
+      allUnits: 'Tüm Birimler',
+      adminUnits: 'İdari Birimler',
+      academicUnits: 'Akademik Birimler',
+      researchCenters: 'Araştırma Merkezleri',
+      searchUnitPlaceholder: 'Birim adı veya türü ara...',
+      colUnitName: 'Birim Adı',
+      colCategoryType: 'Kategori & Tür',
+      colParentUnit: 'Bağlı Olduğu Üst Birim',
+      colFullName: 'Ad Soyad',
+      colTitleRole: 'Unvan / Görev',
+      colCorporateEmail: 'Kurumsal E-posta',
+      colBuildingRoom: 'Bina & Oda',
+      colAccountStatus: 'Hesap Durumu',
+      facultyDeansOffice: 'Fakülte Dekanlığı',
+      academicDept: 'Bölüm',
+      researchCenter: 'Araştırma Merkezi',
+      adminDept: 'İdari Birim',
+      open: 'Açık',
+      closed: 'Kapalı',
+      resetPassword: 'Şifre Sıfırla',
+      directoryAccountsTitle: 'Rehber Personeline Bireysel Hesap Tanımlama & E-posta Bildirimi',
+      directoryAccountsSub: 'Kurumsal rehberdeki personele otomatik kullanıcı hesabı açın ve ilk giriş davet e-postasını gönderin.',
+      staffGroup: 'Personel Grubu:',
+      allStaff: 'Tümü',
+      adminStaff: 'İdari Personel',
+      academicStaff: 'Akademik Personel',
+      deptFilter: 'Birim Filtresi:',
+      allOrgWide: 'Tüm Kurum Geneli',
+      searchStaffPlaceholder: 'İsim, unvan veya e-posta...',
+      excludeExecManagement: 'Üst Yönetimi Hariç Tut (Rektör, Dekan vb.)',
+      provisionSelectedAccounts: 'Seçilenlere Hesap Aç & Şifre E-postası Gönder',
+      colParentCategory: 'Üst Kategori',
+      colProductCount: 'Ürün Sayısı',
+      colOrder: 'Sıra',
+      mainCategoryBadge: 'Ana Kategori',
+      subCategoryBadge: 'Alt Kategori',
+      addCategory: 'Yeni Kategori Ekle',
+      categoryTreeSub: 'Katalog hiyerarşisini, ana kategorileri ve alt kategorileri düzenleyin.',
+      backupTabTitle: 'Sistem ve Veritabanı Yedekleri',
+      backupTabSub: 'Sistem kesintisiz SQLite online backup yöntemiyle sıcak yedek alır ve son 14 yedeği saklar.',
+      takeBackupNow: 'Şimdi Sıcak Yedek Al',
+      zeroDataLossGuarantee: 'Sıfır Veri Kaybı Güvencesi:',
+      zeroDataLossSub: 'Bir yedeği geri yüklediğiniz anda sistem anlık bir acil durum güvenlik yedeği alır.',
+      colBackupFile: 'Yedek Dosyası',
+      colBackupType: 'Yedek Türü',
+      colBackupSize: 'Boyut',
+      colBackupDate: 'Yedekleme Tarihi',
+      restore: 'Geri Yükle',
+      download: 'İndir',
+      stockInBadge: 'Giriş',
+      stockOutBadge: 'Çıkış',
+      stockAdjustBadge: 'Düzeltme',
+      noMovementsFound: 'Kriterlere uygun stok hareketi bulunamadı.',
+      initialStockLabel: 'Başlangıç Depo Stoğu'
     },
     loglar: {
       title: 'Denetim Logları & Sistem İzleri',
@@ -330,6 +384,7 @@ const DICTIONARIES = {
       presentationStatus: 'Sunum İnceleme Durumu',
       liveTestLogins: 'CANLI SİSTEM TEST GİRİŞLERİ',
       todayViewsCount: 'BUGÜN SUNUM AÇILIŞ SAYISI',
+      radarSessions: 'Genel Sekreterlik / Komisyon oturumları',
       auditLogsTitle: 'Sistem Denetim İzleri (Audit Logs)',
       auditLogsSub: 'Kullanıcı girişleri, şifre/adres güncellemeleri, toplu stok değişiklikleri ve yönetimsel işlemlerin kayıtları.',
       colDate: 'TARİH / SAAT',
@@ -340,7 +395,11 @@ const DICTIONARIES = {
       colDetail: 'DETAY',
       optAllActions: 'Tüm İşlem Türleri',
       optDeptActions: 'Birim Hareketleri',
-      refresh: 'Yenile'
+      refresh: 'Yenile',
+      noSunumYet: 'Henüz Sunum Açılmadı',
+      noSunumYetSub: 'Canlı link tıklandığında anlık buraya düşecektir.',
+      noTestYet: 'Henüz Test Girişi Yok',
+      noTestYetSub: 'Ktest veya Atest ile giriş yapıldığında listelenir.'
     },
     raporlar: {
       title: 'Raporlar & Canlı Tüketim Analizi',
@@ -778,27 +837,86 @@ const DICTIONARIES = {
       scanModalSub: 'Scan with Barcode Gun',
       scanModalDesc: 'Pull the trigger on your hardware barcode scanner while this dialog is open or type the 13-digit barcode.',
       barcodeLabel: 'Barcode Number (EAN-13):',
-      queryBarcodeBtn: 'Lookup Barcode'
+      queryBarcodeBtn: 'Lookup Barcode',
+      allUnits: 'All Departments',
+      adminUnits: 'Administrative Directorates',
+      academicUnits: 'Academic Faculties & Departments',
+      researchCenters: 'Application & Research Centers',
+      searchUnitPlaceholder: 'Search department name or type...',
+      colUnitName: 'DEPARTMENT NAME',
+      colCategoryType: 'CATEGORY & TYPE',
+      colParentUnit: 'PARENT DEPARTMENT',
+      colFullName: 'FULL NAME',
+      colTitleRole: 'TITLE & POSITION',
+      colCorporateEmail: 'OFFICIAL EMAIL',
+      colBuildingRoom: 'BUILDING & ROOM',
+      colAccountStatus: 'ACCOUNT STATUS',
+      facultyDeansOffice: "Faculty Dean's Office",
+      academicDept: 'Academic Department',
+      researchCenter: 'Research Center',
+      adminDept: 'Administrative Unit',
+      open: 'Active',
+      closed: 'Closed',
+      resetPassword: 'Reset Password',
+      directoryAccountsTitle: 'Staff Account Provisioning & Email Notifications',
+      directoryAccountsSub: 'Provision user accounts for directory personnel and send temporary password invitation emails.',
+      staffGroup: 'Staff Group:',
+      allStaff: 'All Staff',
+      adminStaff: 'Administrative Staff',
+      academicStaff: 'Academic Staff',
+      deptFilter: 'Department Filter:',
+      allOrgWide: 'Organization-Wide',
+      searchStaffPlaceholder: 'Search name, title or email...',
+      excludeExecManagement: 'Exclude Executive Management (Leadership)',
+      provisionSelectedAccounts: 'Provision Accounts & Send Passwords',
+      colParentCategory: 'PARENT CATEGORY',
+      colProductCount: 'ITEM COUNT',
+      colOrder: 'ORDER',
+      mainCategoryBadge: 'Main Category',
+      subCategoryBadge: 'Subcategory',
+      addCategory: 'Add Category',
+      categoryTreeSub: 'Manage catalog hierarchy, root categories, and subcategories.',
+      backupTabTitle: 'System & Database Backups',
+      backupTabSub: 'Automated online zero-downtime hot backups preserved with rolling 14-day retention.',
+      takeBackupNow: 'Create Live Backup Now',
+      zeroDataLossGuarantee: 'Zero Data Loss Guarantee:',
+      zeroDataLossSub: 'An automated safety pre-restore backup is always recorded prior to restoration.',
+      colBackupFile: 'BACKUP FILE',
+      colBackupType: 'BACKUP TYPE',
+      colBackupSize: 'SIZE',
+      colBackupDate: 'BACKUP DATE',
+      restore: 'Restore',
+      download: 'Download',
+      stockInBadge: 'Receipt',
+      stockOutBadge: 'Dispatched',
+      stockAdjustBadge: 'Adjustment',
+      noMovementsFound: 'No stock movements match your criteria.',
+      initialStockLabel: 'Initial Stock Balance'
     },
     loglar: {
       title: 'Audit Trail Logs & System Records',
       subtitle: 'Official compliance logs for approvals, delivery receipts, inventory movements, logins, and security events.',
-      radarTitle: 'LIVE MONITORING & AUDIT RADAR (Oversight & Telemetry)',
-      listeningMode: 'Active Listening Mode',
-      presentationStatus: 'Presentation View Status',
-      liveTestLogins: 'LIVE SYSTEM TEST ACTIVITY',
-      todayViewsCount: 'TODAY PRESENTATION VIEWS',
-      auditLogsTitle: 'System Audit Logs',
-      auditLogsSub: 'Logs of user sessions, password updates, bulk stock modifications, and administrative operations.',
+      radarTitle: 'LIVE TELEMETRY & TEST RADAR (Executive & Commission)',
+      listeningMode: 'Active Telemetry Stream',
+      presentationStatus: 'PRESENTATION REVIEW STATUS',
+      liveTestLogins: 'LIVE SYSTEM TEST LOGINS',
+      todayViewsCount: 'PRESENTATION SESSIONS TODAY',
+      radarSessions: 'Executive & Commission review sessions',
+      auditLogsTitle: 'System Audit Trail & Telemetry Logs',
+      auditLogsSub: 'Official compliance log of sign-ins, security credentials, bulk inventory updates, and administrative events.',
       colDate: 'DATE / TIME',
-      colActionType: 'ACTION TYPE',
+      colActionType: 'EVENT TYPE',
       colUser: 'USER / ACCOUNT',
       colRole: 'ROLE',
       colIp: 'IP ADDRESS',
       colDetail: 'DETAILS',
-      optAllActions: 'All Action Types',
+      optAllActions: 'All Event Types',
       optDeptActions: 'Department Actions',
-      refresh: 'Refresh'
+      refresh: 'Refresh',
+      noSunumYet: 'No Presentations Viewed Yet',
+      noSunumYetSub: 'Real-time telemetry will appear when the live link is clicked.',
+      noTestYet: 'No Test Logins Yet',
+      noTestYetSub: 'Listed when logging in with ktest or atest.'
     },
     raporlar: {
       title: 'Reports & Live Consumption Analytics',
@@ -1183,10 +1301,77 @@ export const ACTION_TYPE_MAP = {
   'STOK_HAREKET': { en: 'Stock Movement', tr: 'Stok Hareketi' },
   'STOK_GIRIS': { en: 'Stock Receipt', tr: 'Stok Girişi' },
   'STOK_GUNCELLE': { en: 'Stock Update', tr: 'Stok Güncelleme' },
+  'SIFREMI_UNUTTUM': { en: 'Password Reset Request', tr: 'Şifremi Unuttum Talebi' },
   'SIFRE_GUNCELLEME': { en: 'Password Changed', tr: 'Şifre Güncelleme' },
+  'SIFRE_VE_ADRES_GUNCELLEME': { en: 'Credentials & Address Updated', tr: 'Şifre ve Adres Güncelleme' },
+  'TOPLU_STOK_GUNCELLEME': { en: 'Bulk Inventory Update', tr: 'Toplu Stok Güncelleme' },
+  'TOPLU_HESAP_ACMA': { en: 'Bulk Account Creation', tr: 'Toplu Hesap Açma' },
+  'BIRIM_DURUM_DEGISTIRILDI': { en: 'Department Status Toggled', tr: 'Birim Durumu Değiştirildi' },
+  'BIRIM_SILINDI': { en: 'Department Deleted', tr: 'Birim Silindi' },
+  'BIRIM_EKLENDI': { en: 'Department Created', tr: 'Birim Eklendi' },
+  'BIRIM_GUNCELLENDI': { en: 'Department Updated', tr: 'Birim Güncellendi' },
+  'PERSONEL_EKLENDI': { en: 'Staff Added', tr: 'Personel Eklendi' },
+  'PERSONEL_GUNCELLENDI': { en: 'Staff Updated', tr: 'Personel Güncellendi' },
+  'PERSONEL_SILINDI': { en: 'Staff Removed', tr: 'Personel Silindi' },
+  'YEDEK_ALINDI': { en: 'System Backup Created', tr: 'Sistem Yedeği Alındı' },
+  'YEDEK_GERI_YUKLENDI': { en: 'System Restored from Backup', tr: 'Yedekten Geri Yüklendi' },
   'VEKALET_VERILDI': { en: 'Delegation Assigned', tr: 'Yetki Devri Verildi' },
   'VEKALET_SONLANDI': { en: 'Delegation Ended', tr: 'Yetki Devri Sona Erdi' }
 };
+
+export function tRole(role) {
+  if (!role) return '-';
+  const lang = currentLang === 'en' ? 'en' : 'tr';
+  const map = {
+    'admin': { en: 'System Administrator', tr: 'Sistem Yöneticisi' },
+    'yapici': { en: 'System Architect', tr: 'Sistem Mimarı' },
+    'satin_alma': { en: 'Procurement Directorate', tr: 'Satın Alma Müdürlüğü' },
+    'birim': { en: 'Department User', tr: 'Birim Kullanıcısı' },
+    'sunum': { en: 'Presentation Mode', tr: 'Sunum İnceleme' },
+    'ziyaretci': { en: 'Guest Visitor', tr: 'Ziyaretçi' }
+  };
+  return (map[role] && map[role][lang]) || role;
+}
+
+export function tUser(username) {
+  if (!username) return '-';
+  const lang = currentLang === 'en' ? 'en' : 'tr';
+  if (username === 'ziyaretci') return lang === 'en' ? 'visitor' : 'ziyaretci';
+  if (username === 'yapici') return lang === 'en' ? 'architect' : 'yapici';
+  return username;
+}
+
+export function formatLogDetail(text) {
+  if (!text) return '-';
+  if (currentLang !== 'en') return text;
+  if (text.includes('Kullanıcı sisteme başarıyla giriş yaptı.')) {
+    return 'User logged in to the system successfully.';
+  }
+  if (text.includes('Sunum Açıldı ve İnceleniyor') || text.includes('Sunum Açıldı - İnceleme Başladı')) {
+    return 'Presentation Opened & Under Review';
+  }
+  if (text.includes('Slayt Geçişi')) {
+    return text.replace('Slayt Geçişi', 'Slide Transition')
+               .replace('Slayt', 'Slide');
+  }
+  if (text.includes('Sunum Tamamlandı')) {
+    return text.replace('Sunum Tamamlandı', 'Presentation Completed')
+               .replace('Slayt', 'Slide');
+  }
+  if (text.includes('Şifre ve teslimat adresi güncellendi')) {
+    return 'Password and delivery address successfully updated.';
+  }
+  if (text.includes('Yeni kırtasiye talebi oluşturuldu')) {
+    return 'New stationery requisition submitted.';
+  }
+  if (text.includes('Talep onaylandı')) {
+    return 'Requisition approved by procurement.';
+  }
+  if (text.includes('Talep teslim edildi')) {
+    return 'Requisition delivery confirmed.';
+  }
+  return text;
+}
 
 export function tCategory(name) {
   if (!name) return '';
@@ -1253,5 +1438,8 @@ export default {
   tBuilding,
   tMonth,
   tActionType,
+  tRole,
+  tUser,
+  formatLogDetail,
   supportedLangs: SUPPORTED_LANGS
 };

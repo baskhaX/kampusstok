@@ -3,7 +3,7 @@ import api from '../api.js';
 import toast from '../components/toast.js';
 import createModal, { confirmModal, alertModal } from '../components/modal.js';
 import { escapeHtml } from '../utils/text.js';
-import { t, getLanguage, tCategory, tProduct, tDepartment, tUnit, tBuilding, tMonth, tActionType } from '../utils/i18n.js';
+import { t, getLanguage, tCategory, tProduct, tDepartment, tUnit, tBuilding, tMonth, tActionType, tRole, tUser, formatLogDetail } from '../utils/i18n.js';
 
 let aktifTab = 'urunler';
 let seciliUrunler = new Set();
@@ -295,53 +295,53 @@ async function handleScannedBarcode(barcode, container) {
 // Barkod Hızlı Stok Giriş & Bilgi Modalı
 function openBarkodHizliStokModal(urun, container) {
   const modal = createModal({
-    title: 'Barkod Okundu: Hızlı Depo İşlemi',
+    title: t('yonetim.quickStockTitle', 'Barkod Okundu: Hızlı Depo İşlemi'),
     maxWidth: '520px',
     contentHtml: `
       <div style="display: flex; gap: 16px; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--color-border); margin-bottom: 16px;">
         <img src="${urun.gorsel_yolu || '/assets/placeholder.svg'}" 
              onerror="this.onerror=null;this.src='/assets/placeholder.svg';" 
-             alt="${urun.ad}"
+             alt="${escapeHtml(tProduct(urun.ad))}"
              style="width: 72px; height: 72px; object-fit: contain; border-radius: 10px; border: 1px solid var(--color-border); padding: 4px; background: #fff;">
         <div style="flex: 1;">
-          <h4 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 700; color: #0F172A;">${urun.ad}</h4>
+          <h4 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 700; color: #0F172A;">${escapeHtml(tProduct(urun.ad))}</h4>
           <div style="font-size: 12.5px; color: var(--color-muted-foreground); margin-bottom: 6px;">
-            ${urun.marka ? `Marka: <strong>${urun.marka}</strong> | ` : ''}Kategori: <strong>${urun.kategori_adi || '-'}</strong>
+            ${urun.marka ? `Marka: <strong>${escapeHtml(urun.marka)}</strong> | ` : ''}${t('yonetim.colCategory', 'Kategori')}: <strong>${escapeHtml(tCategory(urun.kategori_adi) || '-')}</strong>
           </div>
           <div style="display: flex; align-items: center; gap: 8px;">
-            <span class="badge-barcode">${urun.barkod || '-'}</span>
-            <span class="badge badge-neutral">${urun.olcu_birimi}</span>
+            <span class="badge-barcode">${escapeHtml(urun.barkod || '-')}</span>
+            <span class="badge badge-neutral">${tUnit(urun.olcu_birimi)}</span>
           </div>
         </div>
       </div>
 
       <div style="background: rgba(30, 58, 138, 0.05); border: 1px solid rgba(30, 58, 138, 0.15); border-radius: 12px; padding: 16px; margin-bottom: 18px; text-align: center;">
-        <div style="font-size: 12px; font-weight: 600; color: #1E3A8A; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Mevcut Depo Stoğu</div>
+        <div style="font-size: 12px; font-weight: 600; color: #1E3A8A; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">${t('yonetim.currentStockLabel', 'Mevcut Depo Stoğu')}</div>
         <div style="font-size: 36px; font-weight: 800; color: ${urun.stok <= urun.kritik_stok ? 'var(--color-destructive)' : '#1D4ED8'}; line-height: 1.1;" id="lblModalMevcutStok">
-          ${urun.stok} <span style="font-size: 16px; font-weight: 600; color: var(--color-muted-foreground);">${urun.olcu_birimi}</span>
+          ${urun.stok} <span style="font-size: 16px; font-weight: 600; color: var(--color-muted-foreground);">${tUnit(urun.olcu_birimi)}</span>
         </div>
-        ${urun.stok <= urun.kritik_stok ? `<div style="font-size: 11.5px; color: var(--color-destructive); font-weight: 600; margin-top: 4px;">Kritik Stok Seviyesinde! (Eşik: ${urun.kritik_stok})</div>` : ''}
+        ${urun.stok <= urun.kritik_stok ? `<div style="font-size: 11.5px; color: var(--color-destructive); font-weight: 600; margin-top: 4px;">${t('yonetim.criticalLevelWarning', 'Kritik Stok Seviyesinde! (Eşik: {threshold})').replace('{threshold}', urun.kritik_stok)}</div>` : ''}
       </div>
 
       <div style="margin-bottom: 16px;">
-        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 8px; color: #334155;">Hızlı Stok Arttır / Azalt:</label>
+        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 8px; color: #334155;">${t('yonetim.quickAdjustLabel', 'Hızlı Stok Arttır / Azalt:')}</label>
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
-          <button type="button" class="btn btn-outline btn-hizli-stok" data-delta="1" style="font-weight: 700; color: #16A34A;">+1 ${urun.olcu_birimi}</button>
-          <button type="button" class="btn btn-outline btn-hizli-stok" data-delta="5" style="font-weight: 700; color: #16A34A;">+5 ${urun.olcu_birimi}</button>
-          <button type="button" class="btn btn-outline btn-hizli-stok" data-delta="10" style="font-weight: 700; color: #16A34A;">+10 ${urun.olcu_birimi}</button>
-          <button type="button" class="btn btn-outline btn-hizli-stok" data-delta="-1" style="font-weight: 700; color: #DC2626;">-1 ${urun.olcu_birimi}</button>
+          <button type="button" class="btn btn-outline btn-hizli-stok" data-delta="1" style="font-weight: 700; color: #16A34A;">+1 ${tUnit(urun.olcu_birimi)}</button>
+          <button type="button" class="btn btn-outline btn-hizli-stok" data-delta="5" style="font-weight: 700; color: #16A34A;">+5 ${tUnit(urun.olcu_birimi)}</button>
+          <button type="button" class="btn btn-outline btn-hizli-stok" data-delta="10" style="font-weight: 700; color: #16A34A;">+10 ${tUnit(urun.olcu_birimi)}</button>
+          <button type="button" class="btn btn-outline btn-hizli-stok" data-delta="-1" style="font-weight: 700; color: #DC2626;">-1 ${tUnit(urun.olcu_birimi)}</button>
         </div>
       </div>
 
       <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 20px;">
-        <label style="font-size: 12.5px; font-weight: 700; white-space: nowrap; color: #334155;">Yeni Stok Belirle:</label>
+        <label style="font-size: 12.5px; font-weight: 700; white-space: nowrap; color: #334155;">${t('yonetim.setManualStockLabel', 'Yeni Stok Belirle:')}</label>
         <input type="number" id="txtModalManuelStok" value="${urun.stok}" min="0" style="flex: 1; height: 38px; font-weight: 700; text-align: center; font-size: 16px; border-radius: 8px; border: 1px solid var(--color-border);">
-        <button type="button" id="btnModalManuelStokKaydet" class="btn btn-primary" style="height: 38px;">Stoğu Kaydet</button>
+        <button type="button" id="btnModalManuelStokKaydet" class="btn btn-primary" style="height: 38px;">${t('yonetim.saveStockBtn', 'Stoğu Kaydet')}</button>
       </div>
 
       <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--color-border);">
-        <button type="button" id="btnModalTamDuzenle" class="btn btn-outline btn-sm">Tüm Bilgileri Düzenle</button>
-        <button type="button" id="btnModalKapat" class="btn btn-outline btn-sm">Kapat (Esc)</button>
+        <button type="button" id="btnModalTamDuzenle" class="btn btn-outline btn-sm">${t('yonetim.editAllBtn', 'Tüm Bilgileri Düzenle')}</button>
+        <button type="button" id="btnModalKapat" class="btn btn-outline btn-sm">${t('common.close', 'Kapat (Esc)')}</button>
       </div>
     `
   });
@@ -421,30 +421,30 @@ function openBarkodHizliStokModal(urun, container) {
 // Barkod Tara / Okut Arama Modalı
 function openBarkodTaraModal(container) {
   const modal = createModal({
-    title: 'Barkod Tara / Manuel Barkod Sorgula',
+    title: t('yonetim.scanModalTitle', 'Barkod Tara / Manuel Barkod Sorgula'),
     maxWidth: '480px',
     contentHtml: `
       <div style="text-align: center; margin-bottom: 20px;">
         <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: rgba(37, 99, 235, 0.1); color: #1D4ED8; font-size: 13px; font-weight: 700; margin-bottom: 12px;">
           BARKOD
         </div>
-        <h4 style="margin: 0 0 6px 0; font-size: 16px; font-weight: 700; color: #0F172A;">Barkod Tabancası ile Okutun</h4>
+        <h4 style="margin: 0 0 6px 0; font-size: 16px; font-weight: 700; color: #0F172A;">${t('yonetim.scanModalSub', 'Barkod Tabancası ile Okutun')}</h4>
         <p style="font-size: 13px; color: var(--color-muted-foreground); margin: 0;">
-          Barkod okuyucu tabancayı doğrudan bu pencere açıkken tetiğe basarak kullanabilirsiniz veya 13 haneli barkodu yazabilirsiniz.
+          ${t('yonetim.scanModalDesc', 'Barkod okuyucu tabancayı doğrudan bu pencere açıkken tetiğe basarak kullanabilirsiniz veya 13 haneli barkodu yazabilirsiniz.')}
         </p>
       </div>
 
       <form id="barkodSorguForm" style="display: flex; flex-direction: column; gap: 14px;">
         <div>
-          <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px; color: #334155;">Barkod Numarası (EAN-13):</label>
+          <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px; color: #334155;">${t('yonetim.barcodeLabel', 'Barkod Numarası (EAN-13):')}</label>
           <div style="position: relative;">
             <input type="text" id="barkodModalInput" autofocus placeholder="8692026..." style="width: 100%; height: 44px; font-size: 16px; font-family: monospace; font-weight: 700; letter-spacing: 0.05em; padding: 0 14px; border-radius: 10px; border: 2px solid #2563EB;">
           </div>
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
-          <button type="button" class="btn btn-outline" id="btnBarkodIptal">Kapat</button>
-          <button type="submit" class="btn btn-primary" id="btnBarkodSorgula">Barkodu Bul ve Getir</button>
+          <button type="button" class="btn btn-outline" id="btnBarkodIptal">${t('common.close', 'Kapat')}</button>
+          <button type="submit" class="btn btn-primary" id="btnBarkodSorgula">${t('yonetim.queryBarcodeBtn', 'Barkodu Bul ve Getir')}</button>
         </div>
       </form>
     `
@@ -616,7 +616,7 @@ async function renderUrunlerTab(container, targetUrunId = null) {
     const treeBadgeAll = container.querySelector('#treeBadgeAll');
     const treeUl = container.querySelector('#depoKategoriTreeUl');
 
-    if (toplamBadge) toplamBadge.textContent = `${tumUrunlerCache.length} Ürün`;
+    if (toplamBadge) toplamBadge.textContent = `${tumUrunlerCache.length} ${getLanguage() === 'en' ? 'Items' : 'Ürün'}`;
     if (treeBadgeAll) treeBadgeAll.textContent = tumUrunlerCache.length;
 
     // Kategori Ağacı HTML Oluşturma
@@ -627,7 +627,7 @@ async function renderUrunlerTab(container, targetUrunId = null) {
       let treeHtml = `
         <li>
           <button class="depo-tree-root-btn ${aktifKategoriFilter.type === 'all' ? 'active' : ''}" data-cat-type="all">
-            <span>Tüm Ürünler</span>
+            <span>${t('yonetim.allProducts', 'Tüm Ürünler')}</span>
             <span class="tree-badge">${tumUrunlerCache.length}</span>
           </button>
         </li>
@@ -729,7 +729,7 @@ async function renderUrunlerTab(container, targetUrunId = null) {
     const updateTopluBar = () => {
       if (seciliUrunler.size > 0) {
         topluBar.style.display = 'flex';
-        seciliMetin.textContent = `${seciliUrunler.size} ürün seçildi`;
+        seciliMetin.textContent = `${seciliUrunler.size} ${t('yonetim.selectedItems', 'ürün seçildi')}`;
       } else {
         topluBar.style.display = 'none';
       }
@@ -1679,7 +1679,7 @@ async function renderStokTab(container) {
     });
 
     if (filtered.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--color-muted-foreground);">Kriterlere uygun stok hareketi bulunamadı.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--color-muted-foreground);">${t('yonetim.noMovementsFound', 'Kriterlere uygun stok hareketi bulunamadı.')}</td></tr>`;
       return;
     }
 
@@ -1819,20 +1819,20 @@ async function renderBirimlerTab(container) {
     <!-- Birimler Kategori Filtre Butonları (Rehberdeki Gibi) -->
     <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 14px; flex-wrap: wrap;">
       <button class="btn btn-sm btn-birim-kat active" data-kat="tumu" style="border-radius: 9999px; padding: 6px 16px; font-weight: 600;">
-        Tüm Birimler (${birimler.length})
+        ${t('yonetim.allUnits', 'Tüm Birimler')} (${birimler.length})
       </button>
       <button class="btn btn-sm btn-outline btn-birim-kat" data-kat="idari" style="border-radius: 9999px; padding: 6px 16px; font-weight: 600;">
-        İdari Birimler (${idariBirimler.length})
+        ${t('yonetim.adminUnits', 'İdari Birimler')} (${idariBirimler.length})
       </button>
       <button class="btn btn-sm btn-outline btn-birim-kat" data-kat="akademik" style="border-radius: 9999px; padding: 6px 16px; font-weight: 600;">
-        Akademik Birimler (${akademikBirimler.length})
+        ${t('yonetim.academicUnits', 'Akademik Birimler')} (${akademikBirimler.length})
       </button>
       <button class="btn btn-sm btn-outline btn-birim-kat" data-kat="merkezler" style="border-radius: 9999px; padding: 6px 16px; font-weight: 600;">
-        Araştırma Merkezleri (${merkezBirimler.length})
+        ${t('yonetim.researchCenters', 'Araştırma Merkezleri')} (${merkezBirimler.length})
       </button>
 
       <div style="margin-left: auto;">
-        <input type="text" id="birimTabloArama" placeholder="Birim adı veya türü ara..." style="width: 240px; padding: 6px 12px; font-size: 13px; border-radius: 8px; border: 1px solid var(--color-border);">
+        <input type="text" id="birimTabloArama" placeholder="${t('yonetim.searchUnitPlaceholder', 'Birim adı veya türü ara...')}" style="width: 240px; padding: 6px 12px; font-size: 13px; border-radius: 8px; border: 1px solid var(--color-border);">
       </div>
     </div>
 
@@ -1841,15 +1841,15 @@ async function renderBirimlerTab(container) {
       <table class="data-table">
         <thead style="position: sticky; top: 0; background: var(--color-background); z-index: 5;">
           <tr>
-            <th>Birim Adı</th>
-            <th>Kategori & Tür</th>
-            <th>Bağlı Olduğu Üst Birim</th>
-            <th style="width: 140px;">Talebe Açık</th>
-            <th style="text-align: right; width: 220px;">İşlemler</th>
+            <th>${t('yonetim.colUnitName', 'Birim Adı')}</th>
+            <th>${t('yonetim.colCategoryType', 'Kategori & Tür')}</th>
+            <th>${t('yonetim.colParentUnit', 'Bağlı Olduğu Üst Birim')}</th>
+            <th style="width: 140px;">${t('yonetim.colOpenForRequisition', 'Talebe Açık')}</th>
+            <th style="text-align: right; width: 220px;">${t('common.actions', 'İşlemler')}</th>
           </tr>
         </thead>
         <tbody id="birimlerTbody">
-          <tr><td colspan="5" style="text-align: center; padding: 30px;">Yükleniyor...</td></tr>
+          <tr><td colspan="5" style="text-align: center; padding: 30px;">${t('common.loading', 'Yükleniyor...')}</td></tr>
         </tbody>
       </table>
     </div>
@@ -1858,9 +1858,9 @@ async function renderBirimlerTab(container) {
     <div class="card" style="padding: 24px; border: 1px solid var(--color-border); background: var(--color-card);">
       <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
         <div>
-          <h3 style="font-size: 17px; font-weight: 700; color: #0F172A;">Rehber Personeline Bireysel Hesap Tanımlama & E-posta Bildirimi</h3>
+          <h3 style="font-size: 17px; font-weight: 700; color: #0F172A;">${t('yonetim.directoryAccountsTitle', 'Rehber Personeline Bireysel Hesap Tanımlama & E-posta Bildirimi')}</h3>
           <p style="font-size: 13px; color: var(--color-muted-foreground); margin-top: 4px;">
-            Üniversite rehberindeki personele <strong>ad.soyad@kurum.edu.tr</strong> kullanıcı adıyla otomatik hesap açın ve geçici şifre ile ilk giriş davet e-postasını gönderin.
+            ${t('yonetim.directoryAccountsSub', 'Kurumsal rehberdeki personele otomatik kullanıcı hesabı açın ve ilk giriş davet e-postasını gönderin.')}
           </p>
         </div>
       </div>
@@ -1869,45 +1869,45 @@ async function renderBirimlerTab(container) {
       <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; background: rgba(30, 58, 138, 0.04); padding: 14px 18px; border-radius: 12px; border: 1px solid rgba(30, 58, 138, 0.1);">
         <!-- Hızlı Personel Kategorisi Seçimi -->
         <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-          <span style="font-size: 12px; font-weight: 700; color: #1E3A8A; margin-right: 4px;">Personel Grubu:</span>
-          <button type="button" class="btn btn-sm btn-pers-kat active" data-pers-kat="tumu" style="border-radius: 9999px; padding: 4px 12px; font-size: 12px;">Tümü (788)</button>
-          <button type="button" class="btn btn-sm btn-outline btn-pers-kat" data-pers-kat="idari" style="border-radius: 9999px; padding: 4px 12px; font-size: 12px;">İdari Personel</button>
-          <button type="button" class="btn btn-sm btn-outline btn-pers-kat" data-pers-kat="akademik" style="border-radius: 9999px; padding: 4px 12px; font-size: 12px;">Akademik Personel</button>
-          <button type="button" class="btn btn-sm btn-outline btn-pers-kat" data-pers-kat="merkezler" style="border-radius: 9999px; padding: 4px 12px; font-size: 12px;">Araştırma Merkezleri</button>
+          <span style="font-size: 12px; font-weight: 700; color: #1E3A8A; margin-right: 4px;">${t('yonetim.staffGroup', 'Personel Grubu:')}</span>
+          <button type="button" class="btn btn-sm btn-pers-kat active" data-pers-kat="tumu" style="border-radius: 9999px; padding: 4px 12px; font-size: 12px;">${t('yonetim.allStaff', 'Tümü')} (788)</button>
+          <button type="button" class="btn btn-sm btn-outline btn-pers-kat" data-pers-kat="idari" style="border-radius: 9999px; padding: 4px 12px; font-size: 12px;">${t('yonetim.adminStaff', 'İdari Personel')}</button>
+          <button type="button" class="btn btn-sm btn-outline btn-pers-kat" data-pers-kat="akademik" style="border-radius: 9999px; padding: 4px 12px; font-size: 12px;">${t('yonetim.academicStaff', 'Akademik Personel')}</button>
+          <button type="button" class="btn btn-sm btn-outline btn-pers-kat" data-pers-kat="merkezler" style="border-radius: 9999px; padding: 4px 12px; font-size: 12px;">${t('yonetim.researchCenters', 'Araştırma Merkezleri')}</button>
         </div>
 
         <div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: center;">
           <div>
-            <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Birim Filtresi:</label>
+            <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">${t('yonetim.deptFilter', 'Birim Filtresi:')}</label>
             <select id="personelBirimSelect" style="min-width: 260px;">
-              <option value="">Tüm Üniversite Geneli (788 Personel)</option>
-              <optgroup label="İdari Birimler (Rektörlük, Daire Bşk., Müdürlükler)">
-                ${idariBirimler.map(b => `<option value="${b.id}">${b.ad}</option>`).join('')}
+              <option value="">${t('yonetim.allOrgWide', 'Tüm Kurum Geneli')} (788)</option>
+              <optgroup label="${t('yonetim.adminUnits', 'İdari Birimler')}">
+                ${idariBirimler.map(b => `<option value="${b.id}">${escapeHtml(tDepartment(b.ad))}</option>`).join('')}
               </optgroup>
-              <optgroup label="Akademik Birimler (Fakülteler ve Bölümler)">
-                ${akademikBirimler.map(b => `<option value="${b.id}">${b.ad}</option>`).join('')}
+              <optgroup label="${t('yonetim.academicUnits', 'Akademik Birimler')}">
+                ${akademikBirimler.map(b => `<option value="${b.id}">${escapeHtml(tDepartment(b.ad))}</option>`).join('')}
               </optgroup>
-              <optgroup label="Uygulama ve Araştırma Merkezleri">
-                ${merkezBirimler.map(b => `<option value="${b.id}">${b.ad}</option>`).join('')}
+              <optgroup label="${t('yonetim.researchCenters', 'Araştırma Merkezleri')}">
+                ${merkezBirimler.map(b => `<option value="${b.id}">${escapeHtml(tDepartment(b.ad))}</option>`).join('')}
               </optgroup>
             </select>
           </div>
 
           <div>
-            <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Personel Arama:</label>
-            <input type="text" id="personelArama" placeholder="İsim, unvan veya e-posta..." style="width: 200px;">
+            <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">${t('common.search', 'Personel Arama:')}</label>
+            <input type="text" id="personelArama" placeholder="${t('yonetim.searchStaffPlaceholder', 'İsim, unvan veya e-posta...')}" style="width: 200px;">
           </div>
 
           <div style="display: flex; align-items: center; gap: 8px; margin-top: 18px;">
             <input type="checkbox" id="chkUstYonetimHaric" checked style="width: 16px; height: 16px; cursor: pointer;">
-            <label for="chkUstYonetimHaric" style="font-size: 12.5px; font-weight: 600; color: #1E3A8A; cursor: pointer;" title="Rektör, Rektör Yardımcısı ve Dekanlara otomatik e-posta gönderimini engeller">
-              Üst Yönetimi Hariç Tut (Rektör, Dekan vb.)
+            <label for="chkUstYonetimHaric" style="font-size: 12.5px; font-weight: 600; color: #1E3A8A; cursor: pointer;">
+              ${t('yonetim.excludeExecManagement', 'Üst Yönetimi Hariç Tut (Rektör, Dekan vb.)')}
             </label>
           </div>
 
           <div style="margin-left: auto; margin-top: 18px;">
             <button id="btnTopluHesapAc" class="btn btn-primary btn-sm" style="font-weight: 700;">
-              Seçilenlere Hesap Aç & Şifre E-postası Gönder
+              ${t('yonetim.provisionSelectedAccounts', 'Seçilenlere Hesap Aç & Şifre E-postası Gönder')}
             </button>
           </div>
         </div>
@@ -1921,16 +1921,16 @@ async function renderBirimlerTab(container) {
               <th style="width: 40px; text-align: center;">
                 <input type="checkbox" id="chkAllPersonel" style="cursor: pointer; width: 16px; height: 16px;">
               </th>
-              <th>Ad Soyad</th>
-              <th>Unvan / Görev</th>
-              <th>Birim</th>
-              <th>Kurumsal E-posta</th>
-              <th>Bina & Oda</th>
-              <th>Hesap Durumu</th>
+              <th>${t('yonetim.colFullName', 'Ad Soyad')}</th>
+              <th>${t('yonetim.colTitleRole', 'Unvan / Görev')}</th>
+              <th>${t('yonetim.colUnit', 'Birim')}</th>
+              <th>${t('yonetim.colCorporateEmail', 'Kurumsal E-posta')}</th>
+              <th>${t('yonetim.colBuildingRoom', 'Bina & Oda')}</th>
+              <th>${t('yonetim.colAccountStatus', 'Hesap Durumu')}</th>
             </tr>
           </thead>
           <tbody id="personelTbody">
-            <tr><td colspan="7" style="text-align: center; padding: 20px;">Personel listesi yükleniyor...</td></tr>
+            <tr><td colspan="7" style="text-align: center; padding: 20px;">${t('common.loading', 'Personel listesi yükleniyor...')}</td></tr>
           </tbody>
         </table>
       </div>
@@ -1968,14 +1968,14 @@ async function renderBirimlerTab(container) {
         <tr style="${isBolum ? 'background: rgba(248, 250, 252, 0.6);' : ''}">
           <td style="${isBolum ? 'padding-left: 28px;' : ''}">
             ${isBolum ? '<span style="color: #94A3B8; margin-right: 6px;">↳</span>' : ''}
-            <strong>${b.ad}</strong>
+            <strong>${escapeHtml(tDepartment(b.ad))}</strong>
           </td>
           <td>
             <span class="badge ${kat === 'akademik' ? 'badge-primary' : (kat === 'merkezler' ? 'badge-warning' : 'badge-neutral')}" style="font-size: 11px;">
-              ${kat === 'akademik' ? (b.tur === 'dekanlik' ? 'Fakülte Dekanlığı' : 'Bölüm') : (kat === 'merkezler' ? 'Araştırma Merkezi' : 'İdari Birim')}
+              ${kat === 'akademik' ? (b.tur === 'dekanlik' ? t('yonetim.facultyDeansOffice', 'Fakülte Dekanlığı') : t('yonetim.academicDept', 'Bölüm')) : (kat === 'merkezler' ? t('yonetim.researchCenter', 'Araştırma Merkezi') : t('yonetim.adminDept', 'İdari Birim'))}
             </span>
           </td>
-          <td>${b.ust_birim_ad || '-'}</td>
+          <td>${escapeHtml(tDepartment(b.ust_birim_ad) || '-')}</td>
           <td>
             <div style="display: inline-flex; align-items: center; gap: 8px;">
               <div class="mini-settings-switch ${b.aktif ? 'is-on' : 'is-off'}" 
@@ -1984,19 +1984,19 @@ async function renderBirimlerTab(container) {
                    data-aktif="${b.aktif ? '1' : '0'}"
                    role="switch" 
                    aria-checked="${b.aktif ? 'true' : 'false'}"
-                   title="${b.aktif ? 'Birim Aktif - Kapatmak için tıklayın' : 'Birim Kapalı - Açmak için tıklayın'}">
+                   title="${b.aktif ? (t('yonetim.open', 'Açık')) : (t('yonetim.closed', 'Kapalı'))}">
                 <span class="mini-switch-handle"></span>
               </div>
               <span class="badge badge-${b.aktif ? 'success' : 'neutral'}" id="badgeBirimDurum_${b.id}" style="font-size: 11px;">
-                ${b.aktif ? 'Açık' : 'Kapalı'}
+                ${b.aktif ? t('yonetim.open', 'Açık') : t('yonetim.closed', 'Kapalı')}
               </span>
             </div>
           </td>
           <td style="text-align: right;">
             <div style="display: inline-flex; gap: 6px;">
-              <button class="btn btn-outline btn-sm btn-birim-duzenle" data-id="${b.id}">Düzenle</button>
-              <button class="btn btn-outline btn-sm btn-sifre-sifirla" data-id="${b.id}" data-ad="${b.ad}">Şifre Sıfırla</button>
-              <button class="btn btn-outline btn-sm btn-birim-sil" data-id="${b.id}" data-ad="${b.ad}" style="color: var(--color-destructive); border-color: rgba(239, 68, 68, 0.3);">Sil</button>
+              <button class="btn btn-outline btn-sm btn-birim-duzenle" data-id="${b.id}">${t('common.edit', 'Düzenle')}</button>
+              <button class="btn btn-outline btn-sm btn-sifre-sifirla" data-id="${b.id}" data-ad="${b.ad}">${t('yonetim.resetPassword', 'Şifre Sıfırla')}</button>
+              <button class="btn btn-outline btn-sm btn-birim-sil" data-id="${b.id}" data-ad="${b.ad}" style="color: var(--color-destructive); border-color: rgba(239, 68, 68, 0.3);">${t('common.delete', 'Sil')}</button>
             </div>
           </td>
         </tr>
@@ -2478,25 +2478,25 @@ async function renderKategorilerTab(container) {
   container.innerHTML = `
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
       <div>
-        <h3 style="font-size: 17px; font-weight: 700;">Kategori Ağacı</h3>
-        <p style="font-size: 13px; color: var(--color-muted-foreground); margin-top: 2px;">Katalog hiyerarşisini, ana kategorileri ve alt kategorileri düzenleyin.</p>
+        <h3 style="font-size: 17px; font-weight: 700;">${t('yonetim.tabCategories', 'Kategori Ağacı')}</h3>
+        <p style="font-size: 13px; color: var(--color-muted-foreground); margin-top: 2px;">${t('yonetim.categoryTreeSub', 'Katalog hiyerarşisini, ana kategorileri ve alt kategorileri düzenleyin.')}</p>
       </div>
-      <button id="btnYeniKategoriModal" class="btn btn-primary btn-sm">Yeni Kategori Ekle</button>
+      <button id="btnYeniKategoriModal" class="btn btn-primary btn-sm">${t('yonetim.addCategory', 'Yeni Kategori Ekle')}</button>
     </div>
     <div class="table-container">
       <table class="data-table">
         <thead>
           <tr>
-            <th>Kategori Adı</th>
-            <th>Kategori Türü</th>
-            <th>Üst Kategori</th>
-            <th>Ürün Sayısı</th>
-            <th>Sıra</th>
-            <th style="text-align: right; width: 160px;">İşlemler</th>
+            <th>${t('yonetim.colCategory', 'Kategori Adı')}</th>
+            <th>${t('yonetim.colCategoryType', 'Kategori Türü')}</th>
+            <th>${t('yonetim.colParentCategory', 'Üst Kategori')}</th>
+            <th>${t('yonetim.colProductCount', 'Ürün Sayısı')}</th>
+            <th>${t('yonetim.colOrder', 'Sıra')}</th>
+            <th style="text-align: right; width: 160px;">${t('common.actions', 'İşlemler')}</th>
           </tr>
         </thead>
         <tbody id="kategorilerTbody">
-          <tr><td colspan="6" style="text-align: center; padding: 30px;">Yükleniyor...</td></tr>
+          <tr><td colspan="6" style="text-align: center; padding: 30px;">${t('common.loading', 'Yükleniyor...')}</td></tr>
         </tbody>
       </table>
     </div>
@@ -2510,19 +2510,19 @@ async function renderKategorilerTab(container) {
 
     tbody.innerHTML = kategoriler.map(k => `
       <tr>
-        <td><strong>${k.ad}</strong></td>
+        <td><strong>${escapeHtml(tCategory(k.ad))}</strong></td>
         <td>
           ${!k.ust_kategori_id 
-            ? '<span class="badge badge-accent">Ana Kategori</span>' 
-            : '<span class="badge badge-neutral">Alt Kategori</span>'}
+            ? `<span class="badge badge-accent">${t('yonetim.mainCategoryBadge', 'Ana Kategori')}</span>` 
+            : `<span class="badge badge-neutral">${t('yonetim.subCategoryBadge', 'Alt Kategori')}</span>`}
         </td>
-        <td>${k.ust_kategori_ad || '- (Yok)'}</td>
+        <td>${escapeHtml(tCategory(k.ust_kategori_ad) || '- (Yok)')}</td>
         <td><strong>${k.urun_sayisi || 0}</strong></td>
         <td>${k.sira}</td>
         <td style="text-align: right;">
           <div style="display: inline-flex; gap: 6px;">
-            <button class="btn btn-outline btn-sm btn-kat-duzenle" data-id="${k.id}">Düzenle</button>
-            <button class="btn btn-outline btn-sm btn-kat-sil" data-id="${k.id}" data-ad="${k.ad}" style="color: var(--color-destructive); border-color: rgba(239, 68, 68, 0.3);">Sil</button>
+            <button class="btn btn-outline btn-sm btn-kat-duzenle" data-id="${k.id}">${t('common.edit', 'Düzenle')}</button>
+            <button class="btn btn-outline btn-sm btn-kat-sil" data-id="${k.id}" data-ad="${k.ad}" style="color: var(--color-destructive); border-color: rgba(239, 68, 68, 0.3);">${t('common.delete', 'Sil')}</button>
           </div>
         </td>
       </tr>
@@ -2595,41 +2595,41 @@ function openKategoriFormModal(kategori = null, tumKategoriler = [], onSaved) {
   const anaKategoriler = tumKategoriler.filter(k => !k.ust_kategori_id && (!kategori || k.id !== kategori.id));
 
   const modal = createModal({
-    title: isEdit ? 'Kategori Düzenle' : 'Yeni Kategori Ekle',
+    title: isEdit ? (getLanguage() === 'en' ? 'Edit Category' : 'Kategori Düzenle') : (getLanguage() === 'en' ? 'Add New Category' : 'Yeni Kategori Ekle'),
     maxWidth: '480px',
     contentHtml: `
       <form id="kategoriForm" style="display: flex; flex-direction: column; gap: 14px;">
         <div>
-          <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Kategori Adı <span style="color: red;">*</span></label>
-          <input type="text" id="katAd" required value="${kategori?.ad || ''}" placeholder="Örn: Kağıt ve Defter Grubu">
+          <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">${t('yonetim.colCategory', 'Kategori Adı')} <span style="color: red;">*</span></label>
+          <input type="text" id="katAd" required value="${kategori?.ad || ''}" placeholder="${getLanguage() === 'en' ? 'e.g. Paper & Notebook Group' : 'Örn: Kağıt ve Defter Grubu'}">
         </div>
 
         <div>
-          <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Kategori Seviyesi</label>
+          <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">${getLanguage() === 'en' ? 'Category Level' : 'Kategori Seviyesi'}</label>
           <select id="katTur">
-            <option value="ana" ${!kategori?.ust_kategori_id ? 'selected' : ''}>Ana Kategori (Üst Başlık)</option>
-            <option value="alt" ${kategori?.ust_kategori_id ? 'selected' : ''}>Alt Kategori (Bir ana kategoriye bağlı)</option>
+            <option value="ana" ${!kategori?.ust_kategori_id ? 'selected' : ''}>${t('yonetim.mainCategoryBadge', 'Ana Kategori')} (${getLanguage() === 'en' ? 'Root' : 'Üst Başlık'})</option>
+            <option value="alt" ${kategori?.ust_kategori_id ? 'selected' : ''}>${t('yonetim.subCategoryBadge', 'Alt Kategori')} (${getLanguage() === 'en' ? 'Child' : 'Bir ana kategoriye bağlı'})</option>
           </select>
         </div>
 
         <div id="ustKatWrapper" style="${!kategori?.ust_kategori_id ? 'display: none;' : ''}">
-          <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Bağlı Olduğu Ana Kategori <span style="color: red;">*</span></label>
+          <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">${t('yonetim.colParentCategory', 'Bağlı Olduğu Ana Kategori')} <span style="color: red;">*</span></label>
           <select id="katUstId">
-            <option value="">Lütfen Ana Kategori Seçiniz...</option>
+            <option value="">${getLanguage() === 'en' ? 'Please select parent category...' : 'Lütfen Ana Kategori Seçiniz...'}</option>
             ${anaKategoriler.map(ak => `
-              <option value="${ak.id}" ${kategori?.ust_kategori_id === ak.id ? 'selected' : ''}>${ak.ad}</option>
+              <option value="${ak.id}" ${kategori?.ust_kategori_id === ak.id ? 'selected' : ''}>${escapeHtml(tCategory(ak.ad))}</option>
             `).join('')}
           </select>
         </div>
 
         <div>
-          <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Sıralama Numarası</label>
+          <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">${t('yonetim.colOrder', 'Sıralama Numarası')}</label>
           <input type="number" id="katSira" value="${kategori?.sira ?? 1}" min="0">
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;">
-          <button type="button" class="btn btn-outline" id="btnKatIptal">İptal</button>
-          <button type="submit" class="btn btn-primary">${isEdit ? 'Değişiklikleri Kaydet' : 'Kategoriyi Ekle'}</button>
+          <button type="button" class="btn btn-outline" id="btnKatIptal">${t('common.cancel', 'İptal')}</button>
+          <button type="submit" class="btn btn-primary">${isEdit ? (getLanguage() === 'en' ? 'Save Changes' : 'Değişiklikleri Kaydet') : (getLanguage() === 'en' ? 'Add Category' : 'Kategoriyi Ekle')}</button>
         </div>
       </form>
     `
@@ -2813,17 +2813,19 @@ async function renderDenetimLoglariTab(container) {
         else if (l.islem_turu === 'TOPLU_HESAP_ACMA') badgeClass = 'badge-primary';
         else if (l.islem_turu.includes('SILINDI')) badgeClass = 'badge-danger';
 
-        const roleText = l.rol === 'satin_alma' ? t('common.procurementOffice', 'Satın Alma') : (l.rol === 'birim' ? t('common.departmentUser', 'Birim') : (l.rol || '-'));
+        const roleText = tRole(l.rol);
         const actionLabel = tActionType(l.islem_turu);
+        const userDisplay = tUser(l.kullanici_adi);
+        const detailDisplay = formatLogDetail(l.aciklama);
 
         return `
           <tr>
             <td style="font-size: 12px; color: var(--color-muted-foreground); white-space: nowrap;">${escapeHtml(l.tarih)}</td>
             <td><span class="badge ${badgeClass}" style="font-size: 10.5px;">${escapeHtml(actionLabel)}</span></td>
-            <td><strong>${escapeHtml(l.kullanici_adi || '-')}</strong></td>
+            <td><strong>${escapeHtml(userDisplay)}</strong></td>
             <td>${escapeHtml(roleText)}</td>
             <td style="font-family: monospace; font-size: 11.5px;">${escapeHtml(l.ip_adresi || '-')}</td>
-            <td style="font-size: 13px;">${escapeHtml(l.aciklama || '-')}</td>
+            <td style="font-size: 13px;">${escapeHtml(detailDisplay)}</td>
           </tr>
         `;
       }).join('');
@@ -2841,21 +2843,34 @@ async function renderDenetimLoglariTab(container) {
 
           if (elBugunSayi) elBugunSayi.textContent = r.bugunSunumSayisi || 0;
 
+          const isEn = getLanguage() === 'en';
+
           if (r.sonSunum) {
-            if (elSonSunum) elSonSunum.textContent = `Açıldı • ${r.sonSunum.cihaz || 'Cihaz'} (${r.sonSunum.tarayici || 'Tarayıcı'})`;
-            if (elSonSunumDetay) elSonSunumDetay.textContent = `Son Slayt: ${r.sonSunum.mevcut_slayt}/${r.sonSunum.toplam_slayt} • Saat: ${r.sonSunum.tarih} (IP: ${r.sonSunum.ip_adresi})`;
+            const devStr = r.sonSunum.cihaz || (isEn ? 'Device' : 'Cihaz');
+            let brStr = r.sonSunum.tarayici || (isEn ? 'Browser' : 'Tarayıcı');
+            if (brStr === 'Bilinmeyen Tarayıcı' && isEn) brStr = 'Unknown Browser';
+            const statusStr = isEn ? 'Opened' : 'Açıldı';
+            const slideLabel = isEn ? 'Last Slide' : 'Son Slayt';
+            const timeLabel = isEn ? 'Time' : 'Saat';
+
+            if (elSonSunum) elSonSunum.textContent = `${statusStr} • ${devStr} (${brStr})`;
+            if (elSonSunumDetay) elSonSunumDetay.textContent = `${slideLabel}: ${r.sonSunum.mevcut_slayt}/${r.sonSunum.toplam_slayt} • ${timeLabel}: ${r.sonSunum.tarih} (IP: ${r.sonSunum.ip_adresi})`;
           } else {
-            if (elSonSunum) elSonSunum.textContent = 'Henüz Sunum Açılmadı';
-            if (elSonSunumDetay) elSonSunumDetay.textContent = 'Canlı link tıklandığında anlık buraya düşecektir.';
+            if (elSonSunum) elSonSunum.textContent = t('loglar.noSunumYet', 'Henüz Sunum Açılmadı');
+            if (elSonSunumDetay) elSonSunumDetay.textContent = t('loglar.noSunumYetSub', 'Canlı link tıklandığında anlık buraya düşecektir.');
           }
 
           if (r.sonTestGirisleri && r.sonTestGirisleri.length > 0) {
-            const t = r.sonTestGirisleri[0];
-            if (elSonTest) elSonTest.textContent = `Aktif Test: ${t.kullanici_adi} (${t.islem_turu})`;
-            if (elSonTestDetay) elSonTestDetay.textContent = `Son İşlem: ${t.tarih} • ${t.aciklama || t.detay || '-'}`;
+            const tTest = r.sonTestGirisleri[0];
+            const activeTestLabel = isEn ? 'Active Test' : 'Aktif Test';
+            const lastOpLabel = isEn ? 'Last Action' : 'Son İşlem';
+            const actionText = tActionType(tTest.islem_turu);
+
+            if (elSonTest) elSonTest.textContent = `${activeTestLabel}: ${tUser(tTest.kullanici_adi)} (${actionText})`;
+            if (elSonTestDetay) elSonTestDetay.textContent = `${lastOpLabel}: ${tTest.tarih} • ${formatLogDetail(tTest.aciklama || tTest.detay || '-')}`;
           } else {
-            if (elSonTest) elSonTest.textContent = 'Henüz Test Girişi Yok';
-            if (elSonTestDetay) elSonTestDetay.textContent = 'Ktest veya Atest ile giriş yapıldığında listelenir.';
+            if (elSonTest) elSonTest.textContent = t('loglar.noTestYet', 'Henüz Test Girişi Yok');
+            if (elSonTestDetay) elSonTestDetay.textContent = t('loglar.noTestYetSub', 'Ktest veya Atest ile giriş yapıldığında listelenir.');
           }
         }
       } catch (e) {}
@@ -2879,21 +2894,20 @@ async function renderYedeklerTab(container) {
       <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; flex-wrap: wrap; gap: 16px;">
         <div>
           <h3 style="font-size: 18px; font-weight: 700; color: #0F172A; display: flex; align-items: center; gap: 8px;">
-            Sistem ve Veritabanı Yedekleri
+            ${t('yonetim.backupTabTitle', 'Sistem ve Veritabanı Yedekleri')}
           </h3>
           <p style="font-size: 13px; color: var(--color-muted-foreground); margin-top: 4px; max-width: 680px; line-height: 1.5;">
-            Sistem her gece <strong>03:00</strong>'te kesintisiz SQLite online backup yöntemiyle sıcak yedek alır ve <strong>son 14 yedeği</strong> otomatik olarak saklar. Dilediğiniz an tek tıkla manuel sıcak yedek alabilir veya mevcut bir yedekten güvenle geri yükleme yapabilirsiniz.
+            ${t('yonetim.backupTabSub', 'Sistem kesintisiz SQLite online backup yöntemiyle sıcak yedek alır ve son 14 yedeği saklar.')}
           </p>
         </div>
         <button id="btnManuelYedekAl" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px; font-weight: 700; padding: 10px 18px; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);">
-          Şimdi Sıcak Yedek Al
+          ${t('yonetim.takeBackupNow', 'Şimdi Sıcak Yedek Al')}
         </button>
       </div>
 
       <div style="display: flex; gap: 12px; margin-bottom: 16px; background: #F8FAFC; border: 1px solid #E2E8F0; padding: 12px 16px; border-radius: 12px; font-size: 12.5px; color: #475569; align-items: center;">
-        
         <div>
-          <strong>Sıfır Veri Kaybı Güvencesi:</strong> Bir yedeği geri yüklediğiniz anda, sistem o anki canlı veritabanının anlık bir <em>"Acil Durum Ön-Yedeğini"</em> (<code>safety_pre_restore_...</code>) otomatik olarak kaydeder.
+          <strong>${t('yonetim.zeroDataLossGuarantee', 'Sıfır Veri Kaybı Güvencesi:')}</strong> ${t('yonetim.zeroDataLossSub', 'Bir yedeği geri yüklediğiniz anda sistem anlık bir acil durum güvenlik yedeği alır.')}
         </div>
       </div>
 
@@ -2901,15 +2915,15 @@ async function renderYedeklerTab(container) {
         <table class="data-table" id="yedeklerTable">
           <thead>
             <tr>
-              <th>Yedek Dosyası</th>
-              <th style="width: 140px;">Yedek Türü</th>
-              <th style="width: 110px;">Boyut</th>
-              <th style="width: 170px;">Yedekleme Tarihi</th>
-              <th style="width: 220px; text-align: right;">İşlemler</th>
+              <th>${t('yonetim.colBackupFile', 'Yedek Dosyası')}</th>
+              <th style="width: 140px;">${t('yonetim.colBackupType', 'Yedek Türü')}</th>
+              <th style="width: 110px;">${t('yonetim.colBackupSize', 'Boyut')}</th>
+              <th style="width: 170px;">${t('yonetim.colBackupDate', 'Yedekleme Tarihi')}</th>
+              <th style="width: 220px; text-align: right;">${t('common.actions', 'İşlemler')}</th>
             </tr>
           </thead>
           <tbody id="yedeklerTbody">
-            <tr><td colspan="5" style="text-align: center; padding: 30px; color: #94A3B8;">Yedek listesi yükleniyor...</td></tr>
+            <tr><td colspan="5" style="text-align: center; padding: 30px; color: #94A3B8;">${t('common.loading', 'Yedek listesi yükleniyor...')}</td></tr>
           </tbody>
         </table>
       </div>
@@ -2925,23 +2939,24 @@ async function renderYedeklerTab(container) {
       const yedekler = res.yedekler || [];
 
       if (yedekler.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 30px; color: #94A3B8;">Henüz kayıtlı bir veritabanı yedeği bulunamadı.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 30px; color: #94A3B8;">${t('common.noData', 'Henüz kayıtlı bir veritabanı yedeği bulunamadı.')}</td></tr>`;
         return;
       }
 
       tbody.innerHTML = yedekler.map(y => {
-        let turBadge = `<span class="badge badge-success">Otomatik (03:00)</span>`;
+        const isEn = getLanguage() === 'en';
+        let turBadge = `<span class="badge badge-success">${isEn ? 'Automatic (03:00)' : 'Otomatik (03:00)'}</span>`;
         if (y.tur === 'Manuel') {
-          turBadge = `<span class="badge badge-primary">Manuel</span>`;
+          turBadge = `<span class="badge badge-primary">${isEn ? 'Manual' : 'Manuel'}</span>`;
         } else if (y.tur === 'GuvenlikOnYedegi') {
-          turBadge = `<span class="badge badge-warning">Güvenlik Ön Yedeği</span>`;
+          turBadge = `<span class="badge badge-warning">${isEn ? 'Safety Pre-Restore' : 'Güvenlik Ön Yedeği'}</span>`;
         }
 
         const boyutText = y.boyut > 1024 * 1024
           ? (y.boyut / (1024 * 1024)).toFixed(2) + ' MB'
           : (y.boyut / 1024).toFixed(1) + ' KB';
 
-        const tarihText = new Date(y.tarih).toLocaleString('tr-TR');
+        const tarihText = new Date(y.tarih).toLocaleString(isEn ? 'en-US' : 'tr-TR');
 
         return `
           <tr>
@@ -2953,14 +2968,14 @@ async function renderYedeklerTab(container) {
             <td style="font-size: 12px; color: #64748B;">${tarihText}</td>
             <td style="text-align: right;">
               <div style="display: inline-flex; gap: 6px;">
-                <a href="/api/yonetim/yedekler/indir/${encodeURIComponent(y.dosya)}" class="btn btn-outline btn-sm" style="font-size: 11px; padding: 4px 8px; text-decoration: none;" title="Yedeği İndir">
-                  ⬇️ İndir
+                <a href="/api/yonetim/yedekler/indir/${encodeURIComponent(y.dosya)}" class="btn btn-outline btn-sm" style="font-size: 11px; padding: 4px 8px; text-decoration: none;" title="${t('yonetim.download', 'İndir')}">
+                  ${t('yonetim.download', 'İndir')}
                 </a>
-                <button class="btn btn-outline btn-sm btn-geri-yukle" data-dosya="${y.dosya}" style="color: #D97706; font-size: 11px; padding: 4px 8px;" title="Bu Yedeği Geri Yükle">
-                  Geri Yükle
+                <button class="btn btn-outline btn-sm btn-geri-yukle" data-dosya="${y.dosya}" style="color: #D97706; font-size: 11px; padding: 4px 8px;" title="${t('yonetim.restore', 'Geri Yükle')}">
+                  ${t('yonetim.restore', 'Geri Yükle')}
                 </button>
-                <button class="btn btn-outline btn-sm btn-yedek-sil" data-dosya="${y.dosya}" style="color: var(--color-destructive); font-size: 11px; padding: 4px 8px;" title="Yedeği Sil">
-                  Sil
+                <button class="btn btn-outline btn-sm btn-yedek-sil" data-dosya="${y.dosya}" style="color: var(--color-destructive); font-size: 11px; padding: 4px 8px;" title="${t('common.delete', 'Sil')}">
+                  ${t('common.delete', 'Sil')}
                 </button>
               </div>
             </td>
