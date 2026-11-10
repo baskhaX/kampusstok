@@ -2,7 +2,8 @@
 import api from '../api.js';
 import toast from '../components/toast.js';
 import createModal, { confirmModal, alertModal } from '../components/modal.js';
-import { t, getLanguage } from '../utils/i18n.js';
+import { escapeHtml } from '../utils/text.js';
+import { t, getLanguage, tCategory, tProduct, tDepartment, tUnit, tBuilding, tMonth, tActionType } from '../utils/i18n.js';
 
 let aktifTab = 'urunler';
 let seciliUrunler = new Set();
@@ -641,8 +642,7 @@ async function renderUrunlerTab(container, targetUrunId = null) {
           <li style="margin-top: 6px;">
             <button class="depo-tree-main-btn ${isMainActive ? 'active' : ''}" data-cat-type="main" data-cat-id="${mainCat.id}">
               <span style="display: flex; align-items: center; gap: 6px;">
-                
-                <span>${mainCat.ad}</span>
+                <span>${escapeHtml(tCategory(mainCat.ad))}</span>
               </span>
               <span class="tree-badge">${mainCount}</span>
             </button>
@@ -654,7 +654,7 @@ async function renderUrunlerTab(container, targetUrunId = null) {
                   return `
                     <li>
                       <button class="depo-tree-sub-btn ${isSubActive ? 'active' : ''}" data-cat-type="sub" data-cat-id="${sub.id}">
-                        <span>• ${sub.ad}</span>
+                        <span>• ${escapeHtml(tCategory(sub.ad))}</span>
                         <span class="tree-badge">${subCount}</span>
                       </button>
                     </li>
@@ -704,18 +704,18 @@ async function renderUrunlerTab(container, targetUrunId = null) {
       const mainCategories = kategorilerCache.filter(k => !k.ust_kategori_id);
       mainCategories.forEach(main => {
         const optgroup = document.createElement('optgroup');
-        optgroup.label = `${main.ad}`;
+        optgroup.label = tCategory(main.ad);
 
         const mainOpt = document.createElement('option');
         mainOpt.value = `main_${main.id}`;
-        mainOpt.textContent = `Tüm ${main.ad}`;
+        mainOpt.textContent = `${t('catalog.all', 'Tüm')} ${tCategory(main.ad)}`;
         optgroup.appendChild(mainOpt);
 
         const subs = kategorilerCache.filter(k => k.ust_kategori_id === main.id);
         subs.forEach(s => {
           const opt = document.createElement('option');
           opt.value = `sub_${s.id}`;
-          opt.textContent = `  ↳ ${s.ad}`;
+          opt.textContent = `  ↳ ${tCategory(s.ad)}`;
           optgroup.appendChild(opt);
         });
 
@@ -901,12 +901,12 @@ async function renderUrunlerTab(container, targetUrunId = null) {
                  style="width: 44px; height: 44px; object-fit: contain; border-radius: 6px; border: 1px solid var(--color-border); padding: 2px; background: #FFFFFF;">
           </td>
           <td>
-            <strong>${u.ad}</strong>
-            ${u.marka ? `<div class="urun-marka-label" style="font-size: 11px; color: var(--color-muted-foreground);">${u.marka}</div>` : ''}
-            ${u.barkod ? `<div class="badge-barcode">${u.barkod}</div>` : ''}
+            <strong>${escapeHtml(tProduct(u.ad))}</strong>
+            ${u.marka ? `<div class="urun-marka-label" style="font-size: 11px; color: var(--color-muted-foreground);">${escapeHtml(u.marka)}</div>` : ''}
+            ${u.barkod ? `<div class="badge-barcode">${escapeHtml(u.barkod)}</div>` : ''}
           </td>
-          <td>${u.kategori_adi || '-'}</td>
-          <td><span class="badge badge-neutral">${u.olcu_birimi}</span></td>
+          <td>${escapeHtml(tCategory(u.kategori_adi) || '-')}</td>
+          <td><span class="badge badge-neutral">${tUnit(u.olcu_birimi)}</span></td>
           <td>
             <strong id="stokVal_${u.id}" style="color: ${u.stok <= u.kritik_stok ? 'var(--color-destructive)' : 'var(--color-accent)'}; font-size: 14px;">
               ${u.stok}
@@ -1543,7 +1543,7 @@ async function renderStokTab(container) {
             <select id="stokUrunSelect" required style="width: 100%;">
               <option value="">${t('yonetim.selectFromList', 'Listeden Seçiniz...')}</option>
               ${urunler.map(u => `
-                <option value="${u.id}">${u.ad} ${u.barkod ? `[${u.barkod}]` : ''} - (${t('yonetim.colCurrentStock', 'Mevcut')}: ${u.stok} ${u.olcu_birimi})</option>
+                <option value="${u.id}">${escapeHtml(tProduct(u.ad))} ${u.barkod ? `[${escapeHtml(u.barkod)}]` : ''} - (${t('yonetim.colCurrentStock', 'Mevcut')}: ${u.stok} ${tUnit(u.olcu_birimi)})</option>
               `).join('')}
             </select>
           </div>
@@ -1625,9 +1625,9 @@ async function renderStokTab(container) {
       return;
     }
     seciliImg.src = urun.gorsel_yolu || '/assets/placeholder.svg';
-    seciliAd.textContent = urun.ad;
+    seciliAd.textContent = tProduct(urun.ad);
     seciliBarkod.textContent = urun.barkod ? `${urun.barkod}` : 'Barkodsuz';
-    seciliMiktar.textContent = `${urun.stok} ${urun.olcu_birimi}`;
+    seciliMiktar.textContent = `${urun.stok} ${tUnit(urun.olcu_birimi)}`;
     seciliKutu.style.display = 'flex';
   }
 
@@ -1684,22 +1684,22 @@ async function renderStokTab(container) {
     }
 
     tbody.innerHTML = filtered.map(h => {
-      let turBadge = '<span class="badge badge-success">Giriş</span>';
-      if (h.tur === 'cikis') turBadge = '<span class="badge badge-danger">Çıkış</span>';
-      else if (h.tur === 'duzeltme') turBadge = '<span class="badge badge-warning">Düzeltme</span>';
+      let turBadge = `<span class="badge badge-success">${t('yonetim.stockInBadge', 'Giriş')}</span>`;
+      if (h.tur === 'cikis') turBadge = `<span class="badge badge-danger">${t('yonetim.stockOutBadge', 'Çıkış')}</span>`;
+      else if (h.tur === 'duzeltme') turBadge = `<span class="badge badge-warning">${t('yonetim.stockAdjustBadge', 'Düzeltme')}</span>`;
 
       return `
         <tr>
-          <td style="font-size: 12px; color: var(--color-muted-foreground); white-space: nowrap;">${h.olusturma_tarihi}</td>
+          <td style="font-size: 12px; color: var(--color-muted-foreground); white-space: nowrap;">${escapeHtml(h.olusturma_tarihi)}</td>
           <td>
-            <strong>${h.urun_adi}</strong>
-            ${h.urun_marka ? `<div style="font-size: 11px; color: var(--color-muted-foreground);">${h.urun_marka}</div>` : ''}
-            ${h.urun_barkod ? `<div class="badge-barcode">${h.urun_barkod}</div>` : ''}
+            <strong>${escapeHtml(tProduct(h.urun_adi))}</strong>
+            ${h.urun_marka ? `<div style="font-size: 11px; color: var(--color-muted-foreground);">${escapeHtml(h.urun_marka)}</div>` : ''}
+            ${h.urun_barkod ? `<div class="badge-barcode">${escapeHtml(h.urun_barkod)}</div>` : ''}
           </td>
           <td>${turBadge}</td>
-          <td><strong style="color: ${h.tur === 'cikis' ? 'var(--color-destructive)' : '#16A34A'};">${h.tur === 'cikis' ? '-' : '+'}${h.miktar} ${h.olcu_birimi}</strong></td>
-          <td style="font-size: 12.5px;">${h.aciklama || '-'}</td>
-          <td style="font-size: 12px;">${h.yapan_kullanici || 'Sistem'}</td>
+          <td><strong style="color: ${h.tur === 'cikis' ? 'var(--color-destructive)' : '#16A34A'};">${h.tur === 'cikis' ? '-' : '+'}${h.miktar} ${tUnit(h.olcu_birimi)}</strong></td>
+          <td style="font-size: 12.5px;">${escapeHtml(h.aciklama || '-')}</td>
+          <td style="font-size: 12px;">${escapeHtml(h.yapan_kullanici || 'Sistem')}</td>
         </tr>
       `;
     }).join('');
@@ -2813,14 +2813,17 @@ async function renderDenetimLoglariTab(container) {
         else if (l.islem_turu === 'TOPLU_HESAP_ACMA') badgeClass = 'badge-primary';
         else if (l.islem_turu.includes('SILINDI')) badgeClass = 'badge-danger';
 
+        const roleText = l.rol === 'satin_alma' ? t('common.procurementOffice', 'Satın Alma') : (l.rol === 'birim' ? t('common.departmentUser', 'Birim') : (l.rol || '-'));
+        const actionLabel = tActionType(l.islem_turu);
+
         return `
           <tr>
-            <td style="font-size: 12px; color: var(--color-muted-foreground); white-space: nowrap;">${l.tarih}</td>
-            <td><span class="badge ${badgeClass}" style="font-size: 10.5px;">${l.islem_turu}</span></td>
-            <td><strong>${l.kullanici_adi || '-'}</strong></td>
-            <td>${l.rol || '-'}</td>
-            <td style="font-family: monospace; font-size: 11.5px;">${l.ip_adresi || '-'}</td>
-            <td style="font-size: 13px;">${l.aciklama || '-'}</td>
+            <td style="font-size: 12px; color: var(--color-muted-foreground); white-space: nowrap;">${escapeHtml(l.tarih)}</td>
+            <td><span class="badge ${badgeClass}" style="font-size: 10.5px;">${escapeHtml(actionLabel)}</span></td>
+            <td><strong>${escapeHtml(l.kullanici_adi || '-')}</strong></td>
+            <td>${escapeHtml(roleText)}</td>
+            <td style="font-family: monospace; font-size: 11.5px;">${escapeHtml(l.ip_adresi || '-')}</td>
+            <td style="font-size: 13px;">${escapeHtml(l.aciklama || '-')}</td>
           </tr>
         `;
       }).join('');

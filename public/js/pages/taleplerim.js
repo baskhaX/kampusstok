@@ -114,25 +114,25 @@ async function loadTaleplerimList(appContainer, durum = '') {
             <div>${t.personel_adi}</div>
             <div style="font-size: 11px; color: var(--color-muted-foreground);">${t.personel_eposta}</div>
           </td>
-          <td>${t.kalem_sayisi || 0} kalem</td>
+          <td>${t.kalem_sayisi || 0} ${t('satinalma.itemsCount', 'kalem')}</td>
           <td>${badgeHtml}</td>
           <td>${t.teslimatTarihiText}</td>
           <td style="text-align: right;">
             <div style="display: inline-flex; align-items: center; gap: 6px;">
               ${(isTeslimEdildi || isOnayli) && !kullaniciOnayladi ? `
                 <button class="btn btn-sm btn-talep-teslim-al" data-id="${t.id}" data-no="${t.talep_no}" style="background: #059669; color: #ffffff; border: none; font-weight: 700; padding: 5px 12px; border-radius: 6px; box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25); display: inline-flex; align-items: center; gap: 4px; cursor: pointer; font-size: 11.5px;" title="Malzemeleri Teslim Aldım Olarak Onayla">
-                  <span>✓</span> Teslim Aldım
+                  <span>✓</span> ${t('requests.confirmReceipt', 'Teslim Aldım')}
                 </button>
               ` : ''}
               <button class="btn btn-primary btn-sm btn-talep-detay" data-id="${t.id}" style="font-size: 12px; padding: 5px 12px;">
-                Süreç Takip & Detay
+                ${t('requests.trackDetails', 'Süreç Takip & Detay')}
               </button>
               <button class="btn btn-outline btn-sm btn-talep-kopyala" data-id="${t.id}">
-                Tekrarla
+                ${t('requests.repeat', 'Tekrarla')}
               </button>
               ${isOnayli || isTeslimEdildi ? `
                 <button class="btn btn-outline btn-sm btn-talep-yazdir" data-id="${t.id}">
-                  Yazdır
+                  ${t('common.print', 'Yazdır')}
                 </button>
               ` : ''}
             </div>

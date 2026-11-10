@@ -5,7 +5,7 @@ import toast from '../components/toast.js';
 import { openSepetDrawer } from '../components/sepetDrawer.js';
 import { openProductLightbox } from '../components/productLightbox.js';
 import { escapeHtml } from '../utils/text.js';
-import { t } from '../utils/i18n.js';
+import { t, tCategory, tProduct, tUnit } from '../utils/i18n.js';
 
 let aktifKategoriId = null;
 let aramaMetni = '';
@@ -238,7 +238,7 @@ async function loadKategoriler(appContainer, updateFavBtnUI) {
       <li class="kategori-item" style="margin-bottom: 8px;">
         <div class="kategori-row ${!aktifKategoriId ? 'active' : ''}">
           <button class="kategori-btn btn-kategori-sec" data-id="">
-            <span style="font-weight: 700;">Tüm Kategoriler</span>
+            <span style="font-weight: 700;">${t('catalog.allCategories', 'Tüm Kategoriler')}</span>
           </button>
         </div>
       </li>
@@ -253,7 +253,7 @@ async function loadKategoriler(appContainer, updateFavBtnUI) {
         <li class="kategori-item ${isOpen ? 'is-open' : ''}">
           <div class="kategori-row ${isAnaActive ? 'active' : ''}">
             <button class="kategori-btn btn-kategori-sec" data-id="${ana.id}">
-              <span>${ana.ad}</span>
+              <span>${escapeHtml(tCategory(ana.ad))}</span>
             </button>
             ${hasAlt ? `
               <button class="kategori-toggle-btn btn-kategori-toggle" data-toggle="${ana.id}" title="Alt Kategorileri Aç/Kapat">
@@ -267,7 +267,7 @@ async function loadKategoriler(appContainer, updateFavBtnUI) {
                 <li>
                   <button class="alt-kategori-btn btn-kategori-sec ${aktifKategoriId === alt.id ? 'active' : ''}" data-id="${alt.id}">
                     <span class="alt-kategori-dot"></span>
-                    <span>${alt.ad}</span>
+                    <span>${escapeHtml(tCategory(alt.ad))}</span>
                   </button>
                 </li>
               `).join('')}
@@ -412,12 +412,12 @@ async function loadUrunler(appContainer) {
             <span class="urun-zoom-chip">${t('catalog.inspect', 'İncele')}</span>
           </div>
           <div class="urun-content">
-            <span class="urun-marka">${u.marka || u.kategoriAdi}</span>
-            <h4 class="urun-ad" title="${u.ad}">${u.ad}</h4>
+            <span class="urun-marka">${escapeHtml(u.marka || tCategory(u.kategoriAdi))}</span>
+            <h4 class="urun-ad" title="${escapeHtml(tProduct(u.ad))}">${escapeHtml(tProduct(u.ad))}</h4>
 
             <div class="urun-action-group">
               <div class="urun-qty-row">
-                <span class="urun-birim-etiket">Birim: <strong>${u.olcuBirimi}</strong></span>
+                <span class="urun-birim-etiket">${t('yonetim.colUnit', 'Birim')}: <strong>${tUnit(u.olcuBirimi)}</strong></span>
                 <div class="qty-picker">
                   <button class="qty-btn btn-card-dec" data-id="${u.id}" title="Azalt">-</button>
                   <input type="text" class="qty-input" id="qty_${u.id}" value="1" readonly>

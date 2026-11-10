@@ -6,7 +6,7 @@ import { renderProgressRailStepperHtml } from '../components/stepper.js';
 import { mountNotificationBell, closeSSEConnection, playChimeSound } from '../components/notificationBell.js';
 import { openVekaletModal } from '../components/vekaletModal.js';
 import { escapeHtml } from '../utils/text.js';
-import { t, getLanguage } from '../utils/i18n.js';
+import { t, getLanguage, tDepartment, tProduct, tBuilding, tUnit } from '../utils/i18n.js';
 
 let sseEventSource = null;
 
@@ -510,19 +510,19 @@ function renderAtilMalzemeKuyruk(contentArea, list, search, appContainer) {
               </div>
               <div style="flex: 1;">
                 <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                  <span style="font-weight: 800; font-size: 15.5px; color: #0F172A;">${escapeHtml(item.birim_adi || 'Birim')}</span>
+                  <span style="font-weight: 800; font-size: 15.5px; color: #0F172A;">${escapeHtml(tDepartment(item.birim_adi) || t('common.departmentUser', 'Birim'))}</span>
                   <span style="font-size: 12px; color: #0369A1; background: #E0F2FE; padding: 2px 10px; border-radius: 9999px; font-weight: 700;">
-                    ${escapeHtml(item.bina_adi || '')} • Oda ${escapeHtml(item.oda_no || '')}
+                    ${escapeHtml(tBuilding(item.bina_adi) || '')} • ${t('common.room', 'Oda')} ${escapeHtml(item.oda_no || '')}
                   </span>
                   <span style="font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 9999px; ${isBeklemede ? 'background: #FEF3C7; color: #B45309;' : 'background: #DCFCE7; color: #047857;'}">
-                    ${isBeklemede ? 'İnceleme & Teslim Bekliyor' : 'Depoya Alındı (+20 Puan Verildi)'}
+                    ${isBeklemede ? t('satinalma.surplusAwaiting', 'İnceleme & Teslim Bekliyor') : t('satinalma.surplusReceivedBadge', 'Depoya Alındı (+20 Puan Verildi)')}
                   </span>
                 </div>
                 <div style="font-size: 13.5px; color: #1E293B; margin: 8px 0; background: #F8FAFC; padding: 10px 14px; border-radius: 10px; border-left: 3.5px solid #10B981; line-height: 1.5;">
-                  <strong>Bildirilen Malzemeler:</strong> ${escapeHtml(item.detay_notu || '')}
+                  <strong>${t('satinalma.reportedItems', 'Bildirilen Malzemeler:')}</strong> ${escapeHtml(item.detay_notu || '')}
                 </div>
                 <div style="font-size: 12px; color: #64748B;">
-                  Bildiren: <strong>${escapeHtml(item.personel_adi || 'Birim Yetkilisi')}</strong> ${item.personel_telefon ? `(Dahili: ${escapeHtml(item.personel_telefon)})` : ''} • ${tarih ? new Date(tarih).toLocaleString('tr-TR') : ''}
+                  ${t('satinalma.reportedBy', 'Bildiren:')} <strong>${escapeHtml(item.personel_adi || t('satinalma.deptOfficer', 'Birim Yetkilisi'))}</strong> ${item.personel_telefon ? `(${t('rehber.ext', 'Dahili')}: ${escapeHtml(item.personel_telefon)})` : ''} • ${tarih ? new Date(tarih).toLocaleString(getLanguage() === 'en' ? 'en-US' : 'tr-TR') : ''}
                 </div>
               </div>
             </div>
@@ -530,11 +530,11 @@ function renderAtilMalzemeKuyruk(contentArea, list, search, appContainer) {
             <div>
               ${isBeklemede ? `
                 <button type="button" class="btn btn-primary btn-sm btn-atil-teslim-al" data-id="${item.id}" style="background: #10B981; border: none; font-weight: 700; border-radius: 9999px; padding: 9px 18px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.28); cursor: pointer;">
-                  Depoya Teslim Al (+20 P)
+                  ${t('satinalma.receiveSurplus', 'Depoya Teslim Al (+20 P)')}
                 </button>
               ` : `
                 <span style="font-size: 13px; color: #059669; font-weight: 700;">
-                  Kuruma Kazandırıldı
+                  ${t('satinalma.surplusReceived', 'Kuruma Kazandırıldı')}
                 </span>
               `}
             </div>
@@ -577,8 +577,8 @@ function renderOduncEkipmanKuyruk(contentArea, list, search, appContainer) {
   if (filtered.length === 0) {
     contentArea.innerHTML = `
       <div style="text-align: center; padding: 48px 24px; background: rgba(255, 255, 255, 0.7); border-radius: 24px; border: 1.5px dashed rgba(148, 163, 184, 0.35);">
-        <h4 style="font-size: 15px; font-weight: 700; color: #0F172A; margin-bottom: 4px;">Ödünç Ekipman Talebi Bulunamadı</h4>
-        <p style="font-size: 13px; color: var(--text-dim); margin: 0;">Henüz kayıtlı bir ekipman rezervasyon talebi bulunmuyor.</p>
+        <h4 style="font-size: 15px; font-weight: 700; color: #0F172A; margin-bottom: 4px;">${t('satinalma.noLoanedTitle', 'Ödünç Ekipman Talebi Bulunamadı')}</h4>
+        <p style="font-size: 13px; color: var(--text-dim); margin: 0;">${t('satinalma.noLoanedSub', 'Henüz kayıtlı bir ekipman rezervasyon talebi bulunmuyor.')}</p>
       </div>
     `;
     return;
@@ -594,16 +594,16 @@ function renderOduncEkipmanKuyruk(contentArea, list, search, appContainer) {
 
         let durumBg = '#EFF6FF';
         let durumColor = '#1D4ED8';
-        let durumText = 'Rezervasyon Onaylı';
+        let durumText = t('satinalma.loanApproved', 'Rezervasyon Onaylı');
 
         if (isKullanimda) {
           durumBg = '#F3E8FF';
           durumColor = '#7E22CE';
-          durumText = 'Birimde Kullanımda';
+          durumText = t('satinalma.loanInUse', 'Birimde Kullanımda');
         } else if (isIadeEdildi) {
           durumBg = '#DCFCE7';
           durumColor = '#047857';
-          durumText = 'Depoya İade Alındı (+5 P)';
+          durumText = t('satinalma.loanCompletedStatus', 'Depoya İade Alındı (+5 P)');
         }
 
         return `
@@ -614,21 +614,20 @@ function renderOduncEkipmanKuyruk(contentArea, list, search, appContainer) {
               </div>
               <div style="flex: 1;">
                 <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                  <span style="font-weight: 800; font-size: 15.5px; color: #0F172A;">${escapeHtml(item.ekipman_adi || 'Ekipman')}</span>
+                  <span style="font-weight: 800; font-size: 15.5px; color: #0F172A;">${escapeHtml(tProduct(item.ekipman_adi) || 'Ekipman')}</span>
                   <span style="font-size: 12px; color: #4338CA; background: #EEF2FF; padding: 2px 10px; border-radius: 9999px; font-weight: 700;">
-                    ${escapeHtml(item.birim_adi || 'Birim')}
+                    ${escapeHtml(tDepartment(item.birim_adi) || 'Birim')}
                   </span>
                   <span style="font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 9999px; background: ${durumBg}; color: ${durumColor};">
                     ${durumText}
                   </span>
                 </div>
                 <div style="font-size: 13.5px; color: #1E293B; margin: 8px 0; background: #F8FAFC; padding: 10px 14px; border-radius: 10px; border-left: 3.5px solid #2563EB; line-height: 1.5;">
-                  <strong>Kullanım Amacı:</strong> ${escapeHtml(item.kullanim_amaci || '-')}
+                  <strong>${t('satinalma.loanPurpose', 'Kullanım Amacı:')}</strong> ${escapeHtml(item.kullanim_amaci || '-')}
                 </div>
                 <div style="font-size: 12px; color: #64748B; display: flex; gap: 16px; flex-wrap: wrap;">
-                  <span><strong>Tarihler:</strong> ${escapeHtml(item.baslangic_tarihi || '')} — ${escapeHtml(item.bitis_tarihi || '')}</span>
-                  <span><strong>Tercih:</strong> ${item.teslim_alma_turu === 'teslimat' ? 'Birime Teslimat' : 'Depodan Elden Teslim'}</span>
-                  ${item.personel_adi ? `<span><strong>İstek Sahibi:</strong> ${escapeHtml(item.personel_adi)}</span>` : ''}
+                  <span><strong>${t('common.date', 'Tarih')}:</strong> ${escapeHtml(item.baslangic_tarihi || '')} — ${escapeHtml(item.bitis_tarihi || '')}</span>
+                  ${item.personel_adi ? `<span><strong>${t('common.requester', 'İstek Sahibi')}:</strong> ${escapeHtml(item.personel_adi)}</span>` : ''}
                 </div>
               </div>
             </div>
@@ -636,19 +635,19 @@ function renderOduncEkipmanKuyruk(contentArea, list, search, appContainer) {
             <div style="display: flex; gap: 8px; align-items: center;">
               ${isRezerve ? `
                 <button type="button" class="btn btn-primary btn-sm btn-ekipman-teslim-et" data-id="${item.id}" style="background: #2563EB; border: none; font-weight: 700; border-radius: 9999px; padding: 9px 18px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28); cursor: pointer;">
-                  Birime Teslim Edildi
+                  ${t('satinalma.loanDelivered', 'Birime Teslim Edildi')}
                 </button>
               ` : ''}
 
               ${isKullanimda ? `
                 <button type="button" class="btn btn-primary btn-sm btn-ekipman-iade-al" data-id="${item.id}" style="background: #10B981; border: none; font-weight: 700; border-radius: 9999px; padding: 9px 18px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.28); cursor: pointer;">
-                  Depoya İade Alındı (+5 P)
+                  ${t('satinalma.loanReturned', 'Depoya İade Alındı (+5 P)')}
                 </button>
               ` : ''}
 
               ${isIadeEdildi ? `
                 <span style="font-size: 13px; color: #059669; font-weight: 700;">
-                  Tamamlandı
+                  ${t('satinalma.loanCompleted', 'Tamamlandı')}
                 </span>
               ` : ''}
             </div>

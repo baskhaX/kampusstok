@@ -139,7 +139,9 @@ const DICTIONARIES = {
       colDelivery: 'TESLİM TARİHİ',
       colActions: 'İŞLEMLER',
       noRecords: 'Kayıtlı talep bulunamadı.',
-      confirmReceipt: 'Teslim Aldım'
+      confirmReceipt: 'Teslim Aldım',
+      trackDetails: 'Süreç Takip & Detay',
+      repeat: 'Tekrarla'
     },
     status: {
       beklemede: 'İnceleme Bekliyor',
@@ -203,7 +205,22 @@ const DICTIONARIES = {
       requestsCount: 'İstek',
       notificationsCount: 'Talep Bildirimi',
       userConfirmed: '✓ Teslim Alındı (Kullanıcı Teyitli)',
-      awaitingUserConfirm: 'Teslim Edildi (Kullanıcı Teyidi Bekleniyor)'
+      awaitingUserConfirm: 'Teslim Edildi (Kullanıcı Teyidi Bekleniyor)',
+      reportedItems: 'Bildirilen Malzemeler:',
+      reportedBy: 'Bildiren:',
+      deptOfficer: 'Birim Yetkilisi',
+      surplusAwaiting: 'İnceleme & Teslim Bekliyor',
+      surplusReceivedBadge: 'Depoya Alındı (+20 Puan Verildi)',
+      loanPurpose: 'Kullanım Amacı:',
+      loanPeriod: 'Kullanım Süresi:',
+      loanDays: 'gün',
+      loanAwaiting: 'Onay Bekliyor',
+      loanApproved: 'Rezervasyon Onaylandı (Teslim Hazır)',
+      loanInUse: 'Birim Tarafından Kullanılıyor',
+      loanCompletedStatus: 'Depoya İade Edildi (+5 P)',
+      btnApproveReservation: 'Rezervasyonu Onayla',
+      btnDeliverToDept: 'Birime Teslim Et',
+      btnReceiveReturn: 'Depoya Teslim Al & İadeyi Kapat (+5 P)'
     },
     common: {
       close: 'Kapat',
@@ -216,6 +233,14 @@ const DICTIONARIES = {
       error: 'Hata',
       success: 'Başarılı',
       actions: 'İşlemler',
+      room: 'Oda',
+      building: 'Bina',
+      pcs: 'adet',
+      pack: 'paket',
+      box: 'kutu',
+      case: 'koli',
+      set: 'takım',
+      roll: 'rulo',
       procurementOffice: 'Satın Alma Müdürlüğü',
       departmentUser: 'Birim Kullanıcısı',
       systemArchitect: 'Sistem Tasarımcısı',
@@ -352,10 +377,21 @@ const DICTIONARIES = {
       cardExcelTitle: 'Talepleri Excel\'e Aktar (.xlsx)',
       cardExcelSub: 'Filtrelenen tüm talepleri ve durumlarını Excel çalışma kitabı olarak bilgisayarınıza indirin.',
       cardSlipsTitle: 'Haftalık Dağıtım & Fişler (A4)',
+      wednesdayBadge: 'Çarşamba',
       cardSlipsSub: 'Depo toplama listesi ve birimlere imzalatılacak A4 Malzeme Teslim Fişlerini topluca yazdırın.',
+      deliveryDateWed: 'Teslimat Çarşambası',
+      campusRouteSorted: 'Kampüs Rota Sıralı (Bina ve Kat/Oda Sıralaması)',
+      pickingListBtn: 'Toplama Listesi',
+      btnPrintSlips: 'Toplu Fişleri Yazdır',
+      bulletinTitle: 'Yönetici Tüketim Bülteni',
+      bulletinBadge: 'Yönetim • GS',
+      bulletinSub: 'Yönetim ve Genel Sekreterlik için aylık talep, birim sarfiyatı ve israf tasarruf oranlarını içeren resmi A4 bülten.',
+      reportingMonth: 'Dönem Ayı',
+      year: 'Yıl',
+      viewOnScreen: 'Ekranda İncele',
+      officialBulletinA4: 'Resmi Bülten (A4)',
       deliveryWed: 'Teslimat Çarşambası',
-      btnExportExcel: 'Filtrelenmiş Excel İndir',
-      btnPrintSlips: 'Toplu Fişleri Yazdır'
+      btnExportExcel: 'Filtrelenmiş Excel İndir'
     },
     rehber: {
       title: 'Kurumsal Rehber & Yetkilendirme',
@@ -395,7 +431,30 @@ const DICTIONARIES = {
       cardLoanDesc: 'Nadir kullanılan araçları satın almak yerine ortak havuzdan geçici ödünç alın.',
       cardNudgeTitle: 'Nudge Akıllı Sepet',
       cardNudgeBadge: '+10 Puan',
-      cardNudgeDesc: 'Sepetinizdeki yeşil tasarruf önerilerini kabul ettiğinizde puan kazanın.'
+      cardNudgeDesc: 'Sepetinizdeki yeşil tasarruf önerilerini kabul ettiğinizde puan kazanın.',
+      cardDeliveryTitle: 'Zamanında Teslim Onayı',
+      cardDeliveryBadge: '+5 Puan',
+      cardDeliveryDesc: 'Çarşamba teslimatında malzemelerinizi teslim alıp sisteme anında onay vererek kampüs lojistik rotasını hızlandırın.',
+      topAcademicDepts: 'En Yeşil Akademik Bölümler',
+      totalDepts: 'Toplam {count} Bölüm',
+      topAdminDepts: 'En Yeşil İdari Müdürlükler',
+      totalDirectorates: 'Toplam {count} Müdürlük',
+      myDeptRank: 'Biriminizin Sırası:',
+      myDeptScore: 'Toplam Puanınız:',
+      rankSuffix: '. Sırada',
+      liveLeaderboard: 'Canlı Liderlik Tablosu',
+      leaderboardSub: 'Her ay 100 taban puanla başlar; çevre dostu eylemlerle puan kazanılır.',
+      tabAdminDirectorates: 'İdari Müdürlükler',
+      tabAcademicDepts: 'Akademik Bölümler',
+      colRank: 'Sıra',
+      colDeptName: 'Birim Adı',
+      colReturn: 'İade',
+      colNudge: 'Nudge',
+      colDelivery: 'Teslim',
+      colTotalPoints: 'Toplam Puan',
+      staffCount: '{count} Personel',
+      dataPreparing: 'Veri hazırlanıyor...',
+      noDeptsInLeague: 'Bu ligde henüz kayıtlı birim bulunmuyor.'
     },
     istekSahibi: {
       title: 'İstek Sahibi Belirleme',
@@ -538,7 +597,9 @@ const DICTIONARIES = {
       colDelivery: 'DELIVERY DATE',
       colActions: 'ACTIONS',
       noRecords: 'No requisitions found.',
-      confirmReceipt: 'Confirm Receipt'
+      confirmReceipt: 'Confirm Receipt',
+      trackDetails: 'Track Order & Details',
+      repeat: 'Reorder'
     },
     status: {
       beklemede: 'Pending Review',
@@ -602,7 +663,22 @@ const DICTIONARIES = {
       requestsCount: 'Requisitions',
       notificationsCount: 'Requisition Notice',
       userConfirmed: '✓ Received (User Confirmed)',
-      awaitingUserConfirm: 'Delivered (Awaiting User Confirmation)'
+      awaitingUserConfirm: 'Delivered (Awaiting User Confirmation)',
+      reportedItems: 'Reported Items:',
+      reportedBy: 'Reported by:',
+      deptOfficer: 'Department Officer',
+      surplusAwaiting: 'Awaiting Inspection & Pickup',
+      surplusReceivedBadge: 'Received to Warehouse (+20 Points)',
+      loanPurpose: 'Purpose of Use:',
+      loanPeriod: 'Loan Period:',
+      loanDays: 'days',
+      loanAwaiting: 'Awaiting Approval',
+      loanApproved: 'Reservation Approved (Ready for Pickup)',
+      loanInUse: 'In Use by Department',
+      loanCompletedStatus: 'Returned to Warehouse (+5 P)',
+      btnApproveReservation: 'Approve Reservation',
+      btnDeliverToDept: 'Dispatch to Department',
+      btnReceiveReturn: 'Accept Return & Complete (+5 P)'
     },
     common: {
       close: 'Close',
@@ -615,6 +691,14 @@ const DICTIONARIES = {
       error: 'Error',
       success: 'Success',
       actions: 'Actions',
+      room: 'Room',
+      building: 'Building',
+      pcs: 'pcs',
+      pack: 'pack',
+      box: 'box',
+      case: 'case',
+      set: 'set',
+      roll: 'roll',
       procurementOffice: 'Procurement Directorate',
       departmentUser: 'Department User',
       systemArchitect: 'System Architect',
@@ -751,10 +835,21 @@ const DICTIONARIES = {
       cardExcelTitle: 'Export Requisitions to Excel (.xlsx)',
       cardExcelSub: 'Download all filtered requisitions and statuses as an Excel spreadsheet workbook.',
       cardSlipsTitle: 'Weekly Distribution & Delivery Slips (A4)',
+      wednesdayBadge: 'Wednesday',
       cardSlipsSub: 'Batch print warehouse picking lists and A4 signed delivery receipt slips.',
+      deliveryDateWed: 'Delivery Date (Wednesday)',
+      campusRouteSorted: 'Campus Route Sorted (Building & Floor/Room Sequence)',
+      pickingListBtn: 'Picking List',
+      btnPrintSlips: 'Print Bulk Slips',
+      bulletinTitle: 'Executive Consumption Bulletin',
+      bulletinBadge: 'Executive • GS',
+      bulletinSub: 'Official A4 bulletin featuring monthly demand, department consumption, and waste-reduction savings ratios for Executive Leadership.',
+      reportingMonth: 'Reporting Month',
+      year: 'Year',
+      viewOnScreen: 'Review on Screen',
+      officialBulletinA4: 'Official Bulletin (A4)',
       deliveryWed: 'Delivery Date',
-      btnExportExcel: 'Export Filtered Excel',
-      btnPrintSlips: 'Print Bulk Slips'
+      btnExportExcel: 'Export Filtered Excel'
     },
     rehber: {
       title: 'Corporate Directory & Access Control',
@@ -794,7 +889,30 @@ const DICTIONARIES = {
       cardLoanDesc: 'Borrow infrequently used equipment temporarily instead of purchasing new supplies.',
       cardNudgeTitle: 'Nudge Smart Cart',
       cardNudgeBadge: '+10 Points',
-      cardNudgeDesc: 'Earn green points when accepting eco-friendly alternatives in your cart.'
+      cardNudgeDesc: 'Earn green points when accepting eco-friendly alternatives in your cart.',
+      cardDeliveryTitle: 'Timely Delivery Confirmation',
+      cardDeliveryBadge: '+5 Points',
+      cardDeliveryDesc: 'Confirm received supplies on distribution day to accelerate campus logistics routing.',
+      topAcademicDepts: 'Top Green Academic Departments',
+      totalDepts: 'Total {count} Departments',
+      topAdminDepts: 'Top Green Administrative Directorates',
+      totalDirectorates: 'Total {count} Directorates',
+      myDeptRank: 'Your Department Rank:',
+      myDeptScore: 'Your Total Score:',
+      rankSuffix: ' in Rank',
+      liveLeaderboard: 'Live Sustainability Leaderboard',
+      leaderboardSub: 'Starts at 100 base points monthly; bonus points earned through eco-conscious actions.',
+      tabAdminDirectorates: 'Administrative Directorates',
+      tabAcademicDepts: 'Academic Departments',
+      colRank: 'RANK',
+      colDeptName: 'DEPARTMENT',
+      colReturn: 'RETURN',
+      colNudge: 'NUDGE',
+      colDelivery: 'DELIVERY',
+      colTotalPoints: 'TOTAL POINTS',
+      staffCount: '{count} Staff',
+      dataPreparing: 'Preparing data...',
+      noDeptsInLeague: 'No departments registered in this league yet.'
     },
     istekSahibi: {
       title: 'Select Requisitioner',
@@ -925,7 +1043,215 @@ export function t(keyPath, defaultText = '') {
 // Global window erişimi
 if (typeof window !== 'undefined') {
   window.__t = t;
-  window.__i18n = { getLanguage, setLanguage, t, supportedLangs: SUPPORTED_LANGS };
+  window.__tCategory = tCategory;
+  window.__tProduct = tProduct;
+  window.__tDepartment = tDepartment;
+  window.__tUnit = tUnit;
+  window.__tBuilding = tBuilding;
+  window.__tMonth = tMonth;
+  window.__tActionType = tActionType;
+  window.__i18n = {
+    getLanguage,
+    setLanguage,
+    t,
+    tCategory,
+    tProduct,
+    tDepartment,
+    tUnit,
+    tBuilding,
+    tMonth,
+    tActionType,
+    supportedLangs: SUPPORTED_LANGS
+  };
 }
 
-export default { initI18n, getLanguage, setLanguage, getSupportedLanguages, t, supportedLangs: SUPPORTED_LANGS };
+// =====================================================================
+// DOMAIN ENTITY TRANSLATION MAPS (Database Seed Entities -> Multi-Language)
+// =====================================================================
+
+export const CATEGORY_MAP = {
+  // Main Categories
+  'Kağıt ve Defter Grubu': { en: 'Paper & Notebooks Group', tr: 'Kağıt ve Defter Grubu' },
+  'Yazım ve Çizim Gereçleri': { en: 'Writing & Drawing Supplies', tr: 'Yazım ve Çizim Gereçleri' },
+  'Dosyalama ve Arşivleme': { en: 'Filing & Archiving', tr: 'Dosyalama ve Arşivleme' },
+  'Masaüstü Kırtasiye Gereçleri': { en: 'Desktop Stationery Supplies', tr: 'Masaüstü Kırtasiye Gereçleri' },
+
+  // Sub Categories
+  'Fotokopi Kağıtları': { en: 'Copy Paper', tr: 'Fotokopi Kağıtları' },
+  'Not Kağıtları ve Bloknot': { en: 'Notepads & Sticky Notes', tr: 'Not Kağıtları ve Bloknot' },
+  'Resmi Zarf ve Formlar': { en: 'Official Envelopes & Forms', tr: 'Resmi Zarf ve Formlar' },
+  'Tükenmez ve Jel Kalemler': { en: 'Ballpoint & Gel Pens', tr: 'Tükenmez ve Jel Kalemler' },
+  'Tahta ve Fosforlu Kalemler': { en: 'Whiteboard & Highlighters', tr: 'Tahta ve Fosforlu Kalemler' },
+  'Sınav ve Çizim Gereçleri': { en: 'Exam & Drafting Supplies', tr: 'Sınav ve Çizim Gereçleri' },
+  'Klasör ve Telli Dosyalar': { en: 'Binders & Prong Folders', tr: 'Klasör ve Telli Dosyalar' },
+  'Poşet Dosyalar ve Gömlekler': { en: 'Sheet Protectors & Sleeves', tr: 'Poşet Dosyalar ve Gömlekler' },
+  'Arşivleme ve Sunum Dosyaları': { en: 'Archiving & Presentation Folders', tr: 'Arşivleme ve Sunum Dosyaları' },
+  'Zımba, Delgeç ve Teller': { en: 'Staplers, Punches & Staples', tr: 'Zımba, Delgeç ve Teller' },
+  'Bant, Yapıştırıcı ve Makas': { en: 'Tape, Glue & Scissors', tr: 'Bant, Yapıştırıcı ve Makas' },
+  'Ataç ve Kıskaçlar': { en: 'Paperclips & Binder Clips', tr: 'Ataç ve Kıskaçlar' },
+  'Masaüstü Düzen ve Kaşe': { en: 'Desk Organizers & Stamps', tr: 'Masaüstü Düzen ve Kaşe' },
+  'Ofis Elektroniği ve Piller': { en: 'Office Electronics & Batteries', tr: 'Ofis Elektroniği ve Piller' }
+};
+
+export const PRODUCT_MAP = {
+  'A4 Fotokopi Kağıdı 80 gr (500 Yaprak)': { en: 'A4 Copy Paper 80 gsm (500 Sheets)', tr: 'A4 Fotokopi Kağıdı 80 gr (500 Yaprak)' },
+  'A4 Fotokopi Kağıdı 80 gr (1 Kutu / 5 Paket)': { en: 'A4 Copy Paper 80 gsm (1 Box / 5 Reams)', tr: 'A4 Fotokopi Kağıdı 80 gr (1 Kutu / 5 Paket)' },
+  'A3 Fotokopi Kağıdı 80 gr (500 Yaprak)': { en: 'A3 Copy Paper 80 gsm (500 Sheets)', tr: 'A3 Fotokopi Kağıdı 80 gr (500 Yaprak)' },
+  "Mavi Tükenmez Kalem 0.7 mm (50'li Kutu)": { en: 'Blue Ballpoint Pen 0.7 mm (Box of 50)', tr: "Mavi Tükenmez Kalem 0.7 mm (50'li Kutu)" },
+  "Siyah Jel Kalem 0.5 mm (12'li Kutu)": { en: 'Black Gel Pen 0.5 mm (Box of 12)', tr: "Siyah Jel Kalem 0.5 mm (12'li Kutu)" },
+  "Kırmızı Tükenmez Kalem 0.7 mm (50'li Kutu)": { en: 'Red Ballpoint Pen 0.7 mm (Box of 50)', tr: "Kırmızı Tükenmez Kalem 0.7 mm (50'li Kutu)" },
+  "Fosforlu Kalem 4'lü Karışık Set": { en: 'Highlighter Set 4 Assorted Colors', tr: "Fosforlu Kalem 4'lü Karışık Set" },
+  'Beyaz Yazı Tahtası Kalemi 4 Renk Set': { en: 'Whiteboard Marker 4-Color Set', tr: 'Beyaz Yazı Tahtası Kalemi 4 Renk Set' },
+  'Geniş Sırtlı Mekanizmalı A4 Klasör (Mavi)': { en: 'Wide Spine Lever Arch A4 Binder (Blue)', tr: 'Geniş Sırtlı Mekanizmalı A4 Klasör (Mavi)' },
+  'Dar Sırtlı Mekanizmalı A4 Klasör (Siyah)': { en: 'Slim Spine Lever Arch A4 Binder (Black)', tr: 'Dar Sırtlı Mekanizmalı A4 Klasör (Siyah)' },
+  "Şeffaf Poşet Dosya A4 (100'lü Paket)": { en: 'Clear Sheet Protectors A4 (Pack of 100)', tr: "Şeffaf Poşet Dosya A4 (100'lü Paket)" },
+  "Renkli Plastik Telli Dosya (50'li Paket)": { en: 'Colored Plastic Prong Folders (Pack of 50)', tr: "Renkli Plastik Telli Dosya (50'li Paket)" },
+  'Standart Masaüstü Zımba Makinesi No: 24/6': { en: 'Standard Desktop Stapler No: 24/6', tr: 'Standart Masaüstü Zımba Makinesi No: 24/6' },
+  "Zımba Teli No: 24/6 (1000'li Kutu)": { en: 'Staples No: 24/6 (Box of 1000)', tr: "Zımba Teli No: 24/6 (1000'li Kutu)" },
+  '2 Delikli Metal Masaüstü Delgeç (30 Sayfa)': { en: '2-Hole Metal Desktop Punch (30 Sheets)', tr: '2 Delikli Metal Masaüstü Delgeç (30 Sayfa)' },
+  'Sıvı/Stick Yapıştırıcı Pritt 43 gr': { en: 'Glue Stick Pritt 43 g', tr: 'Sıvı/Stick Yapıştırıcı Pritt 43 gr' },
+  'Şeffaf Koli Bandı 45 mm x 100 m': { en: 'Clear Packing Tape 45 mm x 100 m', tr: 'Şeffaf Koli Bandı 45 mm x 100 m' },
+  'Post-it Kendinden Yapışkanlı Not Kağıdı Sarı': { en: 'Post-it Self-Adhesive Sticky Notes Yellow', tr: 'Post-it Kendinden Yapışkanlı Not Kağıdı Sarı' },
+  "Nikelajlı Metal Ataç No: 3 (100'lü Kutu)": { en: 'Nickel-Plated Metal Paperclips No: 3 (Box of 100)', tr: "Nikelajlı Metal Ataç No: 3 (100'lü Kutu)" },
+  "Büyük Boy Metal Kıskaç 32 mm (12'li Kutu)": { en: 'Large Metal Binder Clips 32 mm (Box of 12)', tr: "Büyük Boy Metal Kıskaç 32 mm (12'li Kutu)" },
+  'Resmi Antetli A4 Kağıdı (500 Sayfa)': { en: 'Official Letterhead A4 Paper (500 Sheets)', tr: 'Resmi Antetli A4 Kağıdı (500 Sayfa)' },
+  "Resmi Diplomat Zarf Pencereli (100'lü Kutu)": { en: 'Official Windowed Diplomat Envelopes (Box of 100)', tr: "Resmi Diplomat Zarf Pencereli (100'lü Kutu)" },
+  'USB 3.0 Flash Bellek 32 GB (Metal Gövde)': { en: 'USB 3.0 Flash Drive 32 GB (Metal Body)', tr: 'USB 3.0 Flash Bellek 32 GB (Metal Gövde)' },
+  'Alkalin Kalem Pil AA 1.5V (Tane)': { en: 'Alkaline AA Battery 1.5V (Single Unit)', tr: 'Alkalin Kalem Pil AA 1.5V (Tane)' }
+};
+
+export const DEPARTMENT_MAP = {
+  'Rektörlük Makamı': { en: 'Executive Leadership Office', tr: 'Rektörlük Makamı' },
+  'Genel Sekreterlik': { en: 'General Secretariat', tr: 'Genel Sekreterlik' },
+  'Mühendislik Fakültesi Dekanlığı': { en: "Faculty of Engineering Dean's Office", tr: 'Mühendislik Fakültesi Dekanlığı' },
+  'Bilgisayar Mühendisliği Bölümü': { en: 'Department of Computer Engineering', tr: 'Bilgisayar Mühendisliği Bölümü' },
+  'Elektrik-Elektronik Mühendisliği Bölümü': { en: 'Department of Electrical & Electronics Engineering', tr: 'Elektrik-Elektronik Mühendisliği Bölümü' },
+  'İktisadi ve İdari Bilimler Fakültesi': { en: 'Faculty of Economics & Administrative Sciences', tr: 'İktisadi ve İdari Bilimler Fakültesi' },
+  'Fen-Edebiyat Fakültesi': { en: 'Faculty of Arts & Sciences', tr: 'Fen-Edebiyat Fakültesi' },
+  'Öğrenci İşleri Müdürlüğü': { en: 'Student Affairs Directorate', tr: 'Öğrenci İşleri Müdürlüğü' },
+  'İdari ve Mali İşler Müdürlüğü': { en: 'Administrative & Financial Affairs Directorate', tr: 'İdari ve Mali İşler Müdürlüğü' },
+  'Bilgi İşlem Müdürlüğü': { en: 'IT Directorate', tr: 'Bilgi İşlem Müdürlüğü' },
+  'Kütüphane ve Dokümantasyon Müdürlüğü': { en: 'Library & Documentation Directorate', tr: 'Kütüphane ve Dokümantasyon Müdürlüğü' },
+  'Satın Alma Müdürlüğü': { en: 'Procurement Directorate', tr: 'Satın Alma Müdürlüğü' }
+};
+
+export const UNIT_MAP = {
+  'adet': { en: 'pcs', tr: 'adet' },
+  'paket': { en: 'pack', tr: 'paket' },
+  'kutu': { en: 'box', tr: 'kutu' },
+  'koli': { en: 'case', tr: 'koli' },
+  'takim': { en: 'set', tr: 'takım' },
+  'takım': { en: 'set', tr: 'takım' },
+  'rulo': { en: 'roll', tr: 'rulo' }
+};
+
+export const BUILDING_MAP = {
+  'Rektörlük Binası': { en: 'Executive Building', tr: 'Rektörlük Binası' },
+  'Mühendislik Binası': { en: 'Engineering Building', tr: 'Mühendislik Binası' },
+  'İİBF Binası': { en: 'FEAS Building', tr: 'İİBF Binası' },
+  'Fen Binası': { en: 'Science Building', tr: 'Fen Binası' },
+  'Öğrenci Merkezi': { en: 'Student Center', tr: 'Öğrenci Merkezi' },
+  'İdari Bina': { en: 'Administrative Building', tr: 'İdari Bina' },
+  'Bilişim Merkezi': { en: 'IT Center', tr: 'Bilişim Merkezi' },
+  'Merkez Kütüphane': { en: 'Central Library', tr: 'Merkez Kütüphane' }
+};
+
+export const MONTH_NAMES = {
+  1: { en: 'January', tr: 'Ocak' },
+  2: { en: 'February', tr: 'Şubat' },
+  3: { en: 'March', tr: 'Mart' },
+  4: { en: 'April', tr: 'Nisan' },
+  5: { en: 'May', tr: 'Mayıs' },
+  6: { en: 'June', tr: 'Haziran' },
+  7: { en: 'July', tr: 'Temmuz' },
+  8: { en: 'August', tr: 'Ağustos' },
+  9: { en: 'September', tr: 'Eylül' },
+  10: { en: 'October', tr: 'Ekim' },
+  11: { en: 'November', tr: 'Kasım' },
+  12: { en: 'December', tr: 'Aralık' }
+};
+
+export const ACTION_TYPE_MAP = {
+  'SUNUM_INCELEME': { en: 'Presentation Review', tr: 'Sunum İnceleme' },
+  'GIRIS': { en: 'User Login', tr: 'Kullanıcı Girişi' },
+  'CIKIS': { en: 'User Logout', tr: 'Kullanıcı Çıkışı' },
+  'TALEP_OLUSTURMA': { en: 'Requisition Created', tr: 'Talep Oluşturma' },
+  'TALEP_ONAY': { en: 'Requisition Approved', tr: 'Talep Onayı' },
+  'TALEP_RED': { en: 'Requisition Rejected', tr: 'Talep Reddi' },
+  'TALEP_REVIZE': { en: 'Requisition Revised', tr: 'Talep Revizesi' },
+  'TALEP_TESLIM': { en: 'Requisition Delivered', tr: 'Talep Teslimi' },
+  'STOK_HAREKET': { en: 'Stock Movement', tr: 'Stok Hareketi' },
+  'STOK_GIRIS': { en: 'Stock Receipt', tr: 'Stok Girişi' },
+  'STOK_GUNCELLE': { en: 'Stock Update', tr: 'Stok Güncelleme' },
+  'SIFRE_GUNCELLEME': { en: 'Password Changed', tr: 'Şifre Güncelleme' },
+  'VEKALET_VERILDI': { en: 'Delegation Assigned', tr: 'Yetki Devri Verildi' },
+  'VEKALET_SONLANDI': { en: 'Delegation Ended', tr: 'Yetki Devri Sona Erdi' }
+};
+
+export function tCategory(name) {
+  if (!name) return '';
+  const lang = currentLang === 'en' ? 'en' : 'tr';
+  return (CATEGORY_MAP[name] && CATEGORY_MAP[name][lang]) || name;
+}
+
+export function tProduct(name) {
+  if (!name) return '';
+  const lang = currentLang === 'en' ? 'en' : 'tr';
+  return (PRODUCT_MAP[name] && PRODUCT_MAP[name][lang]) || name;
+}
+
+export function tDepartment(name) {
+  if (!name) return '';
+  const lang = currentLang === 'en' ? 'en' : 'tr';
+  return (DEPARTMENT_MAP[name] && DEPARTMENT_MAP[name][lang]) || name;
+}
+
+export function tUnit(unit) {
+  if (!unit) return '';
+  const lang = currentLang === 'en' ? 'en' : 'tr';
+  const clean = String(unit).toLowerCase().trim();
+  return (UNIT_MAP[clean] && UNIT_MAP[clean][lang]) || unit;
+}
+
+export function tBuilding(name) {
+  if (!name) return '';
+  const lang = currentLang === 'en' ? 'en' : 'tr';
+  return (BUILDING_MAP[name] && BUILDING_MAP[name][lang]) || name;
+}
+
+export function tMonth(monthVal) {
+  const lang = currentLang === 'en' ? 'en' : 'tr';
+  const num = parseInt(monthVal, 10);
+  if (!isNaN(num) && MONTH_NAMES[num]) {
+    return MONTH_NAMES[num][lang];
+  }
+  for (const k in MONTH_NAMES) {
+    if (MONTH_NAMES[k].tr.toLowerCase() === String(monthVal).toLowerCase() ||
+        MONTH_NAMES[k].en.toLowerCase() === String(monthVal).toLowerCase()) {
+      return MONTH_NAMES[k][lang];
+    }
+  }
+  return monthVal;
+}
+
+export function tActionType(type) {
+  if (!type) return '';
+  const lang = currentLang === 'en' ? 'en' : 'tr';
+  return (ACTION_TYPE_MAP[type] && ACTION_TYPE_MAP[type][lang]) || type;
+}
+
+export default {
+  initI18n,
+  getLanguage,
+  setLanguage,
+  getSupportedLanguages,
+  t,
+  tCategory,
+  tProduct,
+  tDepartment,
+  tUnit,
+  tBuilding,
+  tMonth,
+  tActionType,
+  supportedLangs: SUPPORTED_LANGS
+};

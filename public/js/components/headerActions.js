@@ -7,7 +7,7 @@ import showOnboardingModal from './onboardingModal.js';
 import { mountNotificationBell, playChimeSound } from './notificationBell.js';
 import { openVekaletModal } from './vekaletModal.js';
 import { escapeHtml } from '../utils/text.js';
-import { t, getLanguage, setLanguage } from '../utils/i18n.js';
+import { t, getLanguage, setLanguage, tDepartment } from '../utils/i18n.js';
 
 function getInitials(name) {
   if (!name) return '??';
@@ -61,6 +61,7 @@ export function mountHeaderActions(targetEl, options = {}) {
   const roleProcurement = t('common.procurementOffice', 'Satın Alma Müdürlüğü');
   const roleDeptUser = t('common.departmentUser', 'Birim Kullanıcısı');
   const roleSysArchitect = t('common.systemArchitect', 'Sistem Tasarımcısı');
+  const localizedBirimAd = birimAd ? tDepartment(birimAd) : '';
 
   if (isAdmin) {
     uName = 'Yapıcı';
@@ -68,22 +69,22 @@ export function mountHeaderActions(targetEl, options = {}) {
     customInitials = 'YP';
   } else if (user.seciliPersonel && user.seciliPersonel.adSoyad) {
     uName = user.seciliPersonel.adSoyad;
-    uRole = birimAd || (isSatinAlma ? roleProcurement : roleDeptUser);
+    uRole = localizedBirimAd || (isSatinAlma ? roleProcurement : roleDeptUser);
   } else if (user.personelAdi || user.adSoyad) {
     uName = user.personelAdi || user.adSoyad;
-    uRole = birimAd || (isSatinAlma ? roleProcurement : roleDeptUser);
+    uRole = localizedBirimAd || (isSatinAlma ? roleProcurement : roleDeptUser);
   } else if (isSatinAlma) {
-    if (user.kullaniciAdi === 'Atest') {
-      uName = isSatinAlma ? 'Atest' : 'Satın Alma Yetkilisi';
+    if (user.kullaniciAdi && user.kullaniciAdi.toLowerCase() === 'atest') {
+      uName = 'atest';
       uRole = roleProcurement;
       customInitials = 'AT';
     } else {
       uName = user.kullaniciAdi || 'Satın Alma Yetkilisi';
-      uRole = birimAd || roleProcurement;
+      uRole = localizedBirimAd || roleProcurement;
     }
   } else {
-    uName = birimAd || user.kullaniciAdi || 'Kullanıcı';
-    uRole = birimAd || roleDeptUser;
+    uName = localizedBirimAd || user.kullaniciAdi || 'Kullanıcı';
+    uRole = localizedBirimAd || roleDeptUser;
   }
 
   let isVekil = false;

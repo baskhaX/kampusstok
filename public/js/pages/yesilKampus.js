@@ -6,7 +6,7 @@ import { openAtilMalzemeModal } from '../components/atilMalzemeModal.js';
 import { openOduncEkipmanModal } from '../components/oduncEkipmanModal.js';
 import { openYesilLigModal } from '../components/yesilLigModal.js';
 import { escapeHtml } from '../utils/text.js';
-import { t, getLanguage } from '../utils/i18n.js';
+import { t, getLanguage, tDepartment, tMonth } from '../utils/i18n.js';
 
 let aktifLigSekme = 'idari'; // 'idari' veya 'akademik'
 
@@ -74,41 +74,41 @@ export async function renderYesilKampus(appContainer) {
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 28px;">
         <div style="background: rgba(255, 255, 255, 0.88); border: 1.2px solid rgba(16, 185, 129, 0.25); border-radius: 16px; padding: 18px; box-shadow: 0 4px 14px rgba(0,0,0,0.03); backdrop-filter: blur(8px);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <span style="font-weight: 800; font-size: 14.5px; color: #0f172a;">Atıl Malzeme İadesi</span>
-            <span style="background: #ecfdf5; color: #059669; font-weight: 800; font-size: 12px; padding: 3px 9px; border-radius: 9999px;">+20 Puan</span>
+            <span style="font-weight: 800; font-size: 14.5px; color: #0f172a;">${t('yesilKampus.cardSurplusTitle', 'Atıl Malzeme İadesi')}</span>
+            <span style="background: #ecfdf5; color: #059669; font-weight: 800; font-size: 12px; padding: 3px 9px; border-radius: 9999px;">${t('yesilKampus.cardSurplusBadge', '+20 Puan')}</span>
           </div>
           <div style="font-size: 12.5px; color: #64748b; line-height: 1.45;">
-            Dolapta veya çekmecede atıl bekleyen klasör, zımba vb. kırtasiyeleri depoya bildirin, Çarşamba günü odanızdan teslim alalım.
+            ${t('yesilKampus.cardSurplusDesc', 'Dolapta veya çekmecede atıl bekleyen klasör, zımba vb. kırtasiyeleri depoya bildirin, Çarşamba günü odanızdan teslim alalım.')}
           </div>
         </div>
 
         <div style="background: rgba(255, 255, 255, 0.88); border: 1.2px solid rgba(37, 99, 235, 0.25); border-radius: 16px; padding: 18px; box-shadow: 0 4px 14px rgba(0,0,0,0.03); backdrop-filter: blur(8px);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <span style="font-weight: 800; font-size: 14.5px; color: #0f172a;">Ortak Havuz Ekipmanı</span>
-            <span style="background: #eff6ff; color: #2563eb; font-weight: 800; font-size: 12px; padding: 3px 9px; border-radius: 9999px;">+10 Puan</span>
+            <span style="font-weight: 800; font-size: 14.5px; color: #0f172a;">${t('yesilKampus.cardLoanTitle', 'Ortak Havuz Ekipmanı')}</span>
+            <span style="background: #eff6ff; color: #2563eb; font-weight: 800; font-size: 12px; padding: 3px 9px; border-radius: 9999px;">${t('yesilKampus.cardLoanBadge', '+10 Puan')}</span>
           </div>
           <div style="font-size: 12.5px; color: #64748b; line-height: 1.45;">
-            Nadir kullanılan pahalı araçları (ağır hizmet tipi zımba, sunum kumandası vb.) satın almak yerine ortak havuzdan geçici ödünç alın.
+            ${t('yesilKampus.cardLoanDesc', 'Nadir kullanılan araçları satın almak yerine ortak havuzdan geçici ödünç alın.')}
           </div>
         </div>
 
         <div style="background: rgba(255, 255, 255, 0.88); border: 1.2px solid rgba(245, 158, 11, 0.25); border-radius: 16px; padding: 18px; box-shadow: 0 4px 14px rgba(0,0,0,0.03); backdrop-filter: blur(8px);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <span style="font-weight: 800; font-size: 14.5px; color: #0f172a;">Nudge Akıllı Sepet</span>
-            <span style="background: #fef3c7; color: #b45309; font-weight: 800; font-size: 12px; padding: 3px 9px; border-radius: 9999px;">+10 Puan</span>
+            <span style="font-weight: 800; font-size: 14.5px; color: #0f172a;">${t('yesilKampus.cardNudgeTitle', 'Nudge Akıllı Sepet')}</span>
+            <span style="background: #fef3c7; color: #b45309; font-weight: 800; font-size: 12px; padding: 3px 9px; border-radius: 9999px;">${t('yesilKampus.cardNudgeBadge', '+10 Puan')}</span>
           </div>
           <div style="font-size: 12.5px; color: #64748b; line-height: 1.45;">
-            Sepetinizdeki yeşil tasarruf önerilerini (daha ekonomik paket, geri dönüştürülmüş ürün) kabul ettiğinizde puan kazanın.
+            ${t('yesilKampus.cardNudgeDesc', 'Sepetinizdeki yeşil tasarruf önerilerini (daha ekonomik paket, geri dönüştürülmüş ürün) kabul ettiğinizde puan kazanın.')}
           </div>
         </div>
 
         <div style="background: rgba(255, 255, 255, 0.88); border: 1.2px solid rgba(139, 92, 246, 0.25); border-radius: 16px; padding: 18px; box-shadow: 0 4px 14px rgba(0,0,0,0.03); backdrop-filter: blur(8px);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <span style="font-weight: 800; font-size: 14.5px; color: #0f172a;">Zamanında Teslim Onayı</span>
-            <span style="background: #f5f3ff; color: #7c3aed; font-weight: 800; font-size: 12px; padding: 3px 9px; border-radius: 9999px;">+5 Puan</span>
+            <span style="font-weight: 800; font-size: 14.5px; color: #0f172a;">${t('yesilKampus.cardDeliveryTitle', 'Zamanında Teslim Onayı')}</span>
+            <span style="background: #f5f3ff; color: #7c3aed; font-weight: 800; font-size: 12px; padding: 3px 9px; border-radius: 9999px;">${t('yesilKampus.cardDeliveryBadge', '+5 Puan')}</span>
           </div>
           <div style="font-size: 12.5px; color: #64748b; line-height: 1.45;">
-            Çarşamba teslimatında malzemelerinizi teslim alıp sisteme anında onay vererek kampüs lojistik rotasını hızlandırın.
+            ${t('yesilKampus.cardDeliveryDesc', 'Çarşamba teslimatında malzemelerinizi teslim alıp sisteme anında onay vererek kampüs lojistik rotasını hızlandırın.')}
           </div>
         </div>
       </div>
@@ -119,10 +119,10 @@ export async function renderYesilKampus(appContainer) {
         <div style="background: rgba(255, 255, 255, 0.95); border: 1.5px solid #e2e8f0; border-radius: 18px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.04);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
             <div style="font-weight: 800; font-size: 15px; color: #0f172a;">
-              En Yeşil Akademik Bölümler
+              ${t('yesilKampus.topAcademicDepts', 'En Yeşil Akademik Bölümler')}
             </div>
             <span style="font-size: 11.5px; font-weight: 700; color: #059669; background: #ecfdf5; padding: 3px 10px; border-radius: 9999px;">
-              Toplam ${akaList.length} Bölüm
+              ${t('yesilKampus.totalDepts', 'Toplam {count} Bölüm').replace('{count}', akaList.length)}
             </span>
           </div>
 
@@ -134,18 +134,18 @@ export async function renderYesilKampus(appContainer) {
                 <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13.5px; padding: 8px 12px; border-radius: 10px; ${isMine ? 'background: #dcfce7; font-weight: 800; border: 1px solid #86efac;' : 'background: #f8fafc;'}">
                   <span style="color: #1e293b; display: flex; align-items: center; gap: 8px;">
                     <span style="font-size: 12px; font-weight: 700; color: #64748b; background: #e2e8f0; padding: 1px 6px; border-radius: 4px;">#${sira}</span>
-                    <span>${escapeHtml(b.birim_adi)}</span>
+                    <span>${escapeHtml(tDepartment(b.birim_adi))}</span>
                   </span>
                   <span style="font-weight: 800; color: #065f46; font-size: 14px;">${b.toplam_puan} P</span>
                 </div>
               `;
-            }).join('') : '<div style="font-size: 13px; color: #94a3b8; text-align: center; padding: 16px;">Veri hazırlanıyor...</div>'}
+            }).join('') : `<div style="font-size: 13px; color: #94a3b8; text-align: center; padding: 16px;">${t('yesilKampus.dataPreparing', 'Veri hazırlanıyor...')}</div>`}
           </div>
 
           ${myBirim && myBirim.lig === 'akademik' ? `
             <div style="margin-top: 14px; padding: 10px 14px; background: #ecfdf5; border-radius: 10px; font-size: 12.5px; color: #065f46; display: flex; justify-content: space-between; align-items: center; font-weight: 700;">
-              <span>Bölümünüzün Sırası: <strong>${myBirim.sira}. Sırada</strong></span>
-              <span>Toplam Puanınız: <strong>${myBirim.toplam_puan} P</strong></span>
+              <span>${t('yesilKampus.myDeptRank', 'Bölümünüzün Sırası:')} <strong>#${myBirim.sira}</strong></span>
+              <span>${t('yesilKampus.myDeptScore', 'Toplam Puanınız:')} <strong>${myBirim.toplam_puan} P</strong></span>
             </div>
           ` : ''}
         </div>
@@ -154,10 +154,10 @@ export async function renderYesilKampus(appContainer) {
         <div style="background: rgba(255, 255, 255, 0.95); border: 1.5px solid #e2e8f0; border-radius: 18px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.04);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
             <div style="font-weight: 800; font-size: 15px; color: #0f172a;">
-              En Yeşil İdari Müdürlükler
+              ${t('yesilKampus.topAdminDepts', 'En Yeşil İdari Müdürlükler')}
             </div>
             <span style="font-size: 11.5px; font-weight: 700; color: #059669; background: #ecfdf5; padding: 3px 10px; border-radius: 9999px;">
-              Toplam ${idariList.length} Müdürlük
+              ${t('yesilKampus.totalDirectorates', 'Toplam {count} Müdürlük').replace('{count}', idariList.length)}
             </span>
           </div>
 
@@ -169,18 +169,18 @@ export async function renderYesilKampus(appContainer) {
                 <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13.5px; padding: 8px 12px; border-radius: 10px; ${isMine ? 'background: #dcfce7; font-weight: 800; border: 1px solid #86efac;' : 'background: #f8fafc;'}">
                   <span style="color: #1e293b; display: flex; align-items: center; gap: 8px;">
                     <span style="font-size: 12px; font-weight: 700; color: #64748b; background: #e2e8f0; padding: 1px 6px; border-radius: 4px;">#${sira}</span>
-                    <span>${escapeHtml(b.birim_adi)}</span>
+                    <span>${escapeHtml(tDepartment(b.birim_adi))}</span>
                   </span>
                   <span style="font-weight: 800; color: #065f46; font-size: 14px;">${b.toplam_puan} P</span>
                 </div>
               `;
-            }).join('') : '<div style="font-size: 13px; color: #94a3b8; text-align: center; padding: 16px;">Veri hazırlanıyor...</div>'}
+            }).join('') : `<div style="font-size: 13px; color: #94a3b8; text-align: center; padding: 16px;">${t('yesilKampus.dataPreparing', 'Veri hazırlanıyor...')}</div>`}
           </div>
 
           ${myBirim && myBirim.lig === 'idari' ? `
             <div style="margin-top: 14px; padding: 10px 14px; background: #ecfdf5; border-radius: 10px; font-size: 12.5px; color: #065f46; display: flex; justify-content: space-between; align-items: center; font-weight: 700;">
-              <span>Müdürlüğünüzün Sırası: <strong>${myBirim.sira}. Sırada</strong></span>
-              <span>Toplam Puanınız: <strong>${myBirim.toplam_puan} P</strong></span>
+              <span>${t('yesilKampus.myDeptRank', 'Müdürlüğünüzün Sırası:')} <strong>#${myBirim.sira}</strong></span>
+              <span>${t('yesilKampus.myDeptScore', 'Toplam Puanınız:')} <strong>${myBirim.toplam_puan} P</strong></span>
             </div>
           ` : ''}
         </div>
@@ -191,20 +191,20 @@ export async function renderYesilKampus(appContainer) {
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
           <div>
             <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin: 0;">
-              Canlı Liderlik Tablosu (${ligData?.ayAdi || 'Kasım 2026'})
+              ${t('yesilKampus.liveLeaderboard', 'Canlı Liderlik Tablosu')} (${tMonth(11)} 2026)
             </h3>
             <p style="color: #64748b; font-size: 12.5px; margin: 4px 0 0 0;">
-              Her ay 100 taban puanla başlar; çevre dostu eylemlerle puan kazanılır.
+              ${t('yesilKampus.leaderboardSub', 'Her ay 100 taban puanla başlar; çevre dostu eylemlerle puan kazanılır.')}
             </p>
           </div>
 
           <!-- Sekme Butonları -->
           <div style="display: inline-flex; background: #f1f5f9; padding: 4px; border-radius: 9999px;">
             <button type="button" id="tabBtnIdari" class="btn btn-sm" style="border-radius: 9999px; padding: 6px 16px; font-size: 12.5px; font-weight: 700; border: none; cursor: pointer; ${aktifLigSekme === 'idari' ? 'background: #fff; color: #0f172a; box-shadow: 0 2px 6px rgba(0,0,0,0.08);' : 'background: transparent; color: #64748b;'}">
-              İdari Müdürlükler (${idariList.length})
+              ${t('yesilKampus.tabAdminDirectorates', 'İdari Müdürlükler')} (${idariList.length})
             </button>
             <button type="button" id="tabBtnAkademik" class="btn btn-sm" style="border-radius: 9999px; padding: 6px 16px; font-size: 12.5px; font-weight: 700; border: none; cursor: pointer; ${aktifLigSekme === 'akademik' ? 'background: #fff; color: #0f172a; box-shadow: 0 2px 6px rgba(0,0,0,0.08);' : 'background: transparent; color: #64748b;'}">
-              Akademik Bölümler (${akaList.length})
+              ${t('yesilKampus.tabAcademicDepts', 'Akademik Bölümler')} (${akaList.length})
             </button>
           </div>
         </div>
@@ -241,7 +241,7 @@ export async function renderYesilKampus(appContainer) {
     const list = tur === 'idari' ? idariList : akaList;
 
     if (!list || list.length === 0) {
-      tabloAlani.innerHTML = `<div style="text-align: center; padding: 30px; color: #94a3b8; font-size: 13px;">Bu ligde henüz kayıtlı birim bulunmuyor.</div>`;
+      tabloAlani.innerHTML = `<div style="text-align: center; padding: 30px; color: #94a3b8; font-size: 13px;">${t('yesilKampus.noDeptsInLeague', 'Bu ligde henüz kayıtlı birim bulunmuyor.')}</div>`;
       return;
     }
 
@@ -249,12 +249,12 @@ export async function renderYesilKampus(appContainer) {
       <table style="width: 100%; border-collapse: collapse; font-size: 13.5px;">
         <thead>
           <tr style="border-bottom: 2px solid #e2e8f0; color: #64748b; font-size: 12px; text-align: left; text-transform: uppercase; letter-spacing: 0.05em;">
-            <th style="padding: 10px 14px; width: 60px;">Sıra</th>
-            <th style="padding: 10px 14px;">Birim Adı</th>
-            <th style="padding: 10px 14px; text-align: right;">İade</th>
-            <th style="padding: 10px 14px; text-align: right;">Nudge</th>
-            <th style="padding: 10px 14px; text-align: right;">Teslim</th>
-            <th style="padding: 10px 14px; text-align: right; width: 110px;">Toplam Puan</th>
+            <th style="padding: 10px 14px; width: 60px;">${t('yesilKampus.colRank', 'SIRA')}</th>
+            <th style="padding: 10px 14px;">${t('yesilKampus.colDeptName', 'BİRİM ADI')}</th>
+            <th style="padding: 10px 14px; text-align: right;">${t('yesilKampus.colReturn', 'İADE')}</th>
+            <th style="padding: 10px 14px; text-align: right;">${t('yesilKampus.colNudge', 'NUDGE')}</th>
+            <th style="padding: 10px 14px; text-align: right;">${t('yesilKampus.colDelivery', 'TESLİM')}</th>
+            <th style="padding: 10px 14px; text-align: right; width: 110px;">${t('yesilKampus.colTotalPoints', 'TOPLAM PUAN')}</th>
           </tr>
         </thead>
         <tbody>
@@ -266,8 +266,8 @@ export async function renderYesilKampus(appContainer) {
               <tr style="border-bottom: 1px solid #f1f5f9; ${isMine ? 'background: #dcfce7; font-weight: 700;' : ''}">
                 <td style="padding: 12px 14px; font-weight: 700; color: #0f172a;">#${sira}</td>
                 <td style="padding: 12px 14px; color: #1e293b;">
-                  <div>${escapeHtml(b.birim_adi)}</div>
-                  <div style="font-size: 11.5px; color: #64748b; font-weight: normal;">${b.personel_sayisi || 0} Personel</div>
+                  <div>${escapeHtml(tDepartment(b.birim_adi))}</div>
+                  <div style="font-size: 11.5px; color: #64748b; font-weight: normal;">${t('yesilKampus.staffCount', '{count} Personel').replace('{count}', b.personel_sayisi || 0)}</div>
                 </td>
                 <td style="padding: 12px 14px; text-align: right; color: #059669; font-weight: 600;">+${b.iade_puani || 0}</td>
                 <td style="padding: 12px 14px; text-align: right; color: #2563eb; font-weight: 600;">+${b.nudge_puani || 0}</td>

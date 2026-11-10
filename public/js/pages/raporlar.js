@@ -1,7 +1,8 @@
 // raporlar.js - Raporlama, Canlı Tüketim & Talep Analiz Tablosu ve Resmi Çıktılar (Apple Liquid Glass)
 import api from '../api.js';
 import toast from '../components/toast.js';
-import { t, getLanguage } from '../utils/i18n.js';
+import { escapeHtml } from '../utils/text.js';
+import { t, getLanguage, tCategory, tProduct, tDepartment, tUnit, tBuilding, tMonth } from '../utils/i18n.js';
 
 let detayliSatirlar = [];
 
@@ -80,7 +81,7 @@ export async function renderRaporlar(appContainer) {
             <label style="font-size: 11.5px; font-weight: 600; display: block; margin-bottom: 4px; color: var(--color-foreground);">${t('raporlar.lblDept', 'Birim / Departman')}</label>
             <select id="analizBirimSelect" style="width: 100%;">
               <option value="">${t('raporlar.allDepts', 'Tüm Birimler (Kurum Geneli)')}</option>
-              ${birimler.map(b => `<option value="${b.id}">${b.ad}</option>`).join('')}
+              ${birimler.map(b => `<option value="${b.id}">${escapeHtml(tDepartment(b.ad))}</option>`).join('')}
             </select>
           </div>
 
@@ -143,7 +144,7 @@ export async function renderRaporlar(appContainer) {
               <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">${t('raporlar.lblDept', 'Birim (Alt birimler dahil)')}</label>
               <select id="excelBirimId">
                 <option value="">${t('raporlar.allDepts', 'Tüm Birimler')}</option>
-                ${birimler.map(b => `<option value="${b.id}">${b.ad}</option>`).join('')}
+                ${birimler.map(b => `<option value="${b.id}">${escapeHtml(tDepartment(b.ad))}</option>`).join('')}
               </select>
             </div>
 
@@ -169,65 +170,54 @@ export async function renderRaporlar(appContainer) {
         <div class="card" style="padding: 22px;">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
             <h3 style="font-size: 16.5px; font-weight: 700;">${t('raporlar.cardSlipsTitle', 'Haftalık Dağıtım & Fişler (A4)')}</h3>
-            <span class="badge badge-primary" style="font-size: 11px;">Çarşamba</span>
+            <span class="badge badge-primary" style="font-size: 11px;">${t('raporlar.wednesdayBadge', 'Çarşamba')}</span>
           </div>
           <p style="font-size: 12.5px; color: var(--color-muted-foreground); margin-bottom: 16px;">
-            Depo toplama listesi ve birimlere imzalatılacak <strong>A4 Malzeme Teslim Fişlerini</strong> topluca yazdırın.
+            ${t('raporlar.cardSlipsSub', 'Depo toplama listesi ve birimlere imzalatılacak A4 Malzeme Teslim Fişlerini topluca yazdırın.')}
           </p>
 
           <form id="toplamaListesiForm" style="display: flex; flex-direction: column; gap: 12px;">
             <div>
-              <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Teslimat Çarşambası</label>
+              <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">${t('raporlar.deliveryDateWed', 'Teslimat Çarşambası')}</label>
               <input type="date" id="toplamaCarsambaTarihi" value="${defaultCarsambaStr}" required>
             </div>
 
             <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #1e293b; cursor: pointer; background: #f1f5f9; padding: 7px 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
               <input type="checkbox" id="chkRotaSirali" checked>
-              <span><strong>Kampüs Rota Sıralı</strong> (Bina ve Kat/Oda Sıralaması)</span>
+              <span><strong>${t('raporlar.campusRouteSorted', 'Kampüs Rota Sıralı (Bina ve Kat/Oda Sıralaması)')}</strong></span>
             </label>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px;">
               <button type="submit" id="btnToplamaGoruntule" class="btn btn-outline" style="font-size: 12px; font-weight: 600; padding: 8px 10px;">
-                Toplama Listesi
+                ${t('raporlar.pickingListBtn', 'Toplama Listesi')}
               </button>
               <button type="button" id="btnTopluTeslimFisleri" class="btn btn-primary" style="font-size: 12px; font-weight: 700; padding: 8px 10px; box-shadow: 0 4px 12px rgba(37,99,235,0.25);">
-                Toplu Fişleri Yazdır
+                ${t('raporlar.btnPrintSlips', 'Toplu Fişleri Yazdır')}
               </button>
             </div>
           </form>
         </div>
 
-        <!-- Rektörlük & Genel Sekreterlik Tüketim & Tasarruf Bülteni -->
+        <!-- Yönetim Tüketim & Tasarruf Bülteni -->
         <div class="card" style="padding: 22px; border: 1.5px solid #3b82f6; background: rgba(239, 246, 255, 0.45);">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-            <h3 style="font-size: 16.5px; font-weight: 800; color: #1e3a8a;">Yönetici Tüketim Bülteni</h3>
-            <span class="badge badge-primary" style="font-size: 11px;">Rektörlük &bull; GS</span>
+            <h3 style="font-size: 16.5px; font-weight: 800; color: #1e3a8a;">${t('raporlar.bulletinTitle', 'Yönetici Tüketim Bülteni')}</h3>
+            <span class="badge badge-primary" style="font-size: 11px;">${t('raporlar.bulletinBadge', 'Yönetim • GS')}</span>
           </div>
           <p style="font-size: 12.5px; color: var(--color-muted-foreground); margin-bottom: 16px;">
-            Rektörlük ve Genel Sekreterlik için aylık talep, birim sarfiyatı ve <strong>israf tasarruf oranlarını</strong> içeren resmi A4 bülten.
+            ${t('raporlar.bulletinSub', 'Yönetim ve Genel Sekreterlik için aylık talep, birim sarfiyatı ve israf tasarruf oranlarını içeren resmi A4 bülten.')}
           </p>
 
           <form id="yoneticiBulteniForm" style="display: flex; flex-direction: column; gap: 12px;">
             <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 8px;">
               <div>
-                <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Dönem Ayı</label>
+                <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">${t('raporlar.reportingMonth', 'Dönem Ayı')}</label>
                 <select id="bultenAy">
-                  <option value="11" selected>Kasım</option>
-                  <option value="12">Aralık</option>
-                  <option value="10">Ekim</option>
-                  <option value="9">Eylül</option>
-                  <option value="8">Ağustos</option>
-                  <option value="7">Temmuz</option>
-                  <option value="6">Haziran</option>
-                  <option value="5">Mayıs</option>
-                  <option value="4">Nisan</option>
-                  <option value="3">Mart</option>
-                  <option value="2">Şubat</option>
-                  <option value="1">Ocak</option>
+                  ${[11, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map(m => `<option value="${m}" ${m === 11 ? 'selected' : ''}>${tMonth(m)}</option>`).join('')}
                 </select>
               </div>
               <div>
-                <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Yıl</label>
+                <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">${t('raporlar.year', 'Yıl')}</label>
                 <select id="bultenYil">
                   <option value="2026" selected>2026</option>
                   <option value="2027">2027</option>
@@ -238,10 +228,10 @@ export async function renderRaporlar(appContainer) {
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px;">
               <button type="submit" id="btnBultenEkrandaGoster" class="btn btn-outline" style="font-size: 12px; font-weight: 700; padding: 8px 8px;">
-                Ekranda İncele
+                ${t('raporlar.viewOnScreen', 'Ekranda İncele')}
               </button>
               <button type="button" id="btnBultenA4Yazdir" class="btn btn-primary" style="font-size: 12px; font-weight: 700; padding: 8px 8px; background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%);">
-                Resmi Bülten (A4)
+                ${t('raporlar.officialBulletinA4', 'Resmi Bülten (A4)')}
               </button>
             </div>
           </form>
@@ -353,8 +343,8 @@ async function loadCanliAnaliz(appContainer) {
       // KPI Kartları
       kpiToplamKalem.textContent = ozet.toplamKalem ?? detayliSatirlar.length;
       kpiToplamVerilen.textContent = ozet.toplamVerilenAdet ?? 0;
-      kpiEnCokBirim.textContent = ozet.enCokBirim || '-';
-      kpiEnCokUrun.textContent = ozet.enCokUrun || '-';
+      kpiEnCokBirim.textContent = tDepartment(ozet.enCokBirim) || '-';
+      kpiEnCokUrun.textContent = tProduct(ozet.enCokUrun) || '-';
 
       if (detayliSatirlar.length === 0) {
         tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 30px; color: var(--color-muted-foreground);">${t('raporlar.noData', 'Filtre kriterlerine uygun talep kaydı bulunamadı.')}</td></tr>`;
@@ -368,27 +358,32 @@ async function loadCanliAnaliz(appContainer) {
         else if (s.talep_durumu === 'teslim_edildi') durumBadge = `<span class="badge badge-success">${t('status.teslim_edildi', 'Teslim Edildi')}</span>`;
         else if (s.talep_durumu === 'reddedildi') durumBadge = `<span class="badge badge-danger">${t('status.reddedildi', 'Reddedildi')}</span>`;
 
-        const adres = [s.bina_adi, s.oda_no ? `Oda: ${s.oda_no}` : ''].filter(Boolean).join(' - ') || '<span style="color: var(--color-muted-foreground); font-size: 11px;">Belirtilmemiş</span>';
+        const bAd = s.bina_adi ? tBuilding(s.bina_adi) : '';
+        const oNo = s.oda_no ? `${t('common.room', 'Oda')}: ${s.oda_no}` : '';
+        const adres = [bAd, oNo].filter(Boolean).join(' - ') || `<span style="color: var(--color-muted-foreground); font-size: 11px;">${t('common.unspecified', 'Belirtilmemiş')}</span>`;
+
+        const uAd = escapeHtml(tProduct(s.urun_adi));
+        const uBirim = tUnit(s.olcu_birimi);
 
         return `
           <tr>
-            <td><strong style="font-family: monospace; color: #1E3A8A;">${s.talep_no}</strong></td>
-            <td style="font-size: 12px; color: var(--color-muted-foreground);">${s.olusturma_tarihi}</td>
+            <td><strong style="font-family: monospace; color: #1E3A8A;">${escapeHtml(s.talep_no)}</strong></td>
+            <td style="font-size: 12px; color: var(--color-muted-foreground);">${escapeHtml(s.olusturma_tarihi)}</td>
             <td>
-              <strong>${s.birim_adi}</strong>
-              ${s.ust_birim_adi ? `<div style="font-size: 11px; color: var(--color-muted-foreground);">${s.ust_birim_adi}</div>` : ''}
+              <strong>${escapeHtml(tDepartment(s.birim_adi))}</strong>
+              ${s.ust_birim_adi ? `<div style="font-size: 11px; color: var(--color-muted-foreground);">${escapeHtml(tDepartment(s.ust_birim_adi))}</div>` : ''}
             </td>
             <td>
-              <div><strong>${s.personel_adi || 'Birim Sorumlusu'}</strong></div>
-              ${s.personel_eposta ? `<div style="font-size: 11px; color: #1E3A8A;">${s.personel_eposta}</div>` : ''}
+              <div><strong>${escapeHtml(s.personel_adi || t('satinalma.deptOfficer', 'Birim Sorumlusu'))}</strong></div>
+              ${s.personel_eposta ? `<div style="font-size: 11px; color: #1E3A8A;">${escapeHtml(s.personel_eposta)}</div>` : ''}
             </td>
             <td style="font-size: 12px;">${adres}</td>
             <td>
-              <strong>${s.urun_adi}</strong>
-              ${s.marka ? `<div style="font-size: 11px; color: var(--color-muted-foreground);">${s.marka}</div>` : ''}
+              <strong>${uAd}</strong>
+              ${s.marka ? `<div style="font-size: 11px; color: var(--color-muted-foreground);">${escapeHtml(s.marka)}</div>` : ''}
             </td>
-            <td style="text-align: center; font-weight: 600;">${s.istenen_adet} ${s.olcu_birimi}</td>
-            <td style="text-align: center; font-weight: 700; color: #1E3A8A;">${s.onaylanan_adet !== null ? `${s.onaylanan_adet} ${s.olcu_birimi}` : '-'}</td>
+            <td style="text-align: center; font-weight: 600;">${s.istenen_adet} ${uBirim}</td>
+            <td style="text-align: center; font-weight: 700; color: #1E3A8A;">${s.onaylanan_adet !== null ? `${s.onaylanan_adet} ${uBirim}` : '-'}</td>
             <td>${durumBadge}</td>
           </tr>
         `;

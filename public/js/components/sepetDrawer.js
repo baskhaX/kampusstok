@@ -2,6 +2,8 @@
 import api from '../api.js';
 import state from '../state.js';
 import toast from './toast.js';
+import { escapeHtml } from '../utils/text.js';
+import { t, tProduct, tUnit } from '../utils/i18n.js';
 
 let drawerBackdrop = null;
 
@@ -76,18 +78,18 @@ export async function refreshDrawerContent() {
 
     body.innerHTML = kalemler.map(item => `
       <div class="sepet-item" data-urun-id="${item.urunId}">
-        <img src="${item.gorselYolu || '/assets/placeholder.svg'}" onerror="this.onerror=null;this.src='/assets/placeholder.svg';" class="sepet-item-img" alt="${item.urunAdi}">
+        <img src="${item.gorselYolu || '/assets/placeholder.svg'}" onerror="this.onerror=null;this.src='/assets/placeholder.svg';" class="sepet-item-img" alt="${escapeHtml(tProduct(item.urunAdi))}">
         <div class="sepet-item-info">
-          <div class="sepet-item-title">${item.urunAdi}</div>
-          <div class="sepet-item-meta">${item.urunMarka || ''} &bull; ${item.olcuBirimi}</div>
+          <div class="sepet-item-title">${escapeHtml(tProduct(item.urunAdi))}</div>
+          <div class="sepet-item-meta">${escapeHtml(item.urunMarka || '')} &bull; ${tUnit(item.olcuBirimi)}</div>
           <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px;">
             <div class="qty-picker">
               <button class="qty-btn btn-qty-dec" data-id="${item.urunId}" data-qty="${item.adet}">-</button>
               <input type="text" class="qty-input" value="${item.adet}" readonly>
               <button class="qty-btn btn-qty-inc" data-id="${item.urunId}" data-qty="${item.adet}">+</button>
             </div>
-            <button class="btn btn-outline btn-sm btn-item-del" data-id="${item.urunId}" style="color: var(--color-destructive); font-size: 11px; padding: 2px 6px;" title="Kaldır">
-              Sil
+            <button class="btn btn-outline btn-sm btn-item-del" data-id="${item.urunId}" style="color: var(--color-destructive); font-size: 11px; padding: 2px 6px;" title="${t('common.delete', 'Sil')}">
+              ${t('common.delete', 'Sil')}
             </button>
           </div>
         </div>

@@ -23,7 +23,7 @@ if (typeof globalThis.localStorage === 'undefined') {
   };
 }
 
-import { initI18n, getLanguage, setLanguage, getSupportedLanguages, t } from '../public/js/utils/i18n.js';
+import { initI18n, getLanguage, setLanguage, getSupportedLanguages, t, tCategory, tProduct, tDepartment, tUnit, tBuilding, tMonth, tActionType } from '../public/js/utils/i18n.js';
 
 test('KampüsStok Çoklu Dil (i18n) Motoru Testleri', async (tSuite) => {
   localStorage.clear();
@@ -103,5 +103,32 @@ test('KampüsStok Çoklu Dil (i18n) Motoru Testleri', async (tSuite) => {
     setLanguage('tr');
     setLanguage('invalid_lang_code');
     assert.equal(getLanguage(), 'tr');
+  });
+
+  await tSuite.test('Alan varlıkları (Domain Entities: Kategoriler, Ürünler, Birimler, Ölçü Birimleri, Aylar) TR ve EN olarak doğru çevrilmelidir', () => {
+    // 1. Türkçe aktifken orijinal adlar dönmeli
+    setLanguage('tr');
+    assert.equal(tCategory('Kağıt ve Defter Grubu'), 'Kağıt ve Defter Grubu');
+    assert.equal(tProduct('A4 Fotokopi Kağıdı 80 gr (500 Yaprak)'), 'A4 Fotokopi Kağıdı 80 gr (500 Yaprak)');
+    assert.equal(tDepartment('Bilgi İşlem Müdürlüğü'), 'Bilgi İşlem Müdürlüğü');
+    assert.equal(tUnit('adet'), 'adet');
+    assert.equal(tUnit('kutu'), 'kutu');
+    assert.equal(tBuilding('Mühendislik Binası'), 'Mühendislik Binası');
+    assert.equal(tMonth(11), 'Kasım');
+    assert.equal(tActionType('GIRIS'), 'Kullanıcı Girişi');
+
+    // 2. İngilizce aktifken tam İngilizce karşılıklar dönmeli
+    setLanguage('en');
+    assert.equal(tCategory('Kağıt ve Defter Grubu'), 'Paper & Notebooks Group');
+    assert.equal(tProduct('A4 Fotokopi Kağıdı 80 gr (500 Yaprak)'), 'A4 Copy Paper 80 gsm (500 Sheets)');
+    assert.equal(tDepartment('Bilgi İşlem Müdürlüğü'), 'IT Directorate');
+    assert.equal(tDepartment('Genel Sekreterlik'), 'General Secretariat');
+    assert.equal(tUnit('adet'), 'pcs');
+    assert.equal(tUnit('kutu'), 'box');
+    assert.equal(tUnit('paket'), 'pack');
+    assert.equal(tBuilding('Mühendislik Binası'), 'Engineering Building');
+    assert.equal(tMonth(11), 'November');
+    assert.equal(tActionType('GIRIS'), 'User Login');
+    assert.equal(tActionType('SUNUM_INCELEME'), 'Presentation Review');
   });
 });

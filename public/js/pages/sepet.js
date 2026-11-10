@@ -4,7 +4,7 @@ import state from '../state.js';
 import toast from '../components/toast.js';
 import { createModal, confirmModal } from '../components/modal.js';
 import { escapeHtml } from '../utils/text.js';
-import { t } from '../utils/i18n.js';
+import { t, tProduct, tUnit, tDepartment } from '../utils/i18n.js';
 
 export async function renderSepet(appContainer) {
   appContainer.innerHTML = `
@@ -104,9 +104,9 @@ function openOptOzetModal(degisiklikler) {
           <tbody>
             ${degisiklikler.map(d => `
               <tr style="border-bottom: 1px solid #F1F5F9;">
-                <td style="padding: 8px 12px; font-weight: 600; color: #0F172A;">${escapeHtml(d.urunAdi)}</td>
-                <td style="padding: 8px 12px; text-align: center; color: #64748B; text-decoration: line-through;">${d.eskiAdet} ${escapeHtml(d.olcuBirimi)}</td>
-                <td style="padding: 8px 12px; text-align: center; font-weight: 700; color: #059669;">${d.yeniAdet} ${escapeHtml(d.olcuBirimi)}</td>
+                <td style="padding: 8px 12px; font-weight: 600; color: #0F172A;">${escapeHtml(tProduct(d.urunAdi))}</td>
+                <td style="padding: 8px 12px; text-align: center; color: #64748B; text-decoration: line-through;">${d.eskiAdet} ${escapeHtml(tUnit(d.olcuBirimi))}</td>
+                <td style="padding: 8px 12px; text-align: center; font-weight: 700; color: #059669;">${d.yeniAdet} ${escapeHtml(tUnit(d.olcuBirimi))}</td>
                 <td style="padding: 8px 12px; text-align: right; font-weight: 700; color: #2563EB;">-${d.fark}</td>
               </tr>
             `).join('')}
@@ -251,17 +251,17 @@ async function loadFullSepet(appContainer) {
                   <img src="${k.gorselYolu || '/assets/placeholder.svg'}" onerror="this.onerror=null;this.src='/assets/placeholder.svg';" style="width: 50px; height: 50px; object-fit: contain; border-radius: var(--radius-md); border: 1px solid var(--color-border); padding: 4px;">
                 </td>
                 <td>
-                  <div style="font-weight: 600; font-size: 14px;">${escapeHtml(k.urunAdi)}</div>
-                  <div style="color: var(--color-muted-foreground); font-size: 12px;">${escapeHtml(k.urunMarka || '')} &bull; ${escapeHtml(k.olcuBirimi)}</div>
+                  <div style="font-weight: 600; font-size: 14px;">${escapeHtml(tProduct(k.urunAdi))}</div>
+                  <div style="color: var(--color-muted-foreground); font-size: 12px;">${escapeHtml(k.urunMarka || '')} &bull; ${escapeHtml(tUnit(k.olcuBirimi))}</div>
                   ${optInfo ? `
                     <div style="display: inline-flex; align-items: center; gap: 4px; font-size: 11px; background: rgba(16, 185, 129, 0.12); color: #047857; padding: 2px 7px; border-radius: 4px; font-weight: 600; margin-top: 4px;">
-                      Optimize Edildi: ${optInfo.eskiAdet} ➔ ${optInfo.yeniAdet} ${escapeHtml(optInfo.olcuBirimi)}
+                      ${t('cart.optimized', 'Optimize Edildi')}: ${optInfo.eskiAdet} ➔ ${optInfo.yeniAdet} ${escapeHtml(tUnit(optInfo.olcuBirimi))}
                     </div>
                   ` : ''}
                 </td>
                 <td>
                   <span class="badge badge-${k.stokDurumu === 'stokta' ? 'success' : (k.stokDurumu === 'sinirli' ? 'warning' : 'danger')}">
-                    ${k.stokDurumu === 'stokta' ? 'Stokta' : (k.stokDurumu === 'sinirli' ? 'Sınırlı' : 'Tükendi')}
+                    ${k.stokDurumu === 'stokta' ? t('catalog.inStock', 'Stokta') : (k.stokDurumu === 'sinirli' ? t('catalog.limited', 'Sınırlı') : t('catalog.outOfStock', 'Tükendi'))}
                   </span>
                 </td>
                 <td style="text-align: center;">
