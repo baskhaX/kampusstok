@@ -95,10 +95,10 @@ function openOptOzetModal(degisiklikler) {
         <table class="table-clean" style="width: 100%; border-collapse: collapse; font-size: 13px;">
           <thead>
             <tr style="background: #F8FAFC; border-bottom: 1px solid #E2E8F0; text-align: left;">
-              <th style="padding: 8px 12px;">Ürün</th>
-              <th style="padding: 8px 12px; text-align: center; width: 85px;">Önceki</th>
-              <th style="padding: 8px 12px; text-align: center; width: 85px;">Yeni</th>
-              <th style="padding: 8px 12px; text-align: right; width: 80px;">Tasarruf</th>
+              <th style="padding: 8px 12px;">${getLanguage() === 'en' ? 'Item' : 'Ürün'}</th>
+              <th style="padding: 8px 12px; text-align: center; width: 85px;">${getLanguage() === 'en' ? 'Previous' : 'Önceki'}</th>
+              <th style="padding: 8px 12px; text-align: center; width: 85px;">${getLanguage() === 'en' ? 'New' : 'Yeni'}</th>
+              <th style="padding: 8px 12px; text-align: right; width: 80px;">${getLanguage() === 'en' ? 'Savings' : 'Tasarruf'}</th>
             </tr>
           </thead>
           <tbody>
@@ -115,12 +115,14 @@ function openOptOzetModal(degisiklikler) {
       </div>
 
       <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 10px; padding: 10px 14px; font-size: 12.5px; color: #065F46; line-height: 1.4;">
-        Talebinizi ilettiğinizde biriminize <strong>+10 Yeşil Kampüs Puanı</strong> tanımlanacaktır. İhtiyaç halinde ürün adetlerini sepet tablosundaki artı/eksi butonlarından dilediğiniz zaman tekrar düzenleyebilirsiniz.
+        ${getLanguage() === 'en' 
+          ? 'Your department will be awarded <strong>+10 Green Campus Points</strong> when your request is submitted. You can adjust item quantities using the plus/minus buttons in the cart anytime.' 
+          : 'Talebinizi ilettiğinizde biriminize <strong>+10 Yeşil Kampüs Puanı</strong> tanımlanacaktır. İhtiyaç halinde ürün adetlerini sepet tablosundaki artı/eksi butonlarından dilediğiniz zaman tekrar düzenleyebilirsiniz.'}
       </div>
 
       <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
         <button type="button" class="btn btn-primary btn-sm" id="btnOptOzetKapat" style="border-radius: 8px; padding: 6px 18px;">
-          Anladım
+          ${getLanguage() === 'en' ? 'Got it' : 'Anladım'}
         </button>
       </div>
     `

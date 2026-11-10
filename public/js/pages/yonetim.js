@@ -1173,23 +1173,23 @@ async function openUrunFormModal(urun = null, onSaved) {
   const initialStock = urun?.stok ?? 50;
 
   const modal = createModal({
-    title: isEdit ? 'Ürün Bilgilerini Düzenle' : 'Yeni Kırtasiye Ürünü Ekle',
+    title: isEdit ? (getLanguage() === 'en' ? 'Edit Item Details' : 'Ürün Bilgilerini Düzenle') : (getLanguage() === 'en' ? 'Add New Stationery Item' : 'Yeni Kırtasiye Ürünü Ekle'),
     maxWidth: '680px',
     contentHtml: `
       <form id="urunForm" style="display: flex; flex-direction: column; gap: 14px;">
         <div style="display: grid; grid-template-columns: 2fr 1fr 1.3fr; gap: 14px;">
           <div>
-            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Ürün Adı <span style="color: red;">*</span></label>
-            <input type="text" id="urunAd" value="${urun?.ad || ''}" required placeholder="Örn: A4 Fotokopi Kağıdı 80 gr">
+            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">${getLanguage() === 'en' ? 'Product Name' : 'Ürün Adı'} <span style="color: red;">*</span></label>
+            <input type="text" id="urunAd" value="${urun?.ad || ''}" required placeholder="${getLanguage() === 'en' ? 'e.g. A4 Copy Paper 80 gsm' : 'Örn: A4 Fotokopi Kağıdı 80 gr'}">
           </div>
           <div>
-            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Marka</label>
-            <input type="text" id="urunMarka" value="${urun?.marka || ''}" placeholder="Örn: Navigator">
+            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">${getLanguage() === 'en' ? 'Brand' : 'Marka'}</label>
+            <input type="text" id="urunMarka" value="${urun?.marka || ''}" placeholder="${getLanguage() === 'en' ? 'e.g. Navigator' : 'Örn: Navigator'}">
           </div>
           <div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-              <label style="font-size: 13px; font-weight: 600; margin: 0;">Barkod (EAN-13)</label>
-              <button type="button" id="btnOtoBarkodUret" style="background: none; border: none; color: #2563EB; font-size: 11px; font-weight: 600; cursor: pointer; padding: 0;" title="Yeni EAN-13 Barkodu Oluştur">Yenile / Üret</button>
+              <label style="font-size: 13px; font-weight: 600; margin: 0;">${getLanguage() === 'en' ? 'Barcode (EAN-13)' : 'Barkod (EAN-13)'}</label>
+              <button type="button" id="btnOtoBarkodUret" style="background: none; border: none; color: #2563EB; font-size: 11px; font-weight: 600; cursor: pointer; padding: 0;" title="${getLanguage() === 'en' ? 'Generate New EAN-13 Barcode' : 'Yeni EAN-13 Barkodu Oluştur'}">${getLanguage() === 'en' ? 'Generate / Renew' : 'Yenile / Üret'}</button>
             </div>
             <input type="text" id="urunBarkod" value="${urun?.barkod || (!isEdit ? generateEAN13() : '')}" placeholder="8692026..." maxlength="20" style="font-family: monospace; font-weight: 600; font-size: 12.5px;">
           </div>
@@ -1274,8 +1274,8 @@ async function openUrunFormModal(urun = null, onSaved) {
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;">
-          <button type="button" class="btn btn-outline" id="btnUrunIptal">İptal</button>
-          <button type="submit" class="btn btn-primary">${isEdit ? 'Değişiklikleri Kaydet' : 'Ürünü Ekle'}</button>
+          <button type="button" class="btn btn-outline" id="btnUrunIptal">${t('common.cancel', 'İptal')}</button>
+          <button type="submit" class="btn btn-primary">${isEdit ? (getLanguage() === 'en' ? 'Save Changes' : 'Değişiklikleri Kaydet') : (getLanguage() === 'en' ? 'Add Item' : 'Ürünü Ekle')}</button>
         </div>
       </form>
     `
@@ -2329,7 +2329,7 @@ async function openBirimFormModal(birim = null, onSaved) {
   const merkezUst = ustBirimler.filter(b => b.id === 110 || b.ust_birim_id === 110);
 
   const modal = createModal({
-    title: isEdit ? 'Birim Bilgilerini Düzenle' : 'Yeni Birim Tanımla',
+    title: isEdit ? (getLanguage() === 'en' ? 'Edit Department Details' : 'Birim Bilgilerini Düzenle') : (getLanguage() === 'en' ? 'Define New Department' : 'Yeni Birim Tanımla'),
     maxWidth: '520px',
     contentHtml: `
       <form id="birimForm" style="display: flex; flex-direction: column; gap: 14px;">
@@ -2380,8 +2380,8 @@ async function openBirimFormModal(birim = null, onSaved) {
         ` : ''}
 
         <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px;">
-          <button type="button" class="btn btn-outline" id="btnBirimIptal">İptal</button>
-          <button type="submit" class="btn btn-primary">${isEdit ? 'Değişiklikleri Kaydet' : 'Birimi Oluştur'}</button>
+          <button type="button" class="btn btn-outline" id="btnBirimIptal">${t('common.cancel', 'İptal')}</button>
+          <button type="submit" class="btn btn-primary">${isEdit ? (getLanguage() === 'en' ? 'Save Changes' : 'Değişiklikleri Kaydet') : (getLanguage() === 'en' ? 'Create Department' : 'Birimi Oluştur')}</button>
         </div>
       </form>
     `
@@ -2544,11 +2544,11 @@ async function renderKategorilerTab(container) {
         const id = parseInt(btn.dataset.id, 10);
         const ad = btn.dataset.ad;
         const onay = await confirmModal({
-          title: 'Kategoriyi Sil',
-          message: `"${ad}" kategorisini silmek istediğinize emin misiniz?`,
-          description: 'Altında ürün veya alt kategori bulunan kategoriler veri bütünlüğü gereği silinemez.',
-          confirmText: 'Evet, Kategoriyi Sil',
-          cancelText: 'Vazgeç',
+          title: getLanguage() === 'en' ? 'Delete Category' : 'Kategoriyi Sil',
+          message: getLanguage() === 'en' ? `Are you sure you want to delete the "${escapeHtml(tCategory(ad))}" category?` : `"${ad}" kategorisini silmek istediğinize emin misiniz?`,
+          description: getLanguage() === 'en' ? 'Categories with items or sub-categories cannot be deleted due to data integrity.' : 'Altında ürün veya alt kategori bulunan kategoriler veri bütünlüğü gereği silinemez.',
+          confirmText: getLanguage() === 'en' ? 'Yes, Delete Category' : 'Evet, Kategoriyi Sil',
+          cancelText: t('common.cancel', 'Vazgeç'),
           type: 'danger',
           icon: ''
         });
