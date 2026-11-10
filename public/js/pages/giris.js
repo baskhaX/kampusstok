@@ -40,7 +40,7 @@ export function renderGiris(appContainer) {
       <div style="position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; opacity: 0.35; background-image: radial-gradient(#94a3b8 1px, transparent 1px); background-size: 32px 32px;"></div>
 
       <!-- Ekran Sağ Üst: Yüzer Dil Seçici Kapsülü (Apple Liquid Glass TR / EN) -->
-      <div style="position: absolute; top: 20px; right: 24px; z-index: 50;">
+      <div style="position: fixed; top: 20px; right: 24px; z-index: 50;">
         <div class="lang-switch-capsule login-lang-trigger" role="button" tabindex="0" title="${t('header.langTitle', 'Dili Değiştir / Switch Language')}">
           <span class="lang-option ${curLang === 'tr' ? 'active' : ''}">TR</span>
           <span class="lang-sep">|</span>
@@ -50,16 +50,6 @@ export function renderGiris(appContainer) {
 
       <!-- Ana Giriş Kartı -->
       <div class="card" style="max-width: 440px; width: 100%; padding: 36px 32px; margin: auto; position: relative; z-index: 10; border-radius: 20px; background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid rgba(255, 255, 255, 0.95); box-shadow: 0 20px 48px rgba(15, 23, 42, 0.12);">
-        
-        <!-- Kart İçi Sağ Üst Dil Seçici (Mobil / Küçük Ekran ve Anında Erişim İçin) -->
-        <div style="position: absolute; top: 16px; right: 18px;">
-          <div class="lang-switch-capsule login-lang-trigger" role="button" tabindex="0" style="height: 32px; padding: 0 10px; font-size: 11.5px;" title="${t('header.langTitle', 'Dili Değiştir / Switch Language')}">
-            <span class="lang-option ${curLang === 'tr' ? 'active' : ''}">TR</span>
-            <span class="lang-sep">|</span>
-            <span class="lang-option ${curLang === 'en' ? 'active' : ''}">EN</span>
-          </div>
-        </div>
-
         <div style="text-align: center; margin-bottom: 24px;">
           <img src="/assets/logo.svg" alt="KampüsStok" style="height: 64px; width: auto; object-fit: contain; margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.08));">
           <h2 style="font-size: 22px; margin-bottom: 6px; font-weight: 800; letter-spacing: -0.02em; color: #0f172a;">${t('auth.title', 'KampüsStok Portalı')}</h2>
